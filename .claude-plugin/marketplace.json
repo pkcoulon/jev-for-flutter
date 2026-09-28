@@ -3,11 +3,11 @@
   "owner": {
     "name": "Pierrick Coulon"
   },
-  "description": "Plugin Claude Code pour Flutter/Dart : Jev (TypeSafe) juge hors de la conversation ce que Claude doit lire, vérifie tes conventions après chaque édition et rappelle la bonne mémoire au bon moment.",
+  "description": "Aide Claude Code à trouver le code utile dans un projet Dart ou Flutter. Quand Jev (TypeSafe) est activé pour un projet, les passages nécessaires lui sont envoyés pour choisir ce que Claude lit, signaler une convention probablement enfreinte et rappeler une fiche mémoire utile. Sans activation, rien ne quitte la machine.",
   "plugins": [
     {
       "name": "dartlens",
-      "description": "Plan de fichier Dart, recherche hors code généré, texte d'écran vers code, sorties de tests et d'analyse compactes, garde-fous (fichiers générés, vérification au Stop, cache expiré, fiche mémoire du ticket).",
+      "description": "Aide Claude Code à trouver le code utile dans un projet Dart ou Flutter. Quand Jev (TypeSafe) est activé pour un projet, les passages nécessaires lui sont envoyés pour choisir ce que Claude lit, signaler une convention probablement enfreinte et rappeler une fiche mémoire utile. Sans activation, rien ne quitte la machine.",
       "source": "./plugins/dartlens"
     }
   ]

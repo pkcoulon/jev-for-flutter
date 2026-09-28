@@ -1,8 +1,16 @@
 {
   "name": "dartlens",
   "version": "0.1.0",
-  "description": "Outils locaux Dart/Flutter : plan de fichier, recherche hors code généré, texte d'écran vers code, tests et analyse compacts, garde-fous. Aucune donnée envoyée à un tiers.",
-  "author": { "name": "Pierrick Coulon" },
+  "description": "Aide Claude Code à trouver le code utile dans un projet Dart ou Flutter. Quand Jev (TypeSafe) est activé pour un projet, les passages nécessaires lui sont envoyés pour choisir ce que Claude lit, signaler une convention probablement enfreinte et rappeler une fiche mémoire utile. Sans activation, rien ne quitte la machine.",
+  "author": {
+    "name": "Pierrick Coulon"
+  },
   "license": "MIT",
-  "keywords": ["dart", "flutter", "context", "hooks"]
+  "keywords": [
+    "dart",
+    "flutter",
+    "jev",
+    "context",
+    "hooks"
+  ]
 }
