@@ -1,0 +1,104 @@
+{
+  "id": "pioudex-memoire-vibrations",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "memoire",
+  "promises": [
+    "router"
+  ],
+  "prompt_fr": "Ajoute dans les réglages du profil un réglage pour couper les vibrations de l'écran de célébration. Tiens compte de ce qu'on a déjà décidé.",
+  "prompt_en": "Add a setting to the profile settings that turns off the celebration screen vibrations. Take into account what we have already decided.",
+  "setup": {
+    "status": "ready",
+    "note": "Mémoire semée : 5 fiches utiles (interrupteur, persistance, défaut, voix, tests) et 5 leurres. Fiches synthétiques cohérentes avec le code du commit épinglé, pas des fiches réelles de Pierrick.",
+    "memory": {
+      "feedback-reglages-interrupteur.md": "---\nname: feedback-reglages-interrupteur\ndescription: Un réglage booléen passe par `_Interrupteur` de profil_reglages.dart, jamais par un Switch Material ou Cupertino\nmetadata:\n  type: feedback\n---\n\nLes interrupteurs de l'app sont des `_Interrupteur` (lib/features/profil/profil_reglages.dart), posés dans un panneau sable comme `_PanneauNotifications`. Un `Switch`, un `SwitchListTile` ou un `CupertinoSwitch` a déjà été refusé en relecture.\n\n**Why:** le système de l'app ne connaît que le relief et la valeur ; un Switch Material apporte ses propres teintes, hors des tokens.\n\n**How to apply:** tout nouveau réglage booléen réutilise `_Interrupteur` dans profil_reglages.dart ; pas de nouveau widget d'interrupteur.\n",
+      "project-reglages-persistants.md": "---\nname: project-reglages-persistants\ndescription: Un réglage qui survit au redémarrage suit le patron de compteur_format.dart : interface Store, store fichier, store mémoire, Notifier\nmetadata:\n  type: project\n---\n\nPatron de référence : `lib/data/compteur_format.dart`. Une interface `…Store`, un `File…Store` (JSON dans le dossier support de l'app, toute erreur retombe sur la valeur par défaut), un `InMemory…Store` pour les tests, un provider du store surchargeable et un `Notifier<bool>` qui démarre sur la valeur par défaut puis se corrige à la lecture.\n\nPas de `shared_preferences` : la dépendance n'est pas au pubspec et n'y entrera pas pour un booléen.\n\n**Why:** un seul patron de persistance, et des écrans testables sans plugin natif.\n\n**How to apply:** un nouveau fichier dans lib/data/, même découpage, provider du store surchargeable en test.\n",
+      "feedback-vibrations-par-defaut.md": "---\nname: feedback-vibrations-par-defaut\ndescription: Les vibrations restent actives par défaut ; un réglage qui les coupe se lit au moment de vibrer, pas au montage de l'écran\nmetadata:\n  type: feedback\n---\n\nLa célébration déclenche des retours haptiques (`HapticFeedback.heavyImpact` puis `lightImpact`). Un réglage qui les coupe est actif par défaut : il ne change rien pour qui ne le touche pas. Sa valeur se lit au moment de vibrer (`ref.read` dans le callback), pour qu'un changement fait pendant que l'écran est ouvert compte au geste suivant.\n\n**Why:** les tests de la célébration comptent les impacts (`frappes`) et doivent rester verts sans être modifiés.\n\n**How to apply:** valeur par défaut « vibrations actives » ; aucun test existant de la célébration ne doit avoir besoin d'une surcharge.\n",
+      "feedback-voix-libelles-reglages.md": "---\nname: feedback-voix-libelles-reglages\ndescription: Un libellé de réglage est un nom court, sans sous-légende qui l'explique ; description ARB obligatoire\nmetadata:\n  type: feedback\n---\n\nUn réglage se nomme, il ne s'explique pas : pas de sous-légende sous le libellé (seule exception de la voix ici : le pourquoi d'une permission, au moment où on la demande). Chaque clé ARB porte une description qui dit où elle s'affiche et pourquoi ce mot, et `app_localizations_fr.dart` se régénère (`flutter gen-l10n`) après tout ajout.\n\n**Why:** règle de voix du projet ; `test/l10n/arb_test.dart` échoue sinon.\n\n**How to apply:** une clé `reglages…` pour le libellé, rien d'autre.\n",
+      "feedback-tests-reglages.md": "---\nname: feedback-tests-reglages\ndescription: Un réglage persistant arrive avec ses tests : le store (fichier et mémoire) et l'écran qui l'affiche\nmetadata:\n  type: feedback\n---\n\nPatron : `test/data/compteur_format_test.dart` pour le store ; pour l'écran, monter avec le store en mémoire en surchargeant son provider.\n\n**Why:** un réglage sans test régresse en silence ; le store fichier avale ses erreurs, donc rien ne crie.\n\n**How to apply:** pas de nouveau réglage sans ces deux tests.\n",
+      "project-inference-perch.md": "---\nname: project-inference-perch\ndescription: Le service d'identification exige la variante perch_v2_cpu ; la variante standard est compilée CUDA\nmetadata:\n  type: project\n---\n\nLe modèle Perch se télécharge à part (inference/README.md). Sur les postes sans GPU, seule `perch_v2_cpu` démarre.\n\n**Why:** la variante standard échoue au chargement sans CUDA.\n\n**How to apply:** vérifier la variante avant de diagnostiquer une identification lente ou en échec.\n",
+      "project-release-ios.md": "---\nname: project-release-ios\ndescription: Resoumission iOS : métadonnées fr-FR par deliver, scripts App Store Connect dans tool/release/\nmetadata:\n  type: project\n---\n\nLes fiches App Store vivent dans store/ (deliver, fr-FR). Les scripts App Store Connect par API sont dans tool/release/.\n\n**Why:** les resoumissions se font sans passer par l'interface web.\n\n**How to apply:** partir de ces scripts pour toute nouvelle soumission.\n",
+      "feedback-sentry-confidentialite.md": "---\nname: feedback-sentry-confidentialite\ndescription: Jamais de capture d'écran dans Sentry ; une position n'est jamais stockée plus fin que le département\nmetadata:\n  type: feedback\n---\n\nLa confidentialité se tient dans le code, elle ne se déclame pas dans les textes.\n\n**Why:** règles de vie privée du projet.\n\n**How to apply:** aucune option de capture dans la configuration Sentry ; arrondir toute position au département.\n",
+      "project-carte-recherche.md": "---\nname: project-carte-recherche\ndescription: La recherche de la carte plie les noms comme le dex : une seule table de pliage dans l'app\nmetadata:\n  type: project\n---\n\n« Ile de France » trouve « Île-de-France » et « aveyron » trouve « Aveyron », parce que la carte réutilise le pliage du dex.\n\n**Why:** deux tables de pliage finiraient par diverger.\n\n**How to apply:** toute nouvelle recherche réutilise ce pliage.\n",
+      "feedback-commits.md": "---\nname: feedback-commits\ndescription: Commits conventionnels, main protégée, squash merge\nmetadata:\n  type: feedback\n---\n\n`feat:`, `fix:`, `chore:`… ; jamais de push direct sur main.\n\n**Why:** historique lisible et main toujours verte.\n\n**How to apply:** une branche par sujet, merge par squash.\n",
+      "MEMORY.md": "# Memory Index\n\n- [feedback-reglages-interrupteur](feedback-reglages-interrupteur.md) — Un réglage booléen passe par `_Interrupteur` de profil_reglages.dart, jamais par un Switch Material ou Cupertino\n- [project-reglages-persistants](project-reglages-persistants.md) — Un réglage qui survit au redémarrage suit le patron de compteur_format.dart : interface Store, store fichier, store mémoire, Notifier\n- [feedback-vibrations-par-defaut](feedback-vibrations-par-defaut.md) — Les vibrations restent actives par défaut ; un réglage qui les coupe se lit au moment de vibrer, pas au montage de l'écran\n- [feedback-voix-libelles-reglages](feedback-voix-libelles-reglages.md) — Un libellé de réglage est un nom court, sans sous-légende qui l'explique ; description ARB obligatoire\n- [feedback-tests-reglages](feedback-tests-reglages.md) — Un réglage persistant arrive avec ses tests : le store (fichier et mémoire) et l'écran qui l'affiche\n- [project-inference-perch](project-inference-perch.md) — Le service d'identification exige la variante perch_v2_cpu ; la variante standard est compilée CUDA\n- [project-release-ios](project-release-ios.md) — Resoumission iOS : métadonnées fr-FR par deliver, scripts App Store Connect dans tool/release/\n- [feedback-sentry-confidentialite](feedback-sentry-confidentialite.md) — Jamais de capture d'écran dans Sentry ; une position n'est jamais stockée plus fin que le département\n- [project-carte-recherche](project-carte-recherche.md) — La recherche de la carte plie les noms comme le dex : une seule table de pliage dans l'app\n- [feedback-commits](feedback-commits.md) — Commits conventionnels, main protégée, squash merge\n"
+    }
+  },
+  "checks": [
+    {
+      "id": "tests",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/l10n/arb_test.dart test/theme/tokens_test.dart test/features/profil test/features/consigne test/data",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "pas-de-switch",
+      "kind": "diff_added",
+      "paths": [
+        "lib/**"
+      ],
+      "regex": "\\b(Switch|SwitchListTile|CupertinoSwitch)(\\.adaptive)?\\s*\\(",
+      "expect": false
+    },
+    {
+      "id": "pas-de-shared-preferences",
+      "kind": "grep",
+      "paths": [
+        "pubspec.yaml"
+      ],
+      "regex": "shared_preferences",
+      "expect": false
+    },
+    {
+      "id": "store-memoire",
+      "kind": "diff_added",
+      "paths": [
+        "lib/**"
+      ],
+      "regex": "InMemory\\w*Store"
+    },
+    {
+      "id": "fichiers",
+      "kind": "touched",
+      "paths": [
+        "lib/features/profil/profil_reglages.dart",
+        "lib/features/consigne/celebration_screen.dart",
+        "test/**"
+      ]
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Interrupteur `_Interrupteur` réutilisé dans profil_reglages.dart.",
+    "Persistance selon le patron compteur_format (Store, fichier, mémoire, Notifier), sans shared_preferences.",
+    "Vibrations actives par défaut ; valeur lue au moment de vibrer.",
+    "Libellé court sans sous-légende, clé `reglages…` décrite, fichier généré à jour.",
+    "Tests ajoutés pour le store et pour l'écran ; tests existants de la célébration inchangés et verts.",
+    "Aucune fiche leurre n'a orienté la solution à tort ; noter les fiches effectivement lues."
+  ],
+  "expected_files": [
+    "lib/features/profil/profil_reglages.dart",
+    "lib/features/consigne/celebration_screen.dart",
+    "lib/l10n/app_fr.arb",
+    "lib/l10n/app_localizations_fr.dart"
+  ],
+  "notes": "Demande qui nécessite plusieurs fiches : aucune fiche seule ne suffit à réussir."
+}

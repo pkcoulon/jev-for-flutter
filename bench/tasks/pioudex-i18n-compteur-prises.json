@@ -1,0 +1,79 @@
+{
+  "id": "pioudex-i18n-compteur-prises",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "ui_i18n",
+  "promises": [
+    "lens",
+    "guard"
+  ],
+  "prompt_fr": "Sur la fiche d'une espèce, l'étiquette du bloc des prises affiche « TES PRISES ». Fais-lui afficher le nombre de prises à la place : « 3 PRISES », et « 1 PRISE » au singulier.",
+  "prompt_en": "On a species page, the label of the captures block reads « TES PRISES ». Make it show the number of captures instead: « 3 PRISES », and « 1 PRISE » in the singular. The app text stays in French.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation. Conventions implicites : pas de placeholder ARB (le test du fichier généré ne lit que des getters), singulier et pluriel en deux clés composées en Dart, description obligatoire, régénération de app_localizations_fr.dart."
+  },
+  "checks": [
+    {
+      "id": "arb",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/l10n/arb_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "fiche-espece",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/features/espece",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "ecran-modifie",
+      "kind": "touched",
+      "paths": [
+        "lib/features/espece/espece_prises.dart"
+      ]
+    },
+    {
+      "id": "sans-placeholder",
+      "kind": "grep",
+      "paths": [
+        "lib/l10n/app_fr.arb"
+      ],
+      "regex": "\\\"placeholders\\\"",
+      "expect": false
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Le nombre est composé en Dart à partir de clés singulier et pluriel (patron `profilPrise`/`profilPrises`), sans placeholder ni pluriel ICU.",
+    "Ne produit pas « 3 TES PRISES » (piège documenté dans la description de `profilPrises`).",
+    "Chaque clé ajoutée porte une description ; le fichier généré est à jour ; aucune clé orpheline (`especePrises` supprimée ou toujours utilisée).",
+    "Le singulier s'applique à 1 seulement ; l'étiquette reste en capitales comme avant."
+  ],
+  "expected_files": [
+    "lib/features/espece/espece_prises.dart",
+    "lib/l10n/app_fr.arb",
+    "lib/l10n/app_localizations_fr.dart",
+    "lib/l10n/app_localizations.dart"
+  ],
+  "notes": "Libellé paramétré dans un projet qui n'utilise aucun placeholder ARB sur 310 clés."
+}

@@ -1,0 +1,105 @@
+{
+  "id": "gambade-multi-jour-utc",
+  "project": "gambade",
+  "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+  "type": "correction_multi_fichiers",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "« Jamais deux copies d'une garde » : le calcul « jour calendaire local vers minuit UTC » est recopié dans plusieurs fichiers de `lib/domain`, sous des noms différents. Rassemble-le en un seul helper partagé dans `lib/domain/` et fais passer par lui toutes les constructions équivalentes de `lib/domain`, sans changer le comportement. Ne touche pas au reste de `lib/`.",
+  "prompt_en": "\"Never two copies of a guard\": the \"local calendar day to UTC midnight\" computation is duplicated across several files in `lib/domain`, under different names. Gather it into a single shared helper in `lib/domain/` and route every equivalent construction in `lib/domain` through it, without changing behaviour. Do not touch the rest of `lib/`.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation. Au commit épinglé : 9 helpers privés (_dateOnlyUtc, _dayUtc, dayUtc) et 13 constructions DateTime.utc(x.year, x.month, x.day) dans lib/domain."
+  },
+  "checks": [
+    {
+      "id": "un-seul-helper",
+      "kind": "grep",
+      "paths": [
+        "lib/domain/**/*.dart"
+      ],
+      "regex": "DateTime\\s+_?(?:dateOnlyUtc|dayUtc)\\s*\\(\\s*DateTime\\s+\\w+\\s*\\)",
+      "max": 1,
+      "expect": false
+    },
+    {
+      "id": "une-seule-construction",
+      "kind": "grep",
+      "paths": [
+        "lib/domain/**/*.dart"
+      ],
+      "regex": "DateTime\\.utc\\(\\s*(\\w+)\\.year,\\s*\\1\\.month,\\s*\\1\\.day\\s*\\)",
+      "max": 1,
+      "expect": false
+    },
+    {
+      "id": "hors-domaine-intact",
+      "kind": "untouched",
+      "paths": [
+        "lib/ui/**",
+        "lib/data/**",
+        "lib/core/**",
+        "lib/l10n/**"
+      ]
+    },
+    {
+      "id": "suite-paris",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 3600,
+      "env": {
+        "TZ": "Europe/Paris"
+      }
+    },
+    {
+      "id": "domaine-utc",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/gamification_edges_test.dart test/review_prompt_test.dart test/publication_test.dart test/notification_planner_test.dart test/breed_activity_test.dart test/bilan_domain_test.dart test/analyses_test.dart test/refuge_stats_test.dart test/challenges_test.dart test/widget_phrases_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "UTC"
+      }
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Un seul helper, nommé et documenté (pourquoi UTC), dans lib/domain.",
+    "Toutes les copies privées (`_dateOnlyUtc`, `_dayUtc`, `dayUtc`) et les constructions en ligne de lib/domain passent par lui.",
+    "N'a pas remplacé à tort des calculs différents (jeudi ISO de friend_challenges, calcul de semaine).",
+    "Comportement inchangé ; aucune modification hors lib/domain."
+  ],
+  "expected_files": [
+    "lib/domain/analyses.dart",
+    "lib/domain/bilan.dart",
+    "lib/domain/breed_activity.dart",
+    "lib/domain/challenges.dart",
+    "lib/domain/gamification.dart",
+    "lib/domain/notification_planner.dart",
+    "lib/domain/publication.dart",
+    "lib/domain/refuge_stats.dart",
+    "lib/domain/review_prompt.dart",
+    "lib/domain/stats.dart",
+    "lib/domain/widget_phrases.dart"
+  ],
+  "notes": "Correction répartie sur onze fichiers ; les copies portent trois noms différents et certaines sont en ligne."
+}

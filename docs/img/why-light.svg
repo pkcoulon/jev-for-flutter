@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<rect width="100%" height="100%" fill="#f9f9f7"/>
+<text x="64.0" y="96.0" fill="#0b0b0b" font-size="40" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>dartlens</text>
+<text x="250.0" y="96.0" fill="#898781" font-size="22" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>pourquoi · mesuré sur des sessions réelles</text>
+<text x="64" y="162" font-size="36" font-weight="700" font-family='system-ui, -apple-system, "Segoe UI", sans-serif' fill="#0b0b0b">Chaque appel relit tout le contexte.<tspan dx="12" fill="#52514e">Ce qu'un outil y verse y reste.</tspan></text>
+<text x="64.0" y="204.0" fill="#52514e" font-size="21" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>Tokens envoyés à chaque appel API, une session réelle sur un projet Flutter.</text>
+<text x="1536.0" y="110.0" fill="#0b0b0b" font-size="64" font-weight="700" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>×17</text>
+<text x="1536.0" y="142.0" fill="#52514e" font-size="18" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>relectures médianes d'une sortie d'outil</text>
+<rect x="64" y="240" width="1000" height="560" rx="14" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)" stroke-width="1"/>
+<line x1="154" x2="914" y1="740.0" y2="740.0" stroke="#c3c2b7" stroke-width="1"/>
+<text x="142.0" y="746.0" fill="#898781" font-size="15" font-weight="400" text-anchor="end" font-family='"SF Mono", Menlo, Consolas, monospace'>0</text>
+<line x1="154" x2="914" y1="630.0" y2="630.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="142.0" y="636.0" fill="#898781" font-size="15" font-weight="400" text-anchor="end" font-family='"SF Mono", Menlo, Consolas, monospace'>200k</text>
+<line x1="154" x2="914" y1="520.0" y2="520.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="142.0" y="526.0" fill="#898781" font-size="15" font-weight="400" text-anchor="end" font-family='"SF Mono", Menlo, Consolas, monospace'>400k</text>
+<line x1="154" x2="914" y1="410.0" y2="410.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="142.0" y="416.0" fill="#898781" font-size="15" font-weight="400" text-anchor="end" font-family='"SF Mono", Menlo, Consolas, monospace'>600k</text>
+<line x1="154" x2="914" y1="300.0" y2="300.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="142.0" y="306.0" fill="#898781" font-size="15" font-weight="400" text-anchor="end" font-family='"SF Mono", Menlo, Consolas, monospace'>800k</text>
+<text x="154.0" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>1</text>
+<text x="246.8" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>17</text>
+<text x="339.6" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>33</text>
+<text x="432.5" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>49</text>
+<text x="525.3" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>65</text>
+<text x="618.1" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>81</text>
+<text x="710.9" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>97</text>
+<text x="803.8" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>113</text>
+<text x="896.6" y="768.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='"SF Mono", Menlo, Consolas, monospace'>129</text>
+<text x="534.0" y="792.0" fill="#898781" font-size="15" font-weight="400" text-anchor="middle" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>appel API n°</text>
+<polygon points="154.0,740 154.0,705.6 159.8,701.4 165.6,695.4 171.4,687.0 177.2,677.1 183.0,673.5 188.8,671.5 194.6,670.0 200.4,667.8 206.2,666.8 212.0,664.9 217.8,664.1 223.6,661.0 229.4,646.9 235.2,638.9 241.0,634.8 246.8,632.8 252.6,632.3 258.4,630.8 264.2,627.7 270.0,626.9 275.8,624.9 281.6,621.6 287.4,619.8 293.2,619.0 299.0,618.1 304.8,617.2 310.6,609.7 316.4,606.5 322.2,601.2 328.0,598.3 333.8,596.7 339.6,593.3 345.5,590.9 351.3,588.9 357.1,588.4 362.9,587.7 368.7,597.2 374.5,595.0 380.3,592.1 386.1,589.7 391.9,586.4 397.7,583.7 403.5,576.0 409.3,573.4 415.1,538.7 420.9,534.0 426.7,531.9 432.5,526.4 438.3,524.6 444.1,450.4 449.9,447.4 455.7,429.4 461.5,404.7 467.3,402.0 473.1,400.2 478.9,399.4 484.7,398.7 490.5,398.0 496.3,397.6 502.1,395.8 507.9,395.4 513.7,395.0 519.5,393.5 525.3,392.3 531.1,392.0 536.9,391.5 542.7,391.3 548.5,391.1 554.3,389.2 560.1,388.7 565.9,388.7 571.7,387.9 577.5,387.8 583.3,386.4 589.1,385.9 594.9,385.6 600.7,385.2 606.5,384.5 612.3,383.9 618.1,383.6 623.9,383.1 629.7,382.5 635.5,382.3 641.3,435.4 647.1,434.6 652.9,432.9 658.7,432.0 664.5,431.5 670.3,430.8 676.1,430.5 681.9,430.3 687.7,430.0 693.5,429.6 699.3,429.1 705.1,418.4 710.9,417.5 716.7,416.0 722.5,414.9 728.4,414.1 734.2,409.5 740.0,408.5 745.8,406.5 751.6,404.9 757.4,403.4 763.2,402.7 769.0,402.0 774.8,400.3 780.6,398.9 786.4,395.7 792.2,394.2 798.0,393.9 803.8,393.0 809.6,392.5 815.4,392.2 821.2,391.9 827.0,390.2 832.8,389.7 838.6,389.0 844.4,387.0 850.2,386.5 856.0,385.6 861.8,385.1 867.6,384.8 873.4,384.5 879.2,384.2 885.0,383.9 890.8,383.4 896.6,382.7 902.4,381.7 908.2,381.2 914.0,381.1 914.0,740" fill="#2a78d6" fill-opacity="0.1"/>
+<polyline points="154.0,705.6 159.8,701.4 165.6,695.4 171.4,687.0 177.2,677.1 183.0,673.5 188.8,671.5 194.6,670.0 200.4,667.8 206.2,666.8 212.0,664.9 217.8,664.1 223.6,661.0 229.4,646.9 235.2,638.9 241.0,634.8 246.8,632.8 252.6,632.3 258.4,630.8 264.2,627.7 270.0,626.9 275.8,624.9 281.6,621.6 287.4,619.8 293.2,619.0 299.0,618.1 304.8,617.2 310.6,609.7 316.4,606.5 322.2,601.2 328.0,598.3 333.8,596.7 339.6,593.3 345.5,590.9 351.3,588.9 357.1,588.4 362.9,587.7 368.7,597.2 374.5,595.0 380.3,592.1 386.1,589.7 391.9,586.4 397.7,583.7 403.5,576.0 409.3,573.4 415.1,538.7 420.9,534.0 426.7,531.9 432.5,526.4 438.3,524.6 444.1,450.4 449.9,447.4 455.7,429.4 461.5,404.7 467.3,402.0 473.1,400.2 478.9,399.4 484.7,398.7 490.5,398.0 496.3,397.6 502.1,395.8 507.9,395.4 513.7,395.0 519.5,393.5 525.3,392.3 531.1,392.0 536.9,391.5 542.7,391.3 548.5,391.1 554.3,389.2 560.1,388.7 565.9,388.7 571.7,387.9 577.5,387.8 583.3,386.4 589.1,385.9 594.9,385.6 600.7,385.2 606.5,384.5 612.3,383.9 618.1,383.6 623.9,383.1 629.7,382.5 635.5,382.3 641.3,435.4 647.1,434.6 652.9,432.9 658.7,432.0 664.5,431.5 670.3,430.8 676.1,430.5 681.9,430.3 687.7,430.0 693.5,429.6 699.3,429.1 705.1,418.4 710.9,417.5 716.7,416.0 722.5,414.9 728.4,414.1 734.2,409.5 740.0,408.5 745.8,406.5 751.6,404.9 757.4,403.4 763.2,402.7 769.0,402.0 774.8,400.3 780.6,398.9 786.4,395.7 792.2,394.2 798.0,393.9 803.8,393.0 809.6,392.5 815.4,392.2 821.2,391.9 827.0,390.2 832.8,389.7 838.6,389.0 844.4,387.0 850.2,386.5 856.0,385.6 861.8,385.1 867.6,384.8 873.4,384.5 879.2,384.2 885.0,383.9 890.8,383.4 896.6,382.7 902.4,381.7 908.2,381.2 914.0,381.1" fill="none" stroke="#2a78d6" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="914.0" cy="381.1" r="6" fill="#2a78d6" stroke="#fcfcfb" stroke-width="3"/>
+<text x="930.0" y="383.1" fill="#0b0b0b" font-size="22" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>653k</text>
+<text x="930.0" y="405.1" fill="#52514e" font-size="15" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>en fin de session</text>
+<circle cx="415.1" cy="538.7" r="6" fill="#2a78d6" stroke="#fcfcfb" stroke-width="3"/>
+<text x="399.1" y="486.7" fill="#52514e" font-size="17" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>+63 k en une seule recherche (grep, find)</text>
+<text x="399.1" y="508.7" fill="#52514e" font-size="17" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>relus ensuite à chaque appel</text>
+<rect x="1088" y="240" width="448" height="330" rx="14" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)" stroke-width="1"/>
+<text x="1116.0" y="288.0" fill="#898781" font-size="17" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>PART DU CONTEXTE RELU</text>
+<text x="1258.0" y="346.0" fill="#0b0b0b" font-size="19" font-weight="600" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>sorties d'outils</text>
+<rect x="1274" y="330" width="118" height="22" rx="4" fill="#e1e0d9"/>
+<rect x="1274" y="330" width="94.1" height="22" rx="4" fill="#2a78d6"/>
+<text x="1508.0" y="348.0" fill="#0b0b0b" font-size="21" font-weight="700" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>31,9 %</text>
+<text x="1258.0" y="388.0" fill="#52514e" font-size="19" font-weight="600" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>lire un fichier</text>
+<rect x="1274" y="372" width="118" height="22" rx="4" fill="#e1e0d9"/>
+<rect x="1274" y="372" width="47.6" height="22" rx="4" fill="#898781"/>
+<text x="1508.0" y="390.0" fill="#0b0b0b" font-size="21" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>16,1 %</text>
+<text x="1258.0" y="430.0" fill="#52514e" font-size="19" font-weight="600" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>chercher</text>
+<rect x="1274" y="414" width="118" height="22" rx="4" fill="#e1e0d9"/>
+<rect x="1274" y="414" width="14.6" height="22" rx="4" fill="#898781"/>
+<text x="1508.0" y="432.0" fill="#0b0b0b" font-size="21" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>4,9 %</text>
+<text x="1258.0" y="472.0" fill="#52514e" font-size="19" font-weight="600" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>tests, analyse</text>
+<rect x="1274" y="456" width="118" height="22" rx="4" fill="#e1e0d9"/>
+<rect x="1274" y="456" width="6.0" height="22" rx="4" fill="#898781"/>
+<text x="1508.0" y="474.0" fill="#0b0b0b" font-size="21" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>1,3 %</text>
+<rect x="1088" y="594" width="448" height="206" rx="14" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)" stroke-width="1"/>
+<text x="1116.0" y="668.0" fill="#0b0b0b" font-size="50" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>250k</text>
+<text x="1116.0" y="702.0" fill="#52514e" font-size="17" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>contexte moyen</text>
+<text x="1116.0" y="726.0" fill="#52514e" font-size="17" font-weight="600" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>par appel</text>
+<text x="1340.0" y="668.0" fill="#0b0b0b" font-size="50" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>47 %</text>
+<text x="1340.0" y="702.0" fill="#52514e" font-size="17" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>du coût dans les</text>
+<text x="1340.0" y="726.0" fill="#52514e" font-size="17" font-weight="600" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>appels &gt; 400k</text>
+<text x="64.0" y="848.0" fill="#52514e" font-size="22" font-weight="600" text-anchor="start" font-family='"SF Mono", Menlo, Consolas, monospace'>github.com/pkcoulon/dartlens</text>
+<text x="1536.0" y="830.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>49 sessions · 15 835 appels · 4 projets Flutter, dont 1 pro anonymisé</text>
+<text x="1536.0" y="856.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>coût valorisé aux tarifs API du 2026-09-28 : une estimation, pas une facture</text>
+</svg>

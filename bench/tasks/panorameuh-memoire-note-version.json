@@ -1,0 +1,41 @@
+{
+  "id": "panorameuh-memoire-note-version",
+  "project": "panorameuh",
+  "commit": "7a2cce8f514d03a3c38fea225d5512139f40924b",
+  "type": "memoire",
+  "promises": [
+    "router"
+  ],
+  "prompt_fr": "Prépare la note de version de la prochaine release à partir des changements depuis la dernière livraison, en suivant nos habitudes de rédaction et de livraison.",
+  "prompt_en": "Prepare the release notes for the next release from the changes since the last delivery, following our usual writing and delivery habits.",
+  "setup": {
+    "status": "todo",
+    "note": "À écrire par Pierrick : 1) choisir un commit postérieur à une livraison avec des changements à annoncer (le commit épinglé est la livraison 1.2.1 elle-même) ; 2) copier dans setup.memory les fiches réelles utiles de sa mémoire Panorameuh (règles de rédaction, canaux de livraison) et quelques leurres, en vérifiant qu'elles sont exportables ; 3) compléter les critères exécutables (fichiers de notes attendus)."
+  },
+  "checks": [
+    {
+      "id": "note-ecrite",
+      "kind": "touched",
+      "paths": [
+        "docs/RELEASE-*.md"
+      ]
+    },
+    {
+      "id": "code-intact",
+      "kind": "untouched",
+      "paths": [
+        "lib/**",
+        "test/**"
+      ]
+    }
+  ],
+  "review": [
+    "Suit le format des notes existantes (docs/RELEASE-1.2.x.md).",
+    "Respecte les règles de rédaction consignées dans les fiches.",
+    "Ne mentionne que des changements réels depuis la dernière livraison."
+  ],
+  "expected_files": [
+    "docs/RELEASE-1.2.1.md"
+  ],
+  "notes": "Deuxième tâche mémoire, sur des fiches réelles : elle ne peut être préparée que par Pierrick."
+}

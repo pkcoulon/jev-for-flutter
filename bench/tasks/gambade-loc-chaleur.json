@@ -1,0 +1,57 @@
+{
+  "id": "gambade-loc-chaleur",
+  "project": "gambade",
+  "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+  "type": "localisation",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "Quand l'assistant donne un avis de chaleur pour un carlin, à partir de quelle température ressentie parle-t-il de danger ? Où la décision est-elle prise, et d'où vient l'information que la race craint la chaleur ? Ne modifie aucun fichier.",
+  "prompt_en": "When the assistant gives heat advice for a pug, from what felt temperature does it speak of danger? Where is that decision made, and where does the information that the breed is heat-sensitive come from? Do not modify any file.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation : le dépôt tel quel."
+  },
+  "checks": [
+    {
+      "id": "aucune-modification",
+      "kind": "no_diff"
+    },
+    {
+      "id": "reponse-seuil",
+      "kind": "answer",
+      "all": [
+        "heat_advice\\.dart",
+        "\\b30\\s*(°|º|degr|C\\b)"
+      ],
+      "any": [
+        "HeatAdvice\\.evaluate",
+        "_level"
+      ]
+    },
+    {
+      "id": "reponse-source",
+      "kind": "answer",
+      "any": [
+        "profiles_fr\\.json",
+        "heat_sensitive"
+      ],
+      "all": [
+        "heatSensitive|heat_sensitive"
+      ]
+    }
+  ],
+  "review": [
+    "Seuil juste : danger à 35 °C ressentis, décalé de 5 °C pour une race sensible, donc 30 °C pour un carlin.",
+    "Décision dans `HeatAdvice.evaluate` / `_level` (lib/domain/heat_advice.dart), appelée par l'outil météo de l'assistant.",
+    "Source : `heat_sensitive` du carlin (fci-253) dans assets/breeds/profiles_fr.json, lu par `BreedProfile.heatSensitive`, sourcé PDSA.",
+    "Ne confond pas avec feels_like.dart (calcul du ressenti) ni walk_conditions.dart.",
+    "Aucun fichier modifié."
+  ],
+  "expected_files": [
+    "lib/domain/heat_advice.dart",
+    "lib/domain/breed_profiles.dart",
+    "assets/breeds/profiles_fr.json"
+  ],
+  "notes": "Chaleur, ressenti et conditions de balade sont répartis sur plusieurs fichiers voisins ; la réponse exige un calcul (35 − 5)."
+}

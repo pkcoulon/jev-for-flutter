@@ -1,0 +1,8 @@
+{
+  "name": "dartlens",
+  "version": "0.1.0",
+  "description": "Outils locaux Dart/Flutter : plan de fichier, recherche hors code généré, texte d'écran vers code, tests et analyse compacts, garde-fous. Aucune donnée envoyée à un tiers.",
+  "author": { "name": "Pierrick Coulon" },
+  "license": "MIT",
+  "keywords": ["dart", "flutter", "context", "hooks"]
+}

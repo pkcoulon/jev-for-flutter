@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="318" viewBox="0 0 760 318" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>
+<rect width="100%" height="100%" rx="10" fill="#fcfcfb"/>
+<text x="28.0" y="34.0" fill="#0b0b0b" font-size="16" font-weight="600" text-anchor="start">Les longs contextes font l'essentiel du coût</text>
+<text x="28.0" y="55.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">Appels et coût valorisé aux tarifs API du 2026-09-28, par taille de contexte</text>
+<rect x="28" y="66" width="10" height="10" rx="2" fill="#2a78d6"/>
+<text x="44.0" y="75.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">part des appels</text>
+<rect x="328" y="66" width="10" height="10" rx="2" fill="#eb6834"/>
+<text x="344.0" y="75.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">part du coût (tarifs API)</text>
+<line x1="218.0" x2="218.0" y1="90" y2="284" stroke="#c3c2b7" stroke-width="1"/>
+<text x="218.0" y="300.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">0 %</text>
+<line x1="331.5" x2="331.5" y1="90" y2="284" stroke="#e1e0d9" stroke-width="1"/>
+<text x="331.5" y="300.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">12 %</text>
+<line x1="445.0" x2="445.0" y1="90" y2="284" stroke="#e1e0d9" stroke-width="1"/>
+<text x="445.0" y="300.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">25 %</text>
+<line x1="558.5" x2="558.5" y1="90" y2="284" stroke="#e1e0d9" stroke-width="1"/>
+<text x="558.5" y="300.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">38 %</text>
+<line x1="672.0" x2="672.0" y1="90" y2="284" stroke="#e1e0d9" stroke-width="1"/>
+<text x="672.0" y="300.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">50 %</text>
+<text x="208.0" y="117.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">&lt; 100 k</text>
+<path d="M218.0,96.0 H487.8 Q491.8,96.0 491.8,100.0 V108.0 Q491.8,112.0 487.8,112.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,114.0 H339.8 Q343.8,114.0 343.8,118.0 V126.0 Q343.8,130.0 339.8,130.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="167.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">100–200 k</text>
+<path d="M218.0,146.0 H478.4 Q482.4,146.0 482.4,150.0 V158.0 Q482.4,162.0 478.4,162.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,164.0 H371.1 Q375.1,164.0 375.1,168.0 V176.0 Q375.1,180.0 371.1,180.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="217.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">200–400 k</text>
+<path d="M218.0,196.0 H399.4 Q403.4,196.0 403.4,200.0 V208.0 Q403.4,212.0 399.4,212.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,214.0 H409.0 Q413.0,214.0 413.0,218.0 V226.0 Q413.0,230.0 409.0,230.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="267.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">&gt; 400 k</text>
+<path d="M218.0,246.0 H398.4 Q402.4,246.0 402.4,250.0 V258.0 Q402.4,262.0 398.4,262.0 H218.0 Z" fill="#2a78d6"/>
+<text x="408.4" y="258.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">20 %</text>
+<path d="M218.0,264.0 H644.1 Q648.1,264.0 648.1,268.0 V276.0 Q648.1,280.0 644.1,280.0 H218.0 Z" fill="#eb6834"/>
+<text x="654.1" y="276.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">47 %</text>
+</svg>

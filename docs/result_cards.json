@@ -1,0 +1,101 @@
+{
+ "lens": {
+  "section": "lens · mesuré avec Jev (jev-1.13.0)",
+  "title": "Claude lit ce qui répond à sa question.",
+  "title_tail": "Pas tout le fichier.",
+  "subtitle": "Jev juge chaque bloc du fichier contre la question de Claude, hors de la conversation, en 0,45 s.",
+  "hero": {"value": "10 %", "label": "du fichier montré, tout le nécessaire dans 92 % des cas"},
+  "blocks": [
+   {"kind": "terminal", "box": [64, 240, 900, 560], "lines": [
+    [["$ ", "muted"], ["lens ", "accent"], ["\"How does the map zoom onto the", "primary"]],
+    [["  department the user selected?\" carte_screen.dart", "primary"]],
+    [["== carte_screen.dart (1501 lignes) · 3/40 blocs · 103 lignes", "secondary"]],
+    [["@@ 149-175 _cadrer()                  ", "primary"], ["p=0.92", "accent"]],
+    [["@@ 176-191 _recadrer() … _viser()     ", "primary"], ["p=0.52", "accent"]],
+    [["@@ 323-382 build() [3/4]              ", "primary"], ["p=0.50", "accent"]],
+    [["   …le code des 3 blocs, numéroté comme cat -n…", "muted"]],
+    [["-- omis (1398 lignes) : 37 blocs, listés avec leurs lignes", "muted"]],
+    [["-- lire un bloc omis : sed -n '378,436p' … ou lens --all", "muted"]],
+    [["", "muted"]],
+    [["Rien n'est caché en silence : chaque plage omise est listée,", "secondary"]],
+    [["et Claude peut la lire d'une commande.", "secondary"]]
+   ]},
+   {"kind": "bars", "box": [988, 240, 548, 268], "title": "tout le nécessaire montré", "max": 100, "rows": [
+    {"label": "Jev", "value": 91.7, "text": "92 %", "emphasis": true},
+    {"label": "BM25 local", "value": 73.6, "text": "74 %"},
+    {"label": "lire tout", "value": 100, "text": "100 %"}
+   ]},
+   {"kind": "bars", "box": [988, 532, 548, 268], "title": "part du fichier montrée", "max": 100, "rows": [
+    {"label": "Jev", "value": 10.1, "text": "10 %", "emphasis": true},
+    {"label": "BM25 local", "value": 26.7, "text": "27 %"},
+    {"label": "lire tout", "value": 100, "text": "100 %"}
+   ]}
+  ],
+  "footer": ["36 questions + 4 pièges · 12 fichiers de 270 à 872 lignes · 3 projets Flutter perso · FR et EN",
+             "étiquettes écrites en lisant le code, sans lens ni Jev · 0,0004 $ par appel · jamais moins bon que BM25"]
+ },
+ "find": {
+  "section": "lens find · mesuré avec Jev (jev-1.13.0)",
+  "title": "Décris ce que fait le code.",
+  "title_tail": "Pas son nom.",
+  "subtitle": "Jev crible tous les fichiers du projet puis vérifie les meilleurs, sans rien lire dans la conversation.",
+  "hero": {"value": "20/20", "label": "bon fichier en tête, requêtes étiquetées"},
+  "blocks": [
+   {"kind": "terminal", "box": [64, 240, 900, 560], "lines": [
+    [["$ ", "muted"], ["lens find ", "accent"], ["\"Jot down how my pooch's poop looked", "primary"]],
+    [["  when we got back, to catch tummy troubles early\"", "primary"]],
+    [["", "muted"]],
+    [["0.82", "accent"], ["  ui/walk/debrief_screen.dart:1123", "primary"]],
+    [["      _DebriefScreenState.build()", "secondary"]],
+    [["-- 301 fichiers criblés · 13 requêtes · 3.0 s", "muted"]],
+    [["", "muted"]],
+    [["poop, pooch, tummy : 0 fichier sur 302.", "secondary"]],
+    [["Le code dit « selles », « stool », « digestion » :", "secondary"]],
+    [["c'est la carte « Selles & digestion » du débrief.", "secondary"]]
+   ]},
+   {"kind": "bars", "box": [988, 240, 548, 330], "title": "bon fichier en tête", "max": 100, "rows": [
+    {"label": "Jev", "value": 100, "text": "100 %", "emphasis": true},
+    {"label": "BM25 local", "value": 35, "text": "35 %"},
+    {"label": "grep", "value": 18, "text": "18 %"}
+   ], "notes": ["sans les mots du code : Jev 100 %, BM25 5 %", "requêtes vagues (sonde) : Jev 3 sur 6"]},
+   {"kind": "tiles", "box": [988, 594, 548, 206], "tiles": [
+    {"value": "1,6 s", "label": "par recherche\n~300 fichiers"},
+    {"value": "0,005 $", "label": "par recherche\ntout compris"}
+   ]}
+  ],
+  "footer": ["20 requêtes, dont 10 sans les mots du code, + 4 pièges · 3 projets Flutter perso · FR et EN",
+             "requêtes écrites en lisant le code : un plafond, pas une moyenne d'usage"]
+ },
+ "guard": {
+  "section": "garde des conventions · mesuré avec Jev (jev-1.13.0)",
+  "title": "Tes conventions, vérifiées à chaque édition.",
+  "title_tail": "Sans rien bloquer.",
+  "subtitle": "Les règles du projet deviennent des questions oui/non. Jev les juge en arrière-plan et ne réveille Claude qu'en cas de doute sérieux.",
+  "hero": {"value": "0 ms", "label": "ajoutée à l'édition : la garde tourne en arrière-plan"},
+  "blocks": [
+   {"kind": "terminal", "box": [64, 240, 900, 560], "lines": [
+    [["● Edit ", "accent"], ["lib/widgets/result_screen.dart", "primary"]],
+    [["  …Claude continue ; la garde juge en 2,5 s…", "muted"]],
+    [["", "muted"]],
+    [["dartlens · conventions à vérifier dans", "primary"]],
+    [["  lib/widgets/result_screen.dart :", "primary"]],
+    [["- [no-confidence-display] ", "accent"], ["Aucune confiance", "primary"]],
+    [["  affichée (D2, D41) : le palier décide en interne,", "primary"]],
+    [["  l'écran ne montre que l'espèce. ", "primary"], ["(p=0.98)", "accent"]],
+    [["Corrige si c'est avéré, sinon ignore.", "secondary"]],
+    [["", "muted"]],
+    [["Règles tirées des docs du projet par /dartlens:rules.", "secondary"]]
+   ]},
+   {"kind": "bars", "box": [988, 240, 548, 330], "title": "au seuil par défaut (0,85)", "max": 100, "rows": [
+    {"label": "précision", "value": 100, "text": "100 %", "emphasis": true},
+    {"label": "rappel", "value": 87, "text": "87 %", "emphasis": true}
+   ], "notes": ["60 cas : 30 violations, 30 conformes", "verdicts identiques sur 3 passages"]},
+   {"kind": "tiles", "box": [988, 594, 548, 206], "tiles": [
+    {"value": "0,3 s", "label": "de Jev\npar édition"},
+    {"value": "0,0001 $", "label": "par édition"}
+   ]}
+  ],
+  "footer": ["60 cas sur 2 projets Flutter perso · règles et cas écrits par le même agent : une borne haute",
+             "fausses alertes par édition réelle (plusieurs règles à la fois) : à mesurer en usage"]
+ }
+}

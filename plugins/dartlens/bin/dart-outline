@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib"))
+from dartlens import outline  # noqa: E402
+from dartlens.project import project_root  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="dart-outline",
+        description="Plan d'un fichier Dart par AST (déclarations, membres, tests) avec plages de lignes.",
+        epilog="Binaire compilé une fois dans ~/.cache/dartlens/outline ; repli regex marqué « approx » si la compilation échoue.",
+    )
+    parser.add_argument("files", nargs="*", help="fichiers .dart")
+    parser.add_argument("--json", action="store_true", help="sortie JSON {chemin: {lines, directives, decls, tests}}")
+    parser.add_argument("--approx", action="store_true", help="forcer le repli regex")
+    parser.add_argument("--build", action="store_true", help="(re)compiler le binaire et afficher le coût")
+    args = parser.parse_args()
+    root = project_root()
+    if args.build:
+        started = time.monotonic()
+        exe, note = outline.binary(root, force=True)
+        print("%s (%.1f s)%s" % (exe or "échec", time.monotonic() - started, " : " + note if note else ""))
+        if not exe:
+            return 1
+        if not args.files:
+            return 0
+    if not args.files:
+        parser.print_usage(sys.stderr)
+        return 2
+    if not args.approx:
+        exe, note = outline.binary(root)
+        if exe:
+            os.execv(exe, [exe] + (["--json"] if args.json else []) + args.files)
+    data, approx, note = outline.outline(args.files, root, approx=args.approx)
+    if approx and not args.approx and note:
+        sys.stderr.write("dart-outline : repli regex (%s)\n" % note)
+    if args.json:
+        if approx:
+            for entry in data.values():
+                entry.setdefault("approx", True)
+        sys.stdout.write(json.dumps(data, ensure_ascii=False))
+    else:
+        sys.stdout.write("".join(outline.render(path, entry) for path, entry in data.items()))
+    return 1 if any(entry.get("error") for entry in data.values()) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

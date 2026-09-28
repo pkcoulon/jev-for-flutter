@@ -1,0 +1,196 @@
+{
+  "gambade": {
+    "path": "~/projects/gambade",
+    "prepare": ["{flutter} pub get"],
+    "plugin_files_note": "Écrits seulement dans les bras avec plugin, masqués de git par info/exclude. rules.json suit le schéma v1 de la garde (validé en strict par --check-tasks) : OUI = violation.",
+    "plugin_files": {
+      ".claude/dartlens.json": {"jev": {"enabled": true}},
+      ".claude/dartlens/rules.json": {
+        "version": 1,
+        "defaults": {"applies_to": ["lib/**/*.dart"]},
+        "rules": [
+          {
+            "id": "l10n-module",
+            "question": "Does the change add a user-visible text literal in UI code instead of reading it from a strings class in lib/l10n?",
+            "true": "A string shown to the user is hardcoded in a widget or screen",
+            "false": "Visible text comes from a context.l10n strings getter, or the literal is not user-visible (keys, logs, asserts)",
+            "applies_to": ["lib/ui/**/*.dart"],
+            "message": "Texte visible en dur : le définir dans lib/l10n/strings_<module>.dart (fr et en) et le lire via context.l10n….",
+            "examples": [
+              {"after": "Text('Balade terminée')", "violation": true},
+              {"after": "Text(context.l10nWalk.walkDone)", "violation": false},
+              {"after": "debugPrint('walk saved');", "violation": false}
+            ]
+          },
+          {
+            "id": "no-em-dash",
+            "question": "Does the change add an em dash inside a user-visible French or English string?",
+            "true": "A text shown to the user contains the em dash character",
+            "false": "No em dash in displayed text; em dashes in comments or docs do not count",
+            "message": "Tiret cadratin interdit dans les textes affichés : virgule ou reformuler.",
+            "examples": [
+              {"after": "walkDone: 'Balade terminée — bravo',", "violation": true},
+              {"after": "walkDone: 'Balade terminée, bravo',", "violation": false},
+              {"after": "// Deux instances const — jamais instanciées ailleurs.", "violation": false}
+            ]
+          },
+          {
+            "id": "nbsp-punctuation",
+            "question": "Does the change add a French user-visible string where a question mark or an exclamation mark follows a regular space or no space instead of a non-breaking space?",
+            "true": "A French displayed string has a normal space, or no space, before ? or !",
+            "false": "Every ? and ! in French strings follows a non-breaking space, or the string is English",
+            "applies_to": ["lib/l10n/*.dart"],
+            "message": "Français : espace insécable (\\u00A0) avant « ? » et « ! » dans les textes affichés.",
+            "examples": [
+              {"after": "askName: 'Comment s’appelle ton chien ?',", "context": "const StringsDogs._fr()", "violation": true},
+              {"after": "askName: 'Comment s’appelle ton chien\\u00A0?',", "context": "const StringsDogs._fr()", "violation": false},
+              {"after": "askName: \"What's your dog's name?\",", "context": "const StringsDogs._en()", "violation": false}
+            ]
+          },
+          {
+            "id": "utc-days",
+            "question": "Does the change do calendar-day arithmetic on local midnights, with subtract or add of Duration(days: n) or difference().inDays, instead of UTC midnights?",
+            "true": "Days are counted or stepped on local DateTime values, which breaks on the 23 h and 25 h days around DST changes",
+            "false": "Day arithmetic uses UTC midnights (DateTime.utc, _dateOnlyUtc), or the change does no calendar-day arithmetic",
+            "message": "Arithmétique de jours : passer par des minuits UTC (_dateOnlyUtc), jamais par des minuits locaux (DST).",
+            "examples": [
+              {"after": "final days = _dateOnly(now).difference(_dateOnly(last)).inDays;", "violation": true},
+              {"after": "final days = _dateOnlyUtc(now).difference(_dateOnlyUtc(last)).inDays;", "violation": false},
+              {"after": "cursor = cursor.subtract(const Duration(days: 1));", "context": "var cursor = _dateOnly(now);", "violation": true}
+            ]
+          },
+          {
+            "id": "pure-domain",
+            "question": "Does the change add I/O, a Flutter import or a direct DateTime.now() call to domain code instead of taking the time from the caller?",
+            "true": "Domain code reads the clock, imports Flutter, or performs I/O (files, network, database, preferences)",
+            "false": "Domain code stays pure: time and data are passed in by the caller",
+            "applies_to": ["lib/domain/**/*.dart"],
+            "message": "Domaine pur : ni I/O ni import Flutter, et le temps (now) est injecté par l'appelant.",
+            "examples": [
+              {"after": "final today = DateTime.now();", "context": "static int? daysSinceLastWalk(Iterable<DateTime> walks) {", "violation": true},
+              {"after": "static int? daysSinceLastWalk(Iterable<DateTime> walks, {required DateTime now}) {", "violation": false},
+              {"after": "import 'package:flutter/material.dart';", "violation": true}
+            ]
+          },
+          {
+            "id": "single-guard",
+            "question": "Does the change add a second copy of an existing rule, guard or helper instead of calling the existing one?",
+            "true": "The change re-implements logic that already exists as a helper in the project, such as a date-only conversion or an id check",
+            "false": "The change calls the existing helper, or the logic is genuinely new",
+            "message": "Jamais deux copies d'une garde : réutiliser le helper existant (par exemple _dateOnlyUtc).",
+            "examples": [
+              {"after": "DateTime _dayUtc(DateTime d) => DateTime.utc(d.year, d.month, d.day);", "context": "DateTime _dateOnlyUtc(DateTime d) => DateTime.utc(d.year, d.month, d.day);", "violation": true},
+              {"after": "final last = _dateOnlyUtc(walks.reduce((a, b) => a.isAfter(b) ? a : b));", "violation": false}
+            ]
+          },
+          {
+            "id": "no-pump-and-settle",
+            "question": "Does the change call pumpAndSettle in a widget test instead of pumping fixed durations?",
+            "true": "A test waits with pumpAndSettle",
+            "false": "Tests pump fixed durations step by step, or do not pump at all",
+            "applies_to": ["test/**/*.dart"],
+            "message": "Jamais pumpAndSettle (animations infinies) : pumper des durées fixes.",
+            "examples": [
+              {"after": "await tester.pumpAndSettle();", "violation": true},
+              {"after": "await tester.pump(const Duration(milliseconds: 300));", "violation": false}
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "pioudex": {
+    "path": "~/projects/pioudex",
+    "prepare": ["{flutter} pub get"],
+    "plugin_files_note": "Écrits seulement dans les bras avec plugin, masqués de git par info/exclude. rules.json suit le schéma v1 de la garde (validé en strict par --check-tasks) : OUI = violation.",
+    "plugin_files": {
+      ".claude/dartlens.json": {"jev": {"enabled": true}},
+      ".claude/dartlens/rules.json": {
+        "version": 1,
+        "defaults": {"applies_to": ["lib/**/*.dart"]},
+        "rules": [
+          {
+            "id": "arb-only",
+            "question": "Does the change add a user-visible text literal in Dart code instead of reading it from the ARB localizations?",
+            "true": "A string shown to the user is hardcoded in Dart",
+            "false": "Visible text comes from an l10n getter backed by app_fr.arb, or the literal is not user-visible (keys, logs, asserts)",
+            "message": "Texte visible en dur : ajouter la clé dans lib/l10n/app_fr.arb et la lire via l10n.",
+            "examples": [
+              {"after": "Text('Aucune prise')", "violation": true},
+              {"after": "Text(l10n.ficheAucunePrise)", "violation": false},
+              {"after": "debugPrint('capture saved');", "violation": false}
+            ]
+          },
+          {
+            "id": "arb-description",
+            "question": "Does the change add a key to app_fr.arb without a matching @key entry that carries a non-empty description?",
+            "true": "A new ARB key has no @key metadata, or its description is empty",
+            "false": "Every new key has an @key entry with a non-empty description",
+            "applies_to": ["lib/l10n/app_fr.arb"],
+            "message": "Chaque clé ARB ajoutée porte une description non vide (@clé).",
+            "examples": [
+              {"after": "\"ficheAucunePrise\": \"Aucune prise\",", "violation": true},
+              {"after": "\"ficheAucunePrise\": \"Aucune prise\",\n\"@ficheAucunePrise\": {\"description\": \"Fiche espèce, compteur vide.\"},", "violation": false}
+            ]
+          },
+          {
+            "id": "no-arb-placeholders",
+            "question": "Does the change use an ARB placeholder or an ICU plural or select message instead of separate singular and plural keys composed in Dart?",
+            "true": "An ARB text contains a {placeholder} or {count, plural, ...}, or Dart calls a parameterized l10n method",
+            "false": "Counts are composed in Dart from separate fixed singular and plural keys",
+            "applies_to": ["lib/l10n/app_fr.arb", "lib/**/*.dart"],
+            "message": "Ni placeholder ni pluriel ICU dans l'ARB : clés singulier et pluriel séparées, composées en Dart.",
+            "examples": [
+              {"after": "\"fichePrises\": \"{count, plural, =1{1 prise} other{{count} prises}}\",", "violation": true},
+              {"after": "\"fichePriseSingulier\": \"prise\",\n\"fichePrisePluriel\": \"prises\",", "violation": false},
+              {"after": "Text('$n ${n > 1 ? l10n.fichePrisePluriel : l10n.fichePriseSingulier}')", "violation": false}
+            ]
+          },
+          {
+            "id": "tokens-only",
+            "question": "Does the change use a hardcoded color value, a Material Colors constant, or a new token that duplicates an existing PioudexColors value?",
+            "true": "A color is written as a literal or Material constant outside tokens.dart, or a new token repeats an existing value",
+            "false": "Colors come from existing PioudexColors tokens, or a genuinely new value is added once in lib/theme/tokens.dart",
+            "message": "Couleurs : tokens PioudexColors uniquement (lib/theme/tokens.dart), sans valeur en dur ni token jumeau.",
+            "examples": [
+              {"after": "color: const Color(0xFF6B8E23),", "violation": true},
+              {"after": "color: PioudexColors.forest,", "violation": false},
+              {"after": "static const Color olive2 = Color(0xFF6B8E23);", "context": "static const Color olive = Color(0xFF6B8E23);", "violation": true}
+            ]
+          },
+          {
+            "id": "voice",
+            "question": "Does the change add French UI text that uses vous, reassurance or filler words, an em dash, an emoji, or more than two sentences?",
+            "true": "The new text breaks the app voice: vouvoiement, bientôt, pour l'instant, pas encore, vraiment, em dash, emoji or a long explanation",
+            "false": "The text is short and factual, uses tu, with no reassurance, em dash or emoji",
+            "applies_to": ["lib/l10n/app_fr.arb"],
+            "message": "Voix : tutoiement, factuel et court (deux phrases au plus), sans réassurance, tiret cadratin ni emoji.",
+            "examples": [
+              {"after": "\"captureVide\": \"Pas encore de chant ? Ne vous inquiétez pas, ça viendra bientôt !\",", "violation": true},
+              {"after": "\"captureVide\": \"Aucun chant enregistré.\",", "violation": false}
+            ]
+          },
+          {
+            "id": "no-material-switch",
+            "question": "Does the change add a Material or Cupertino switch widget instead of the app's own _Interrupteur toggle?",
+            "true": "A Switch, SwitchListTile or CupertinoSwitch is added",
+            "false": "Toggles reuse _Interrupteur, or the change adds no toggle",
+            "message": "Interrupteurs : réutiliser _Interrupteur de l'app, pas un Switch Material ou Cupertino.",
+            "examples": [
+              {"after": "Switch(value: vibrations, onChanged: _basculer)", "violation": true},
+              {"after": "_Interrupteur(actif: vibrations)", "violation": false}
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "panorameuh": {
+    "path": "~/projects/panorameuh",
+    "prepare": ["{flutter} pub get"],
+    "plugin_files_note": "Règles de garde à écrire par Pierrick avec la tâche panorameuh (schéma v1, /dartlens:rules) ; sans rules.json, la garde reste muette.",
+    "plugin_files": {
+      ".claude/dartlens.json": {"jev": {"enabled": true}}
+    }
+  }
+}

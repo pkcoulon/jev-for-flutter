@@ -1,0 +1,44 @@
+{
+ "lens-target": {
+  "kind": "grouped",
+  "unit": "%",
+  "groups": [
+   "recherches longues",
+   "code Dart lu en entier",
+   "sorties sauvegardées relues",
+   "autres sorties longues",
+   "docs .md lues en entier",
+   "tests / analyse / build"
+  ],
+  "series": [
+   {
+    "label": "projet pro (le plus utilisé) : 13,9 % au total",
+    "values": [
+     3.85,
+     2.44,
+     3.48,
+     2.24,
+     1.56,
+     0.29
+    ]
+   },
+   {
+    "label": "projets perso : 10,3 % au total",
+    "values": [
+     2.36,
+     3.58,
+     2.02,
+     1.29,
+     0.9,
+     0.18
+    ]
+   }
+  ],
+  "title": "Ce que lens peut viser dans des sessions réelles",
+  "subtitle": "Part du contexte relu occupée par des sorties que lens sait cibler (fichiers ≥ 150 lignes, sorties ≥ 80 lignes)",
+  "label_groups": [
+   0,
+   1
+  ]
+ }
+}

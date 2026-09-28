@@ -1,0 +1,110 @@
+{
+ "pro": {
+  "files": 79,
+  "context_token_turns": 1689547574,
+  "categories": {
+   "lecture de docs .md entières (≥ 150 lignes)": {
+    "count": 49,
+    "tokens": 319271,
+    "share_of_context_pct": 1.56,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "recherche ≥ 80 lignes": {
+    "count": 287,
+    "tokens": 973485,
+    "share_of_context_pct": 3.85,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "autre sortie ≥ 80 lignes": {
+    "count": 146,
+    "tokens": 391433,
+    "share_of_context_pct": 2.24,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "lecture de code Dart entier (≥ 150 lignes)": {
+    "count": 126,
+    "tokens": 735048,
+    "share_of_context_pct": 2.44,
+    "median_tokens": null,
+    "rereads": 1
+   },
+   "relecture de sorties sauvegardées, autres fichiers (≥ 150 lignes)": {
+    "count": 76,
+    "tokens": 795110,
+    "share_of_context_pct": 3.48,
+    "median_tokens": null,
+    "rereads": 19
+   },
+   "tests / analyse / build ≥ 80 lignes": {
+    "count": 5,
+    "tokens": 22766,
+    "share_of_context_pct": 0.29,
+    "median_tokens": null,
+    "rereads": 0
+   }
+  },
+  "addressable_share_pct": 13.87,
+  "counterfactual_saved_pct": {
+   "0.2": 11.1,
+   "0.35": 9.02,
+   "0.5": 6.93
+  }
+ },
+ "perso": {
+  "files": 489,
+  "context_token_turns": 2268961292,
+  "categories": {
+   "relecture de sorties sauvegardées, autres fichiers (≥ 150 lignes)": {
+    "count": 187,
+    "tokens": 1838600,
+    "share_of_context_pct": 2.02,
+    "median_tokens": null,
+    "rereads": 1
+   },
+   "autre sortie ≥ 80 lignes": {
+    "count": 395,
+    "tokens": 1480036,
+    "share_of_context_pct": 1.29,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "recherche ≥ 80 lignes": {
+    "count": 663,
+    "tokens": 2375584,
+    "share_of_context_pct": 2.36,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "lecture de docs .md entières (≥ 150 lignes)": {
+    "count": 62,
+    "tokens": 634812,
+    "share_of_context_pct": 0.9,
+    "median_tokens": null,
+    "rereads": 0
+   },
+   "lecture de code Dart entier (≥ 150 lignes)": {
+    "count": 334,
+    "tokens": 2552950,
+    "share_of_context_pct": 3.58,
+    "median_tokens": null,
+    "rereads": 1
+   },
+   "tests / analyse / build ≥ 80 lignes": {
+    "count": 32,
+    "tokens": 157058,
+    "share_of_context_pct": 0.18,
+    "median_tokens": null,
+    "rereads": 0
+   }
+  },
+  "addressable_share_pct": 10.34,
+  "counterfactual_saved_pct": {
+   "0.2": 8.27,
+   "0.35": 6.72,
+   "0.5": 5.17
+  }
+ }
+}

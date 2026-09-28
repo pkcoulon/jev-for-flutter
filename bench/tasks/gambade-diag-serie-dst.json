@@ -1,0 +1,115 @@
+{
+  "id": "gambade-diag-serie-dst",
+  "project": "gambade",
+  "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+  "type": "diagnostic",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "Des utilisateurs qui ont promené leur chien tous les jours voient leur série retomber à 1 le lundi 30 mars 2026, au lendemain du passage à l'heure d'été (Europe/Paris). Trouve la cause et corrige-la sans modifier les tests existants.",
+  "prompt_en": "Users who walked their dog every day see their streak drop to 1 on Monday 30 March 2026, the day after the switch to summer time (Europe/Paris). Find the cause and fix it without modifying the existing tests.",
+  "setup": {
+    "status": "ready",
+    "history": "orphan",
+    "message": "docs(release): 3.2.2 publiée sur Play, 3.2.4 en examen des deux côtés, et le script d'échange Apple (#513)",
+    "note": "currentStreak repasse sur des minuits locaux (_dateOnly) ; le défaut n'apparaît que sous un fuseau européen. Historique masqué. Patch vérifié par git apply --check sur le commit épinglé ; échec attendu à confirmer par run.py --validate-setup.",
+    "patch": "diff --git a/lib/domain/gamification.dart b/lib/domain/gamification.dart\n--- a/lib/domain/gamification.dart\n+++ b/lib/domain/gamification.dart\n@@ -449,8 +449,8 @@\n   /// Consecutive calendar days ending today (or yesterday, if today has no walk\n   /// yet) that contain at least one recorded walk.\n   static int currentStreak(Set<DateTime> walkDays, {DateTime? now}) {\n-    final today = _dateOnlyUtc(now ?? DateTime.now());\n-    final days = walkDays.map(_dateOnlyUtc).toSet();\n+    final today = _dateOnly(now ?? DateTime.now());\n+    final days = walkDays.map(_dateOnly).toSet();\n     var cursor = today;\n     if (!days.contains(cursor)) {\n       cursor = today.subtract(const Duration(days: 1));\n",
+    "expect_before": [
+      {
+        "id": "series-rouges",
+        "kind": "command",
+        "role": "success",
+        "cmd": "{flutter} test --no-pub test/gamification_edges_test.dart",
+        "expect_exit": "nonzero",
+        "timeout_s": 1200,
+        "env": {
+          "TZ": "Europe/Paris"
+        }
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "series-paris",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/gamification_edges_test.dart test/gamification_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "Europe/Paris"
+      }
+    },
+    {
+      "id": "series-utc",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/gamification_edges_test.dart test/gamification_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "UTC"
+      }
+    },
+    {
+      "id": "tests-intacts",
+      "kind": "untouched",
+      "paths": [
+        "test/**"
+      ],
+      "existing_only": true
+    },
+    {
+      "id": "correctif-gamification",
+      "kind": "touched",
+      "paths": [
+        "lib/domain/gamification.dart"
+      ]
+    },
+    {
+      "id": "helper-utc",
+      "kind": "diff_added",
+      "paths": [
+        "lib/domain/gamification.dart"
+      ],
+      "regex": "_dateOnlyUtc"
+    },
+    {
+      "id": "non-regression",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} test --no-pub test/challenges_test.dart test/freeze_test.dart test/home_objective_test.dart test/review_prompt_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "Europe/Paris"
+      }
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Cause : `currentStreak` normalise sur des minuits locaux (`_dateOnly`) au lieu de `_dateOnlyUtc`.",
+    "A reproduit sous TZ=Europe/Paris (sous UTC, le test passe même avec le défaut).",
+    "Correctif limité à cette fonction ; pas de nouvelle copie du helper.",
+    "Aucun test existant modifié ; un test ajouté est un plus, pas une exigence."
+  ],
+  "expected_files": [
+    "lib/domain/gamification.dart"
+  ],
+  "notes": "Symptôme seul dans la demande ; la reproduction dépend du fuseau de la machine."
+}

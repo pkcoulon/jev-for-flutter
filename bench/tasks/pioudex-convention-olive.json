@@ -1,0 +1,85 @@
+{
+  "id": "pioudex-convention-olive",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "convention",
+  "promises": [
+    "guard"
+  ],
+  "prompt_fr": "Le bandeau de titre de l'écran Statistiques doit passer à l'olive plus clair #63723A, celui du panneau de sauvegarde du Profil.",
+  "prompt_en": "The title banner of the Statistics screen must switch to the lighter olive #63723A, the one used by the Profile backup panel.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation. Convention implicite : couleurs par tokens uniquement ; #63723A existe déjà (PioudexColors.forestLight)."
+  },
+  "checks": [
+    {
+      "id": "tokens",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/theme/tokens_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "statistiques",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/features/statistiques",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "token-reutilise",
+      "kind": "grep",
+      "paths": [
+        "lib/features/statistiques/statistiques_screen.dart"
+      ],
+      "regex": "PioudexColors\\.forestLight"
+    },
+    {
+      "id": "pas-de-hex",
+      "kind": "grep",
+      "paths": [
+        "lib/**/*.dart"
+      ],
+      "exclude": [
+        "lib/theme/tokens.dart"
+      ],
+      "regex": "(?i)63723A",
+      "expect": false
+    },
+    {
+      "id": "pas-de-token-jumeau",
+      "kind": "untouched",
+      "paths": [
+        "lib/theme/tokens.dart"
+      ]
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Réutilise `PioudexColors.forestLight` au lieu d'un hex en dur ou d'un token jumeau.",
+    "Vérifie la lisibilité du texte crème sur l'olive clair (contrastes du §11.6) et l'effet sur le filigrane.",
+    "Ne modifie que le bandeau des Statistiques."
+  ],
+  "expected_files": [
+    "lib/features/statistiques/statistiques_screen.dart"
+  ],
+  "notes": "Le prompt donne un hex : la convention veut qu'on retrouve le token existant."
+}

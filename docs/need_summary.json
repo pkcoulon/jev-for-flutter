@@ -1,0 +1,67 @@
+{
+ "pricing_date": "2026-09-28",
+ "sessions": 49,
+ "files": 568,
+ "calls": 15835,
+ "mean_context": 249985,
+ "valued_cost_usd": 3589.07,
+ "tool_results_share_of_context_pct": 31.9,
+ "median_rereads_of_tool_result": 17,
+ "calls_over_200k_pct": 40.7,
+ "cost_over_200k_pct": 68.8,
+ "unpriced_models": [],
+ "rows": [
+  {
+   "label": "Bash · lire des fichiers",
+   "value": 9.911401021522577
+  },
+  {
+   "label": "Read (fichiers)",
+   "value": 6.232931704454391
+  },
+  {
+   "label": "Bash · chercher / lister",
+   "value": 4.936644352802866
+  },
+  {
+   "label": "Bash · git / GitHub",
+   "value": 3.0577765223478193
+  },
+  {
+   "label": "MCP (Figma, Jira…)",
+   "value": 2.4357134387566437
+  },
+  {
+   "label": "Bash · scripts",
+   "value": 2.2418989896241235
+  },
+  {
+   "label": "Bash · tests / analyse",
+   "value": 1.2811708112658209
+  },
+  {
+   "label": "Bash · autres",
+   "value": 0.8754238382028453
+  },
+  {
+   "label": "Autres outils",
+   "value": 0.7557009508191073
+  },
+  {
+   "label": "pages web",
+   "value": 0.09813951141299498
+  },
+  {
+   "label": "résultats de sous-agents",
+   "value": 0.02370937268996435
+  },
+  {
+   "label": "skills chargés",
+   "value": 0.0013616997838376374
+  },
+  {
+   "label": "Grep / Glob",
+   "value": 0.0010436179965711443
+  }
+ ]
+}

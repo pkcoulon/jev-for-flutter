@@ -1,0 +1,39 @@
+{
+  "id": "pioudex-loc-xp-niveau",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "localisation",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "Dans Pioudex, où se décide combien d'XP il faut accumuler à l'intérieur d'un niveau pour passer au niveau suivant ? Donne le fichier, le symbole exact et la formule. Ne modifie aucun fichier.",
+  "prompt_en": "In Pioudex, where is it decided how much XP must be accumulated within a level to reach the next one? Give the file, the exact symbol and the formula. Do not modify any file.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation : le dépôt tel quel."
+  },
+  "checks": [
+    {
+      "id": "aucune-modification",
+      "kind": "no_diff"
+    },
+    {
+      "id": "reponse",
+      "kind": "answer",
+      "all": [
+        "lib/data/progression\\.dart",
+        "Bareme\\.palier|palier\\s*\\(\\s*int\\s+rang\\s*\\)"
+      ]
+    }
+  ],
+  "review": [
+    "Désigne `Bareme.palier(rang)` (100 × rang) et non l'enum `Palier` des médailles ni le palier de confiance `ConfidenceTier`.",
+    "Distingue la source (`Bareme.palier`, `Bareme.cumulPour`) de ses consommateurs (`Niveau.pour`, `Niveau.palier`).",
+    "La formule donnée est juste : 100 × rang dans le niveau, 50 × n × (n − 1) en cumulé.",
+    "Aucun fichier modifié."
+  ],
+  "expected_files": [
+    "lib/data/progression.dart"
+  ],
+  "notes": "Homonymes : « palier » désigne aussi ConfidenceTier (palier de confiance), l'enum Palier (médailles) et le champ Niveau.palier."
+}

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="418" viewBox="0 0 760 418" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>
+<rect width="100%" height="100%" rx="10" fill="#fcfcfb"/>
+<text x="28.0" y="34.0" fill="#0b0b0b" font-size="16" font-weight="600" text-anchor="start">Ce que lens peut viser dans des sessions réelles</text>
+<text x="28.0" y="55.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">Part du contexte relu occupée par des sorties que lens sait cibler (fichiers ≥ 150 lignes, sorties ≥ 80 lignes)</text>
+<rect x="28" y="66" width="10" height="10" rx="2" fill="#2a78d6"/>
+<text x="44.0" y="75.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">projet pro (le plus utilisé) : 13,9 % au total</text>
+<rect x="328" y="66" width="10" height="10" rx="2" fill="#eb6834"/>
+<text x="344.0" y="75.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start">projets perso : 10,3 % au total</text>
+<line x1="218.0" x2="218.0" y1="90" y2="384" stroke="#c3c2b7" stroke-width="1"/>
+<text x="218.0" y="400.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">0 %</text>
+<line x1="331.5" x2="331.5" y1="90" y2="384" stroke="#e1e0d9" stroke-width="1"/>
+<text x="331.5" y="400.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">1,0 %</text>
+<line x1="445.0" x2="445.0" y1="90" y2="384" stroke="#e1e0d9" stroke-width="1"/>
+<text x="445.0" y="400.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">2,0 %</text>
+<line x1="558.5" x2="558.5" y1="90" y2="384" stroke="#e1e0d9" stroke-width="1"/>
+<text x="558.5" y="400.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">3,0 %</text>
+<line x1="672.0" x2="672.0" y1="90" y2="384" stroke="#e1e0d9" stroke-width="1"/>
+<text x="672.0" y="400.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">4,0 %</text>
+<text x="208.0" y="117.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">recherches longues</text>
+<path d="M218.0,96.0 H651.0 Q655.0,96.0 655.0,100.0 V108.0 Q655.0,112.0 651.0,112.0 H218.0 Z" fill="#2a78d6"/>
+<text x="661.0" y="108.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">3,9 %</text>
+<path d="M218.0,114.0 H481.9 Q485.9,114.0 485.9,118.0 V126.0 Q485.9,130.0 481.9,130.0 H218.0 Z" fill="#eb6834"/>
+<text x="491.9" y="126.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">2,4 %</text>
+<text x="208.0" y="167.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">code Dart lu en entier</text>
+<path d="M218.0,146.0 H490.9 Q494.9,146.0 494.9,150.0 V158.0 Q494.9,162.0 490.9,162.0 H218.0 Z" fill="#2a78d6"/>
+<text x="500.9" y="158.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">2,4 %</text>
+<path d="M218.0,164.0 H620.3 Q624.3,164.0 624.3,168.0 V176.0 Q624.3,180.0 620.3,180.0 H218.0 Z" fill="#eb6834"/>
+<text x="630.3" y="176.0" fill="#0b0b0b" font-size="11" font-weight="400" text-anchor="start">3,6 %</text>
+<text x="208.0" y="217.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">sorties sauvegardées relues</text>
+<path d="M218.0,196.0 H609.0 Q613.0,196.0 613.0,200.0 V208.0 Q613.0,212.0 609.0,212.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,214.0 H443.3 Q447.3,214.0 447.3,218.0 V226.0 Q447.3,230.0 443.3,230.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="267.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">autres sorties longues</text>
+<path d="M218.0,246.0 H468.2 Q472.2,246.0 472.2,250.0 V258.0 Q472.2,262.0 468.2,262.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,264.0 H360.4 Q364.4,264.0 364.4,268.0 V276.0 Q364.4,280.0 360.4,280.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="317.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">docs .md lues en entier</text>
+<path d="M218.0,296.0 H391.1 Q395.1,296.0 395.1,300.0 V308.0 Q395.1,312.0 391.1,312.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,314.0 H316.1 Q320.1,314.0 320.1,318.0 V326.0 Q320.1,330.0 316.1,330.0 H218.0 Z" fill="#eb6834"/>
+<text x="208.0" y="367.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="end">tests / analyse / build</text>
+<path d="M218.0,346.0 H246.9 Q250.9,346.0 250.9,350.0 V358.0 Q250.9,362.0 246.9,362.0 H218.0 Z" fill="#2a78d6"/>
+<path d="M218.0,364.0 H234.4 Q238.4,364.0 238.4,368.0 V376.0 Q238.4,380.0 234.4,380.0 H218.0 Z" fill="#eb6834"/>
+</svg>

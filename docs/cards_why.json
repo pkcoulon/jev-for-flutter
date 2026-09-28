@@ -1,0 +1,230 @@
+{
+ "why": {
+  "section": "pourquoi · mesuré sur des sessions réelles",
+  "title": "Chaque appel relit tout le contexte.",
+  "title_tail": "Ce qu'un outil y verse y reste.",
+  "subtitle": "Tokens envoyés à chaque appel API, une session réelle sur un projet Flutter.",
+  "hero": {
+   "value": "×17",
+   "label": "relectures médianes d'une sortie d'outil"
+  },
+  "blocks": [
+   {
+    "kind": "line",
+    "box": [
+     64,
+     240,
+     1000,
+     560
+    ],
+    "x_label": "appel API n°",
+    "series": [
+     {
+      "label": "contexte envoyé à chaque appel",
+      "values": [
+       62463,
+       70125,
+       81104,
+       96434,
+       114429,
+       120821,
+       124520,
+       127185,
+       131363,
+       133005,
+       136584,
+       137911,
+       143665,
+       169321,
+       183782,
+       191345,
+       194943,
+       195803,
+       198514,
+       204266,
+       205724,
+       209358,
+       215271,
+       218579,
+       219929,
+       221629,
+       223190,
+       236913,
+       242703,
+       252387,
+       257618,
+       260539,
+       266685,
+       271085,
+       274770,
+       275643,
+       276858,
+       259719,
+       263595,
+       268899,
+       273293,
+       279283,
+       284177,
+       298262,
+       302848,
+       366046,
+       374524,
+       378385,
+       388441,
+       391634,
+       526558,
+       531957,
+       564687,
+       609615,
+       614531,
+       617901,
+       619324,
+       620484,
+       621787,
+       622538,
+       625792,
+       626478,
+       627204,
+       630010,
+       632115,
+       632761,
+       633644,
+       633994,
+       634427,
+       637820,
+       638714,
+       638818,
+       640100,
+       640422,
+       642845,
+       643801,
+       644310,
+       645166,
+       646285,
+       647476,
+       647988,
+       648942,
+       649931,
+       650414,
+       553894,
+       555321,
+       558335,
+       560085,
+       560976,
+       562106,
+       562783,
+       563032,
+       563558,
+       564439,
+       565278,
+       584758,
+       586410,
+       589066,
+       591025,
+       592490,
+       600906,
+       602704,
+       606421,
+       609261,
+       611973,
+       613190,
+       614626,
+       617578,
+       620150,
+       626067,
+       628752,
+       629233,
+       630908,
+       631832,
+       632437,
+       632935,
+       635913,
+       636939,
+       638221,
+       641761,
+       642659,
+       644396,
+       645293,
+       645898,
+       646346,
+       646859,
+       647513,
+       648294,
+       649657,
+       651478,
+       652372,
+       652533
+      ],
+      "emphasis": true,
+      "end_label": "en fin de session"
+     }
+    ],
+    "notes": [
+     {
+      "index": 45,
+      "label": "+63 k en une seule recherche (grep, find)\nrelus ensuite à chaque appel",
+      "dx": -16,
+      "dy": -52
+     }
+    ]
+   },
+   {
+    "kind": "bars",
+    "box": [
+     1088,
+     240,
+     448,
+     330
+    ],
+    "title": "part du contexte relu",
+    "max": 40,
+    "rows": [
+     {
+      "label": "sorties d'outils",
+      "value": 31.9,
+      "text": "31,9 %",
+      "emphasis": true
+     },
+     {
+      "label": "lire un fichier",
+      "value": 16.144332725976966,
+      "text": "16,1 %"
+     },
+     {
+      "label": "chercher",
+      "value": 4.936644352802866,
+      "text": "4,9 %"
+     },
+     {
+      "label": "tests, analyse",
+      "value": 1.2811708112658209,
+      "text": "1,3 %"
+     }
+    ]
+   },
+   {
+    "kind": "tiles",
+    "box": [
+     1088,
+     594,
+     448,
+     206
+    ],
+    "tiles": [
+     {
+      "value": "250k",
+      "label": "contexte moyen\npar appel"
+     },
+     {
+      "value": "47 %",
+      "label": "du coût dans les\nappels > 400k"
+     }
+    ]
+   }
+  ],
+  "footer": [
+   "49 sessions · 15 835 appels · 4 projets Flutter, dont 1 pro anonymisé",
+   "coût valorisé aux tarifs API du 2026-09-28 : une estimation, pas une facture"
+  ]
+ }
+}

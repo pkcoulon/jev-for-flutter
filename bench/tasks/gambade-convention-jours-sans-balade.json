@@ -1,0 +1,100 @@
+{
+  "id": "gambade-convention-jours-sans-balade",
+  "project": "gambade",
+  "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+  "type": "convention",
+  "promises": [
+    "guard"
+  ],
+  "prompt_fr": "Ajoute à `Gamification` une méthode `static int? daysSinceLastWalk(Iterable<DateTime> walkStarts, {required DateTime now})` : le nombre de jours calendaires écoulés depuis la dernière balade (0 si la dernière date d'aujourd'hui, null s'il n'y en a aucune). Elle servira à un futur rappel ; pas d'UI.",
+  "prompt_en": "Add to `Gamification` a method `static int? daysSinceLastWalk(Iterable<DateTime> walkStarts, {required DateTime now})`: the number of calendar days elapsed since the last walk (0 if the last one is from today, null if there is none). It will feed a future reminder; no UI.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation. Conventions implicites (CLAUDE.md) : arithmétique de jours en minuits UTC, domaine pur avec temps injecté, tests à date figée, couverture qui ne baisse pas. Référence : `daysSinceLastWalk` sur `_dateOnlyUtc`, avec un test ; `run.py --validate-reference` la fait passer par tous les critères.",
+    "reference": "diff --git a/lib/domain/gamification.dart b/lib/domain/gamification.dart\nindex ce10eed..046320e 100644\n--- a/lib/domain/gamification.dart\n+++ b/lib/domain/gamification.dart\n@@ -464,6 +464,16 @@ abstract final class Gamification {\n     return streak;\n   }\n \n+  /// Calendar days since the most recent walk (0 if it was today), null when\n+  /// there is none. Same UTC midnights as the streaks.\n+  static int? daysSinceLastWalk(Iterable<DateTime> walkStarts,\n+      {required DateTime now}) {\n+    if (walkStarts.isEmpty) return null;\n+    final last =\n+        walkStarts.map(_dateOnlyUtc).reduce((a, b) => a.isAfter(b) ? a : b);\n+    return _dateOnlyUtc(now).difference(last).inDays;\n+  }\n+\n   /// Longest run of consecutive walked days in the full history.\n   static int recordStreak(Set<DateTime> walkDays) {\n     if (walkDays.isEmpty) return 0;\ndiff --git a/test/days_since_last_walk_test.dart b/test/days_since_last_walk_test.dart\nnew file mode 100644\nindex 0000000..dcb40a4\n--- /dev/null\n+++ b/test/days_since_last_walk_test.dart\n@@ -0,0 +1,24 @@\n+import 'package:flutter_test/flutter_test.dart';\n+import 'package:gambade/domain/gamification.dart';\n+\n+void main() {\n+  final now = DateTime(2026, 7, 1, 20);\n+\n+  test('daysSinceLastWalk : aucune balade', () {\n+    expect(\n+        Gamification.daysSinceLastWalk(const <DateTime>[], now: now), isNull);\n+  });\n+\n+  test('daysSinceLastWalk : la veille au soir compte pour un jour', () {\n+    expect(\n+        Gamification.daysSinceLastWalk([DateTime(2026, 6, 30, 22)], now: now),\n+        1);\n+  });\n+\n+  test(\"daysSinceLastWalk : un jour de 23 h au passage à l'heure d'été\", () {\n+    expect(\n+        Gamification.daysSinceLastWalk([DateTime(2026, 3, 29)],\n+            now: DateTime(2026, 3, 30)),\n+        1);\n+  });\n+}\n"
+  },
+  "checks": [
+    {
+      "id": "cache-paris",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/_bench/days_since_last_walk_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "Europe/Paris"
+      },
+      "files": {
+        "test/_bench/days_since_last_walk_test.dart": "import 'package:flutter_test/flutter_test.dart';\nimport 'package:gambade/domain/gamification.dart';\n\n// Test caché du banc dartlens : posé après l'essai, lancé sous TZ=Europe/Paris puis TZ=UTC.\nvoid main() {\n  DateTime d(int y, int m, int day, [int h = 12]) => DateTime(y, m, day, h);\n\n  test('aucune balade : null', () {\n    expect(\n        Gamification.daysSinceLastWalk(const <DateTime>[],\n            now: d(2026, 7, 1, 20)),\n        isNull);\n  });\n\n  test('balade le jour même : 0', () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 7, 1, 8)],\n            now: d(2026, 7, 1, 20)),\n        0);\n  });\n\n  test(\"la plus récente compte, quel que soit l'ordre\", () {\n    expect(\n      Gamification.daysSinceLastWalk(\n        [d(2026, 6, 20), d(2026, 6, 29, 21), d(2026, 6, 25)],\n        now: d(2026, 7, 1, 20),\n      ),\n      2,\n    );\n  });\n\n  test('veille au soir, lendemain matin : un jour calendaire', () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 6, 30, 22)],\n            now: d(2026, 7, 1, 7)),\n        1);\n  });\n\n  test(\"passage à l'heure d'été : la journée de 23 h compte pour un jour\", () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 3, 29, 0)],\n            now: d(2026, 3, 30, 0)),\n        1);\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 3, 27)], now: d(2026, 3, 30)),\n        3);\n  });\n\n  test(\"passage à l'heure d'hiver : la journée de 25 h compte pour un jour\",\n      () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 10, 25, 23)],\n            now: d(2026, 10, 26, 1)),\n        1);\n  });\n}\n"
+      }
+    },
+    {
+      "id": "cache-utc",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/_bench/days_since_last_walk_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "UTC"
+      },
+      "files": {
+        "test/_bench/days_since_last_walk_test.dart": "import 'package:flutter_test/flutter_test.dart';\nimport 'package:gambade/domain/gamification.dart';\n\n// Test caché du banc dartlens : posé après l'essai, lancé sous TZ=Europe/Paris puis TZ=UTC.\nvoid main() {\n  DateTime d(int y, int m, int day, [int h = 12]) => DateTime(y, m, day, h);\n\n  test('aucune balade : null', () {\n    expect(\n        Gamification.daysSinceLastWalk(const <DateTime>[],\n            now: d(2026, 7, 1, 20)),\n        isNull);\n  });\n\n  test('balade le jour même : 0', () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 7, 1, 8)],\n            now: d(2026, 7, 1, 20)),\n        0);\n  });\n\n  test(\"la plus récente compte, quel que soit l'ordre\", () {\n    expect(\n      Gamification.daysSinceLastWalk(\n        [d(2026, 6, 20), d(2026, 6, 29, 21), d(2026, 6, 25)],\n        now: d(2026, 7, 1, 20),\n      ),\n      2,\n    );\n  });\n\n  test('veille au soir, lendemain matin : un jour calendaire', () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 6, 30, 22)],\n            now: d(2026, 7, 1, 7)),\n        1);\n  });\n\n  test(\"passage à l'heure d'été : la journée de 23 h compte pour un jour\", () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 3, 29, 0)],\n            now: d(2026, 3, 30, 0)),\n        1);\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 3, 27)], now: d(2026, 3, 30)),\n        3);\n  });\n\n  test(\"passage à l'heure d'hiver : la journée de 25 h compte pour un jour\",\n      () {\n    expect(\n        Gamification.daysSinceLastWalk([d(2026, 10, 25, 23)],\n            now: d(2026, 10, 26, 1)),\n        1);\n  });\n}\n"
+      }
+    },
+    {
+      "id": "temps-injecte",
+      "kind": "diff_added",
+      "paths": [
+        "lib/domain/**"
+      ],
+      "regex": "DateTime\\.now\\(",
+      "expect": false
+    },
+    {
+      "id": "tests-ajoutes",
+      "kind": "touched",
+      "paths": [
+        "lib/domain/gamification.dart",
+        "test/**"
+      ]
+    },
+    {
+      "id": "gamification",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} test --no-pub test/gamification_test.dart test/gamification_edges_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200,
+      "env": {
+        "TZ": "Europe/Paris"
+      }
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Réutilise `_dateOnlyUtc` (aucune nouvelle copie de la garde).",
+    "Fonction pure, `now` injecté ; aucun `DateTime.now()`.",
+    "Tests ajoutés selon les conventions : date figée au mercredi 1er juillet 2026, 20 h ; cas du changement d'heure.",
+    "Pas d'UI ni de provider ajoutés."
+  ],
+  "expected_files": [
+    "lib/domain/gamification.dart"
+  ],
+  "notes": "Le test caché discrimine précisément la convention UTC : une différence naïve échoue sous Europe/Paris."
+}

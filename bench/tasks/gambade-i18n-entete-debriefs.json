@@ -1,0 +1,90 @@
+{
+  "id": "gambade-i18n-entete-debriefs",
+  "project": "gambade",
+  "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+  "type": "ui_i18n",
+  "promises": [
+    "lens",
+    "guard"
+  ],
+  "prompt_fr": "Quand l'app est en anglais, le sous-titre de l'écran des débriefs en attente reste en français (« 2 balades · l'ordre n'a pas d'importance »). Corrige-le en passant par le socle i18n du projet. En anglais : « 2 walks · the order doesn't matter », et « 1 walk · the order doesn't matter » au singulier.",
+  "prompt_en": "When the app is in English, the subtitle of the pending debriefs screen stays in French (« 2 balades · l'ordre n'a pas d'importance »). Fix it through the project's i18n layer. In English: « 2 walks · the order doesn't matter », and « 1 walk · the order doesn't matter » in the singular.",
+  "setup": {
+    "status": "ready",
+    "history": "orphan",
+    "message": "docs(release): 3.2.2 publiée sur Play, 3.2.4 en examen des deux côtés, et le script d'échange Apple (#513)",
+    "note": "pendingHeader est retiré de StringsWalk et le texte français est posé en dur dans l'écran. Historique masqué pour que le correctif ne se lise pas dans git. Patch vérifié par git apply --check sur le commit épinglé ; échec attendu à confirmer par run.py --validate-setup.",
+    "patch": "diff --git a/lib/l10n/strings_walk.dart b/lib/l10n/strings_walk.dart\n--- a/lib/l10n/strings_walk.dart\n+++ b/lib/l10n/strings_walk.dart\n@@ -405,11 +405,6 @@\n           ? '1 debrief is waiting for you'\n           : '$n debriefs are waiting for you')\n       : (n == 1 ? '1 débrief t\\'attend' : '$n débriefs t\\'attendent');\n-\n-  /// Sous-titre de l'écran s92b quand il reste des balades.\n-  String pendingHeader(int n) => _en\n-      ? '$n walk${n > 1 ? 's' : ''} · the order doesn\\'t matter'\n-      : '$n balade${n > 1 ? 's' : ''} · l\\'ordre n\\'a pas d\\'importance';\n \n   /// Relatif court des lignes en attente.\n   String agoMinutes(int m) => _en ? '$m min ago' : 'il y a $m min';\ndiff --git a/lib/ui/walk/pending_debriefs_screen.dart b/lib/ui/walk/pending_debriefs_screen.dart\n--- a/lib/ui/walk/pending_debriefs_screen.dart\n+++ b/lib/ui/walk/pending_debriefs_screen.dart\n@@ -324,7 +324,9 @@\n                         // (les lignes « fait à l'instant » restent\n                         // affichées) — un libellé de fierté plutôt qu'un\n                         // « 0 balade » absurde.\n-                        n == 0 ? s.allCaughtUp : s.pendingHeader(n),\n+                        n == 0\n+                            ? s.allCaughtUp\n+                            : '$n balade${n > 1 ? 's' : ''} · l\\'ordre n\\'a pas d\\'importance',\n                         style: AppType.caption.copyWith(color: t.inkTertiary),\n                       ),\n                     ],\n",
+    "expect_before": [
+      {
+        "id": "texte-en-dur",
+        "kind": "grep",
+        "paths": [
+          "lib/ui/walk/pending_debriefs_screen.dart"
+        ],
+        "regex": "ordre n"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "anglais-dans-le-socle",
+      "kind": "grep",
+      "paths": [
+        "lib/l10n/*.dart"
+      ],
+      "regex": "the order doesn"
+    },
+    {
+      "id": "plus-de-texte-en-dur",
+      "kind": "grep",
+      "paths": [
+        "lib/ui/walk/pending_debriefs_screen.dart"
+      ],
+      "regex": "ordre n|order doesn",
+      "expect": false
+    },
+    {
+      "id": "methode-parametree",
+      "kind": "diff_added",
+      "paths": [
+        "lib/l10n/strings_*.dart"
+      ],
+      "regex": "String\\s+\\w+\\(\\s*int\\s+\\w+\\s*\\)"
+    },
+    {
+      "id": "debriefs",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/debrief_differe_test.dart test/notification_lang_test.dart test/locale_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "Méthode paramétrée dans `StringsWalk` (patron `_en ? … : …`), aucune chaîne en dur dans l'écran.",
+    "Pluriel correct dans les deux langues ; pas de tiret cadratin ; typographie française inchangée.",
+    "Nom cohérent avec les voisines (`pendingCount`) ; pas de troisième copie de la logique de résolution de langue."
+  ],
+  "expected_files": [
+    "lib/l10n/strings_walk.dart",
+    "lib/ui/walk/pending_debriefs_screen.dart"
+  ],
+  "notes": "Libellé paramétré bilingue selon le patron maison (classes Dart, pas d'ARB)."
+}

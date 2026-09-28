@@ -1,0 +1,102 @@
+{
+  "id": "pioudex-diag-gain-xp",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "diagnostic",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "`flutter test test/features/consigne/celebration_screen_test.dart` échoue. Trouve la cause et corrige-la dans le code de l'app, sans modifier les tests.",
+  "prompt_en": "`flutter test test/features/consigne/celebration_screen_test.dart` fails. Find the cause and fix it in the app code, without modifying the tests.",
+  "setup": {
+    "status": "ready",
+    "history": "orphan",
+    "message": "docs(release): confirmer la resoumission iOS 1.0.0+8",
+    "note": "Dans Bareme.multiplicateur, le rang 4 passe de ×5 à ×4 ; l'écran annonce +80 au lieu de +100. Historique masqué (commit orphelin). Patch vérifié par git apply --check sur le commit épinglé ; échec attendu à confirmer par run.py --validate-setup.",
+    "patch": "diff --git a/lib/data/progression.dart b/lib/data/progression.dart\n--- a/lib/data/progression.dart\n+++ b/lib/data/progression.dart\n@@ -69,7 +69,7 @@\n     1 => 1,\n     2 => 2,\n     3 => 3,\n-    4 => 5,\n+    4 => 4,\n     5 => 8,\n     // Un rang hors échelle vaut le plancher : un catalogue régénéré avec une\n     // graduation de plus ne doit pas offrir un jackpot par accident.\n",
+    "expect_before": [
+      {
+        "id": "celebration-rouge",
+        "kind": "command",
+        "role": "success",
+        "cmd": "{flutter} test --no-pub test/features/consigne/celebration_screen_test.dart",
+        "expect_exit": "nonzero",
+        "timeout_s": 1200
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "celebration",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/features/consigne/celebration_screen_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "progression",
+      "kind": "command",
+      "role": "success",
+      "cmd": "{flutter} test --no-pub test/data/progression_test.dart",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "tests-intacts",
+      "kind": "untouched",
+      "paths": [
+        "test/**"
+      ],
+      "existing_only": true
+    },
+    {
+      "id": "correctif-bareme",
+      "kind": "touched",
+      "paths": [
+        "lib/data/progression.dart"
+      ]
+    },
+    {
+      "id": "rang-4-x5",
+      "kind": "diff_added",
+      "paths": [
+        "lib/data/progression.dart"
+      ],
+      "regex": "^\\s*4\\s*=>\\s*5\\s*,"
+    },
+    {
+      "id": "non-regression",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} test --no-pub test/data test/features/consigne test/features/espece",
+      "expect_exit": 0,
+      "timeout_s": 1200
+    },
+    {
+      "id": "analyze",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{flutter} analyze --no-pub",
+      "expect_exit": 0,
+      "timeout_s": 900
+    },
+    {
+      "id": "format",
+      "kind": "command",
+      "role": "regression",
+      "cmd": "{dart} format --output=none --set-exit-if-changed lib test",
+      "expect_exit": 0,
+      "timeout_s": 300
+    }
+  ],
+  "review": [
+    "La cause désignée est le barème (`Bareme.multiplicateur`, rang 4 → ×5), pas l'écran de célébration.",
+    "Le correctif est minimal et ne crée pas de second barème (pas de ×5 en dur dans `gainNouvelleEspece`).",
+    "Aucun test modifié ni contourné."
+  ],
+  "expected_files": [
+    "lib/data/progression.dart"
+  ],
+  "notes": "L'échec visible (« +100 » attendu) est dans l'écran ; la cause est deux appels plus loin, dans lib/data."
+}

@@ -1,0 +1,48 @@
+{
+  "id": "pioudex-loc-silence",
+  "project": "pioudex",
+  "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+  "type": "localisation",
+  "promises": [
+    "lens"
+  ],
+  "prompt_fr": "Quand l'identification ne reconnaît aucun oiseau (sur du silence, par exemple), où l'app interprète-t-elle la réponse du service, et où les parcours écoute et photo décident-ils ce qu'ils affichent ? Cite les fichiers et les symboles, et signale toute différence de traitement entre les deux parcours. Ne modifie aucun fichier.",
+  "prompt_en": "When identification recognises no bird (on silence, for instance), where does the app interpret the service response, and where do the listening and photo flows decide what to show? Cite files and symbols, and point out any difference in how the two flows handle it. Do not modify any file.",
+  "setup": {
+    "status": "ready",
+    "note": "Aucune mise en situation : le dépôt tel quel."
+  },
+  "checks": [
+    {
+      "id": "aucune-modification",
+      "kind": "no_diff"
+    },
+    {
+      "id": "reponse",
+      "kind": "answer",
+      "all": [
+        "identification\\.dart",
+        "listen_providers\\.dart",
+        "photo_providers\\.dart",
+        "ListenNothingHeard",
+        "PhotoNothingRecognized"
+      ],
+      "any": [
+        "ConfidenceTier\\.none",
+        "\\bnone\\b"
+      ]
+    }
+  ],
+  "review": [
+    "Cite `ConfidenceTier.parse` et `Identification.fromJson` (aucun candidat relu quand le palier vaut `none`).",
+    "Cite `_verdict` et l'état `ListenNothingHeard` côté écoute, `PhotoNothingRecognized` côté photo.",
+    "Relève que la photo traite `unsure` comme `none`, alors que l'écoute continue sur `unsure`.",
+    "Aucun fichier modifié."
+  ],
+  "expected_files": [
+    "lib/models/identification.dart",
+    "lib/features/listen/listen_providers.dart",
+    "lib/features/photo/photo_providers.dart"
+  ],
+  "notes": "Localisation par description : aucun nom de fichier ne contient « silence » ; le vocabulaire est « none », « NothingHeard », « NothingRecognized »."
+}
