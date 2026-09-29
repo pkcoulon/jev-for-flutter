@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.6 — 2026-09-30
+
+- Lead the README with an animated explanation based on the recorded AppFlowy read, followed by installation and scoped results.
+- Clarify which read-selection code is adapted from Jev and distinguish its license notice from the project's copyright.
+- Include a standalone README in the installed plugin, with setup, data handling and runtime dependencies.
+- Prepare the public release for discovery and directory review. Search and read behavior is unchanged from 0.3.5.
+
 ## 0.3.5 — 2026-09-30
 
 - Allow an exact repository URL to be exempted from a personal Git-host exclusion with `allow_remotes`.

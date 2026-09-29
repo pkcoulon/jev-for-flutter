@@ -1,6 +1,12 @@
-# Attribution
+# Third-party notices
 
-The focused Read mechanism adapts the approach in Boris Le Méec’s [jev](https://github.com/BorisLeMeec/jev), commit e81c1d006b8b23a616486610f311039088521d0c, particularly `internal/run/hook.go` and `internal/run/locate.go`.
+Jev for Flutter is licensed under MIT, copyright (c) 2026 Pierrick Coulon. See [LICENSE](LICENSE). The notices below cover third-party contributions and assets.
+
+## Jev: adapted read selection
+
+The focused Read mechanism in `plugins/jev-for-flutter/lib/jev_flutter/narrow.py` adapts the chunk selection and read-window logic from Boris Le Méec's [jev](https://github.com/BorisLeMeec/jev), specifically `internal/run/hook.go` and `internal/run/locate.go` at commit `e81c1d006b8b23a616486610f311039088521d0c`.
+
+The following notice is retained for that adapted code; it does not assign ownership of the entire Jev for Flutter project to the upstream author.
 
 MIT License
 

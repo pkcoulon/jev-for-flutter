@@ -1,6 +1,6 @@
 # Installing and using Jev for Flutter
 
-This guide describes version 0.3.5. The repository, plugin and marketplace are named `jev-for-flutter`.
+This guide describes version 0.3.6. The repository, plugin and marketplace are named `jev-for-flutter`.
 
 ## Installation
 

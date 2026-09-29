@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title description">
+<title id="title">Jev for Flutter: a focused Dart read</title>
+<desc id="description">Animated explanation of a recorded AppFlowy read: 1,667 lines become a 64-line excerpt, lines 770 to 833. The requested method is preserved. Full files remain accessible. Timing is illustrative.</desc>
+<g font-family="Arial, Helvetica, sans-serif">
+<rect x="1" y="1" width="1198" height="678" rx="22" fill="#f8fafc" stroke="#dce4ed"/>
+<text x="48" y="51" font-size="16" fill="#177fae" font-weight="700" letter-spacing="1.5">JEV FOR FLUTTER</text>
+<text x="1152" y="51" font-size="16" fill="#526177" font-weight="400" text-anchor="end">Recorded example · AppFlowy</text>
+<text x="48" y="109" font-size="37" fill="#172b42" font-weight="700" >Read the part that answers the question.</text>
+<rect x="48" y="138" width="1104" height="58" rx="12" fill="#ffffff" stroke="#dce4ed"/>
+<text x="68" y="174" font-size="13" fill="#63748a" font-weight="700" letter-spacing="1">YOU ASK</text>
+<text x="161" y="174" font-size="20" fill="#22374f" font-weight="400" >Explain _closestScreen in appflowy_popup_menu.dart.</text>
+<rect x="48" y="226" width="426" height="304" rx="16" fill="#ffffff" stroke="#dce4ed"/>
+<text x="72" y="261" font-size="13" fill="#63748a" font-weight="700" letter-spacing="1">DART SOURCE</text>
+<text x="72" y="313" font-size="45" fill="#172b42" font-weight="700" >1,667</text>
+<text x="207" y="311" font-size="18" fill="#526177" font-weight="400" >lines in the file</text>
+<rect x="72" y="337" width="378" height="126" rx="9" fill="#f3f6fa" />
+<rect x="88" y="348" width="53" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="356" width="70" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="364" width="87" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="372" width="60" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="380" width="77" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="388" width="94" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="396" width="67" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="404" width="84" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="412" width="57" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="420" width="74" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="428" width="91" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="436" width="64" height="3" rx="1" fill="#cbd5e1" />
+<rect x="88" y="444" width="81" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="348" width="84" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="356" width="57" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="364" width="74" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="372" width="91" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="380" width="64" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="388" width="81" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="396" width="54" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="404" width="71" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="412" width="88" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="420" width="61" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="428" width="78" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="436" width="95" height="3" rx="1" fill="#cbd5e1" />
+<rect x="208" y="444" width="68" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="348" width="71" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="356" width="88" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="364" width="61" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="372" width="78" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="380" width="95" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="388" width="68" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="396" width="85" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="404" width="58" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="412" width="75" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="420" width="92" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="428" width="65" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="436" width="82" height="3" rx="1" fill="#cbd5e1" />
+<rect x="328" y="444" width="55" height="3" rx="1" fill="#cbd5e1" />
+<rect x="80" y="393.81" width="362" height="11" rx="3" fill="#21a8d6" opacity="0.32"/>
+<text x="72" y="502" font-size="17" fill="#526177" font-weight="400" font-family="Menlo, monospace">appflowy_popup_menu.dart</text>
+<path d="M490 378 H704" stroke="#d1deea" stroke-width="2"/>
+<path d="M698 372 L704 378 L698 384" fill="none" stroke="#b0c3d4" stroke-width="2"/>
+<rect x="548" y="347" width="104" height="62" rx="18" fill="#e9f6fc" stroke="#c4e8f8"/>
+<text x="600" y="386" font-size="24" fill="#127dab" font-weight="700" text-anchor="middle">Jev</text>
+<text x="600" y="438" font-size="16" fill="#526177" font-weight="400" text-anchor="middle">Selects the passage</text>
+<rect x="720" y="226" width="432" height="304" rx="16" fill="#ffffff" stroke="#dce4ed"/>
+<text x="744" y="261" font-size="13" fill="#63748a" font-weight="700" letter-spacing="1">CLAUDE READS</text>
+<g opacity="1">
+<text x="744" y="329" font-size="62" fill="#147b62" font-weight="700" >64</text>
+<text x="843" y="326" font-size="20" fill="#526177" font-weight="400" >selected lines</text>
+<text x="744" y="366" font-size="20" fill="#22374f" font-weight="400" >Lines 770–833</text>
+<rect x="744" y="392" width="384" height="61" rx="9" fill="#edf8f3" />
+<text x="762" y="418" font-size="18" fill="#146d57" font-weight="700" font-family="Menlo, monospace">_closestScreen</text>
+<text x="762" y="440" font-size="16" fill="#397562" font-weight="400" >Complete method kept · lines 798–807</text>
+<text x="744" y="502" font-size="16" fill="#526177" font-weight="400" >Original file and line numbers preserved</text>
+</g>
+<rect x="48" y="557" width="342" height="3" rx="1" fill="#dce4ed" />
+<text x="48" y="588" font-size="14" fill="#9aa8b9" font-weight="700" >01</text>
+<text x="83" y="588" font-size="17" fill="#7b8b9d" font-weight="400" >Read requested</text>
+<rect x="418" y="557" width="342" height="3" rx="1" fill="#dce4ed" />
+<text x="418" y="588" font-size="14" fill="#9aa8b9" font-weight="700" >02</text>
+<text x="453" y="588" font-size="17" fill="#7b8b9d" font-weight="400" >Jev finds the method</text>
+<rect x="788" y="557" width="342" height="3" rx="1" fill="#23a6d4" />
+<text x="788" y="588" font-size="14" fill="#177fae" font-weight="700" >03</text>
+<text x="823" y="588" font-size="17" fill="#172b42" font-weight="600" >Focused read delivered</text>
+<text x="48" y="641" font-size="16" fill="#526177" font-weight="400" >Full-file reads stay available.</text>
+<text x="1152" y="641" font-size="15" fill="#6b7c90" font-weight="400" text-anchor="end">Animated replay · timing illustrative</text>
+</g></svg>
