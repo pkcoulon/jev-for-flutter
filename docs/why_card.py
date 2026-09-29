@@ -16,26 +16,26 @@ def main(out_path):
     reads = rows.get("Bash · lire des fichiers", 0) + rows.get("Read (fichiers)", 0)
     over400 = need["cost-by-context"]["series"]
     card = {
-        "section": "pourquoi · mesuré sur des sessions réelles",
-        "title": "Chaque appel relit tout le contexte.",
-        "title_tail": "Ce qu'un outil y verse y reste.",
-        "subtitle": "Tokens envoyés à chaque appel API, une session réelle sur un projet Flutter.",
-        "hero": {"value": "×%d" % summary["median_rereads_of_tool_result"], "label": "relectures médianes d'une sortie d'outil"},
+        "section": "pourquoi · mesuré sur nos sessions réelles",
+        "title": "Claude relit tout, à chaque échange.",
+        "title_tail": "Ce qu'un outil ajoute y reste.",
+        "subtitle": "Ce que Claude Code renvoie au modèle à chaque échange, en tokens, sur une vraie session Flutter.",
+        "hero": {"value": "×%d" % summary["median_rereads_of_tool_result"], "label": "relectures d'une sortie d'outil"},
         "blocks": [
-            {"kind": "line", "box": [64, 240, 1000, 560], "x_label": "appel API n°",
-             "series": [{"label": "contexte envoyé à chaque appel", "values": growth["values"], "emphasis": True, "end_label": "en fin de session"}],
-             "notes": [{"index": n["index"], "label": n["label"], "dx": -16, "dy": -52} for n in growth["notes"][1:]]},
-            {"kind": "bars", "box": [1088, 240, 448, 330], "title": "part du contexte relu", "max": 40,
+            {"kind": "line", "box": [64, 240, 1000, 560], "x_label": "échange n°",
+             "series": [{"label": "ce que Claude relit à chaque échange", "values": growth["values"], "emphasis": True, "end_label": "en fin de session"}],
+             "notes": [{"index": n["index"], "label": n["label"].replace("appel", "échange"), "dx": -16, "dy": -52} for n in growth["notes"][1:]]},
+            {"kind": "bars", "box": [1088, 240, 448, 330], "title": "ce qui est relu, par origine", "max": 40,
              "rows": [{"label": "sorties d'outils", "value": summary["tool_results_share_of_context_pct"], "text": pct(summary["tool_results_share_of_context_pct"]), "emphasis": True},
-                      {"label": "lire un fichier", "value": reads, "text": pct(reads)},
-                      {"label": "chercher", "value": rows.get("Bash · chercher / lister", 0), "text": pct(rows.get("Bash · chercher / lister", 0))},
+                      {"label": "fichiers lus", "value": reads, "text": pct(reads)},
+                      {"label": "recherches", "value": rows.get("Bash · chercher / lister", 0), "text": pct(rows.get("Bash · chercher / lister", 0))},
                       {"label": "tests, analyse", "value": rows.get("Bash · tests / analyse", 0), "text": pct(rows.get("Bash · tests / analyse", 0))}]},
             {"kind": "tiles", "box": [1088, 594, 448, 206],
-             "tiles": [{"value": "%dk" % round(summary["mean_context"] / 1000), "label": "contexte moyen\npar appel"},
-                       {"value": "%d %%" % round(over400[1]["values"][-1]), "label": "du coût dans les\nappels > 400k"}]},
+             "tiles": [{"value": "%dk" % round(summary["mean_context"] / 1000), "label": "tokens relus par\néchange, en moyenne"},
+                       {"value": "%d %%" % round(over400[1]["values"][-1]), "label": "du coût vient des\néchanges > 400k"}]},
         ],
-        "footer": ["%d sessions · %s appels · 4 projets Flutter, dont 1 pro anonymisé" % (summary["sessions"], format(summary["calls"], ",").replace(",", " ")),
-                   "coût valorisé aux tarifs API du %s : une estimation, pas une facture" % summary["pricing_date"]],
+        "footer": ["%d sessions · %s échanges · 4 projets Flutter, dont 1 pro anonymisé" % (summary["sessions"], format(summary["calls"], ",").replace(",", " ")),
+                   "des estimations du besoin, pas des économies mesurées · coût au tarif API du %s" % summary["pricing_date"]],
     }
     Path(out_path).write_text(json.dumps({"why": card}, ensure_ascii=False, indent=1))
     return 0

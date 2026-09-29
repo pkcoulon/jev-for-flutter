@@ -1,12 +1,12 @@
 {
  "why": {
-  "section": "pourquoi · mesuré sur des sessions réelles",
-  "title": "Chaque appel relit tout le contexte.",
-  "title_tail": "Ce qu'un outil y verse y reste.",
-  "subtitle": "Tokens envoyés à chaque appel API, une session réelle sur un projet Flutter.",
+  "section": "pourquoi · mesuré sur nos sessions réelles",
+  "title": "Claude relit tout, à chaque échange.",
+  "title_tail": "Ce qu'un outil ajoute y reste.",
+  "subtitle": "Ce que Claude Code renvoie au modèle à chaque échange, en tokens, sur une vraie session Flutter.",
   "hero": {
    "value": "×17",
-   "label": "relectures médianes d'une sortie d'outil"
+   "label": "relectures d'une sortie d'outil"
   },
   "blocks": [
    {
@@ -17,10 +17,10 @@
      1000,
      560
     ],
-    "x_label": "appel API n°",
+    "x_label": "échange n°",
     "series": [
      {
-      "label": "contexte envoyé à chaque appel",
+      "label": "ce que Claude relit à chaque échange",
       "values": [
        62463,
        70125,
@@ -162,7 +162,7 @@
     "notes": [
      {
       "index": 45,
-      "label": "+63 k en une seule recherche (grep, find)\nrelus ensuite à chaque appel",
+      "label": "+63 k en une seule recherche (grep, find)\nrelus ensuite à chaque échange",
       "dx": -16,
       "dy": -52
      }
@@ -176,7 +176,7 @@
      448,
      330
     ],
-    "title": "part du contexte relu",
+    "title": "ce qui est relu, par origine",
     "max": 40,
     "rows": [
      {
@@ -186,12 +186,12 @@
       "emphasis": true
      },
      {
-      "label": "lire un fichier",
+      "label": "fichiers lus",
       "value": 16.144332725976966,
       "text": "16,1 %"
      },
      {
-      "label": "chercher",
+      "label": "recherches",
       "value": 4.936644352802866,
       "text": "4,9 %"
      },
@@ -213,18 +213,18 @@
     "tiles": [
      {
       "value": "250k",
-      "label": "contexte moyen\npar appel"
+      "label": "tokens relus par\néchange, en moyenne"
      },
      {
       "value": "47 %",
-      "label": "du coût dans les\nappels > 400k"
+      "label": "du coût vient des\néchanges > 400k"
      }
     ]
    }
   ],
   "footer": [
-   "49 sessions · 15 835 appels · 4 projets Flutter, dont 1 pro anonymisé",
-   "coût valorisé aux tarifs API du 2026-09-28 : une estimation, pas une facture"
+   "49 sessions · 15 835 échanges · 4 projets Flutter, dont 1 pro anonymisé",
+   "des estimations du besoin, pas des économies mesurées · coût au tarif API du 2026-09-28"
   ]
  }
 }
