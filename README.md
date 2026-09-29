@@ -6,7 +6,9 @@ Il s'appuie sur Jev, un petit modèle de [TypeSafe](https://typesafe.ai) qui exa
 
 Le but : faire le même travail avec moins de tokens, sans que tu aies à le demander à Claude.
 
-> **État actuel : prototype.** Trouver le bon code et choisir les bons passages marche bien sur nos premiers essais. Claude s'en sert désormais de lui-même pour les gros fichiers. Reste à montrer qu'il termine le même travail avec moins de tokens.
+> **État actuel : version 0.2.** Par défaut, dartlens arrête la première lecture complète d'un gros fichier Dart et propose à Claude de poser sa question à `lens`. Dans notre campagne comparative, Claude a reçu trois fois moins de code, sans perdre en qualité. Une économie de tokens sur un même travail terminé n'est pas encore démontrée.
+>
+> L'outil `find_code` existe, mais il est **désactivé par défaut**. Dans nos essais, il rendait Claude plus rapide et moins cher, mais moins rigoureux : 1 réponse acceptée sur 4, contre 3 sur 6 sans lui.
 
 ## Ce que ça change pour toi
 
@@ -19,7 +21,7 @@ Tu demandes à Claude : « Pourquoi la carte ne zoome pas sur le département ch
 2. Claude demande : `lens "How does the map zoom onto the selected department?" carte_screen.dart`. Il reçoit les 3 passages concernés, environ 100 lignes, et la liste de ce qui a été laissé de côté.
 3. Il corrige, en relisant au besoin la zone exacte. S'il avait eu besoin de tout le fichier, il lui suffisait de redemander.
 
-Tu n'as rien tapé de plus. L'exemple est illustratif : la sortie de `lens` est réelle, pas la session. Dans nos essais sur de vraies tâches, l'arrêt suivi d'une question à `lens` s'est produit à chaque fois. Chercher du code par description (`lens find`, ci-dessous) marche quand Claude l'appelle, mais il ne l'a pas encore fait de lui-même.
+Tu n'as rien tapé de plus. L'exemple est illustratif : la sortie de `lens` est réelle, pas la session. Dans la première campagne sur de vraies tâches, chaque arrêt a été suivi d'une question à `lens`. Dans une session ultérieure, un sous-agent a préféré lire les fichiers par morceaux : l'arrêt ne garantit donc pas l'usage de `lens`.
 
 ## Trois façons de trouver le bon code
 
@@ -48,7 +50,13 @@ Ce que `lens` laisse de côté est toujours listé, avec la commande pour le lir
 lens find "where the user records how their dog's digestion went" lib
 ```
 
-Ça marche même quand la description n'emploie aucun mot du code. Quand rien n'est sûr, `lens find` le dit.
+Cette recherche peut retrouver du code dont tu ne connais pas les noms. Quand rien n'est sûr, `lens find` le dit.
+
+**Option : l'outil `find_code`.** Il fait la même recherche que `lens find`, mais Claude peut l'appeler directement, sans passer par une commande. Il est désactivé par défaut. Pour l'activer dans un projet : `"find": {"mcp": true}` dans `.claude/dartlens.json`.
+
+Pourquoi il est désactivé : une fois activé, Claude s'en est servi de lui-même dans 4 sessions sur 6, et ces sessions coûtaient 2 à 3 fois moins cher que les réponses acceptées sans lui. Mais 3 de ces 4 réponses ont été refusées. Avec l'ancien moteur, les résultats oubliaient une partie du circuit. Avec le moteur actuel, ils la montrent, mais Claude conclut sans l'examiner. Tant que ce n'est pas corrigé, dartlens ne le met pas dans le chemin normal de Claude.
+
+Le moteur reprend désormais les étapes de [`jev find` de Boris](https://github.com/BorisLeMeec/jev/blob/e81c1d006b8b23a616486610f311039088521d0c/internal/run/find.go) : examiner le plan de chaque fichier séparément, vérifier les premiers candidats sur leur contenu, puis chercher les lignes utiles. Un contenu trop grand pour être vérifié reste signalé comme non vérifié. Au-delà de 150 fichiers, seuls les 150 plus proches par mots-clés sont soumis à Jev, pour tenir en une vingtaine de secondes : un fichier qui ne partage aucun mot avec la question peut alors être manqué. Restreins le dossier (`lib/features`, par exemple) pour l'éviter. Les recherches habituelles restent disponibles.
 
 ### Repérer les fichiers qui ont une propriété : `lens which`
 
@@ -99,7 +107,7 @@ Nous avons fait faire 4 vraies tâches à Claude (Sonnet 5) sur un projet Flutte
 | Tâches réussies | 1 sur 4 | 2 sur 4 | 2 sur 4 |
 | Coût, au tarif de l'API | 6,23 $ | 6,16 $ | 5,12 $ |
 
-**Ce qui marche** : avec l'arrêt, Claude pose ses questions à `lens` au lieu d'ouvrir les gros fichiers en entier. Il a reçu trois fois moins de code. Une seule fois, `lens` lui a donné un fichier entier (507 lignes) : sa question portait sur la structure de tout l'écran. Une simple suggestion, elle, ne change rien.
+**Dans cette campagne** : avec l'arrêt, Claude a posé ses questions à `lens` au lieu d'ouvrir les gros fichiers en entier. Il a reçu trois fois moins de code. Une seule fois, `lens` lui a donné un fichier entier (507 lignes) : sa question portait sur la structure de tout l'écran. Avec la simple suggestion, aucun appel à `lens`.
 
 **Ce qui n'est pas encore démontré** :
 - **Moins de tokens pour le même travail.** Les deux réglages de dartlens réussissent les mêmes 2 tâches, pour presque le même coût (1,86 $ et 1,83 $). La baisse du total vient surtout des tâches ratées.
@@ -108,7 +116,7 @@ Nous avons fait faire 4 vraies tâches à Claude (Sonnet 5) sur un projet Flutte
   - Pour la seconde, plus longue, les trois versions cassent 2 tests qui passaient avant.
 - **Les durées.** Pendant ces essais, un réglage de notre machine bloquait près de 2 minutes chaque demande de permission de Claude. Le banc en est isolé depuis ; ces durées ne valent rien.
 
-Prochaine étape : refaire quelques tâches que Claude sait réussir, avec le banc isolé, pour voir s'il termine le même travail avec moins de tokens. Le détail : [docs/MEASURES.md](docs/MEASURES.md).
+Nous avons aussi essayé `find_code` sur une tâche de localisation, en 10 sessions relues à l'aveugle. Avec l'outil, les sessions coûtent de 0,22 à 0,29 $, mais 1 réponse seulement sur 4 est acceptée. Sans lui, elles coûtent de 0,34 à 0,96 $, et 3 réponses sur 6 sont acceptées. **Une réponse incomplète moins chère n'est pas une économie** : c'est pourquoi l'outil est une option. Le détail : [docs/MEASURES.md](docs/MEASURES.md).
 
 ## Installer
 
