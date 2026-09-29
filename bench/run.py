@@ -29,6 +29,7 @@ ARMS = {
     "router": {"plugin": True, "env": {"DARTLENS_LENS_DISABLE": "1", "DARTLENS_GUARD_DISABLE": "1"}},
     "all": {"plugin": True, "env": {}},
     "all_nojev": {"plugin": True, "env": {"DARTLENS_JEV_DISABLE": "1"}},
+    "all_refuse": {"plugin": True, "env": {"DARTLENS_LENS_NUDGE": "refuse_once"}},
 }
 DEFAULT_ARMS = ("control", "lens", "guard", "router", "all")
 TYPES = ("localisation", "correction_multi_fichiers", "ui_i18n", "diagnostic", "convention", "memoire")

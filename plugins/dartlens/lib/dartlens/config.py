@@ -20,7 +20,7 @@ DEFAULTS = {
     ],
     "generated_dir_markers": [".openapi-generator"],
     "jev": {"enabled": False, "model": "jev-1.13.0", "hook_timeout_s": 1.5, "cli_timeout_s": 20},
-    "lens": {"threshold": 0.5, "max_files": 20},
+    "lens": {"threshold": 0.5, "max_files": 20, "nudge": "hint", "nudge_min_lines": 300, "nudge_max": 3},
     "find": {"extensions": [".dart"], "include_tests": False, "top": 5, "min": 0.6},
     "guard": {"enabled": True, "rules_file": ".claude/dartlens/rules.json", "threshold": 0.85},
     "router": {
