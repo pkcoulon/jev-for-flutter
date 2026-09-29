@@ -19,8 +19,8 @@ from pathlib import Path
 
 BENCH = Path(os.path.dirname(os.path.realpath(__file__)))
 REPO = BENCH.parent
-PLUGIN = REPO / "plugins" / "dartlens"
-LIB = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "plugins", "dartlens", "lib")
+PLUGIN = REPO / "plugins" / "jev-for-flutter"
+LIB = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "plugins", "jev-for-flutter", "lib")
 
 ARMS = {
     "control": {"plugin": False, "env": {}},
@@ -41,7 +41,7 @@ ALLOWED_TOOLS = (
     "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)", "Bash(git grep:*)",
     "Bash(rg:*)", "Bash(grep:*)", "Bash(find:*)", "Bash(ls:*)", "Bash(cat:*)", "Bash(head:*)",
     "Bash(tail:*)", "Bash(sed -n:*)", "Bash(wc:*)",
-    "mcp__plugin_dartlens_dartlens__find_code",
+    "mcp__plugin_dartlens_dartlens__find_code", "mcp__plugin_jev-for-flutter_jev-for-flutter__find_code",
 )
 # Inherited values that would leak the operator's session into the trial.
 STRIPPED_ENV = ("CLAUDE_PROJECT_DIR", "CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")
@@ -169,7 +169,7 @@ if __name__ == "__main__" and sys.argv[1:] == ["--gate"]:
     sys.exit(gate())
 
 sys.path.insert(0, LIB)
-from dartlens import paths, policy, project, rules  # noqa: E402
+from jev_flutter import paths, policy, project, rules  # noqa: E402
 
 
 def config_dir():
@@ -631,7 +631,7 @@ def plugin_python(code, env, cwd):
 
 def jev_preflight(repo, env):
     # The hooks run with this same environment and root: a refusal here means the arm would test nothing.
-    found = plugin_python("from dartlens import config, policy\nprint(json.dumps(policy.jev_allowed(%r, config.load(%r))))"
+    found = plugin_python("from jev_flutter import config, policy\nprint(json.dumps(policy.jev_allowed(%r, config.load(%r))))"
                           % (str(repo), str(repo)), env, repo)
     if isinstance(found, list) and len(found) == 2:
         return bool(found[0]), found[1]
@@ -639,7 +639,7 @@ def jev_preflight(repo, env):
 
 
 def jev_ping(repo, env):
-    code = ("from dartlens import config, jev\n"
+    code = ("from jev_flutter import config, jev\n"
             "client = jev.Client(config.load(%r), 'bench', retries=0)\n"
             "try:\n"
             "    answers = client.ask({'check': 'dartlens bench connectivity'}, "

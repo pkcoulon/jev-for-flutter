@@ -1,0 +1,8 @@
+name: jev_flutter_outline
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  analyzer: ^13.0.0

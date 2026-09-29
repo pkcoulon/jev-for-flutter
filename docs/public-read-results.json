@@ -1,0 +1,333 @@
+{
+  "date": "2026-09-29",
+  "name": "Jev for Flutter 0.3.2",
+  "plugin_identity": {
+    "sha256": "f7b1175899381f86",
+    "commit": null,
+    "dirty": true
+  },
+  "chart_title": "Trois lectures ciblées",
+  "chart_scope": "Flutter Form App · LocalSend · AppFlowy",
+  "scope": "Known-file questions, isolated copy of the target source, not finished development tasks. Same prompts, public sources and tools. Default plugin settings, empty project memory/rules. Reviewer Astra, not blind or independent. No paid retries.",
+  "protocol": {
+    "arms": [
+      "control",
+      "plugin"
+    ],
+    "repetitions": 1,
+    "tools": [
+      "Read"
+    ],
+    "model": "claude-sonnet-5",
+    "effort": "medium",
+    "session_cap_usd": 0.15,
+    "scope": "Known-file questions, isolated copy of the target source, not finished development tasks. Same prompts, public sources and tools. Default plugin settings, empty project memory/rules. Reviewer Astra, not blind or independent. No paid retries."
+  },
+  "projects": [
+    {
+      "id": "form-app",
+      "repo": "flutter/samples",
+      "dir": "flutter-samples",
+      "targets": [
+        "form_app/lib"
+      ],
+      "sha": "8a4cf1db16d52741f0e59e1bfe818723430c35bc",
+      "inventory": {
+        "dart_files": 6,
+        "lines": 738
+      }
+    },
+    {
+      "id": "localsend",
+      "repo": "localsend/localsend",
+      "dir": "localsend",
+      "targets": [
+        "app/lib",
+        "packages/localsend_isolates/lib",
+        "packages/typed_isolates/lib"
+      ],
+      "sha": "c5bbe3630bb50e0de8253502b41523c4a58825bb",
+      "inventory": {
+        "dart_files": 250,
+        "lines": 36748
+      }
+    },
+    {
+      "id": "appflowy",
+      "repo": "AppFlowy-IO/AppFlowy",
+      "dir": "appflowy",
+      "targets": [
+        "frontend/appflowy_flutter/lib",
+        "frontend/appflowy_flutter/packages"
+      ],
+      "sha": "5cf3a365dec0d59f64bad1ee4bb1050471a39b93",
+      "inventory": {
+        "dart_files": 1694,
+        "lines": 262972
+      }
+    }
+  ],
+  "cost_note": "Claude-reported API-equivalent cost, reconciled against deduplicated messages; actual TypeSafe usage at 0.042 USD per million input tokens. Full plugin, including three router calls; project memory/rules empty, 18 personal skill descriptions considered but none suggested.",
+  "tokens_note": "Claude tokens include cache reads and writes, input and output. Jev tokens are listed separately. No claim of fewer combined-provider tokens.",
+  "quality_note": "Four criteria fixed before calls per question. Astra review, not independent or blind. One run per arm; no paid retries. LocalSend control is counted incomplete because the mixed-case small sessions are not explicitly covered.",
+  "summary": {
+    "control": {
+      "claude_tokens": 107419,
+      "total_usd": 0.26389,
+      "seconds": 17.2,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "tool_calls": 3,
+      "accepted": 2
+    },
+    "plugin": {
+      "claude_tokens": 82505,
+      "total_usd": 0.12295900400000001,
+      "seconds": 18.326,
+      "jev_input_tokens": 45262,
+      "jev_output_tokens": 2923,
+      "tool_calls": 4,
+      "accepted": 3
+    },
+    "percent_change": {
+      "claude_tokens": -23.193289827684115,
+      "total_usd": -53.405205199136006,
+      "seconds": 6.546511627906981
+    }
+  },
+  "trials": [
+    {
+      "id": "form-signin-control",
+      "task": "form-signin",
+      "arm": "control",
+      "claude_tokens": 23342,
+      "input_tokens": 4,
+      "cache_write_5m": 0,
+      "cache_write_1h": 7672,
+      "cache_read": 15246,
+      "output_tokens": 420,
+      "claude_usd": 0.0379452,
+      "claude_usd_recomputed": 0.0379452,
+      "jev_usd": 0,
+      "jev_requests": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 4.443,
+      "process_seconds": 6.122673584,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Les quatre points sont explicitement décrits.",
+      "answer": "Au clic sur le bouton « Sign in » (`onPressed`, lignes 73-86), une requête `POST` est envoyée via `widget.httpClient` vers `https://example.com/signin` (ligne 76). Le corps est le JSON de `formData` (email/password saisis dans les champs) encodé via `json.encode(formData.toJson())` (ligne 77), avec l'en-tête `content-type: application/json` (ligne 78).\n\nSelon le code de statut HTTP de la réponse, un `switch` (lignes 81-85) détermine le message affiché dans une boîte de dialogue (`_showDialog`, lignes 97-110) :\n- **200** → « Successfully signed in. »\n- **401** → « Unable to sign in. »\n- **autre statut** → « Something went wrong. Please try again. »",
+      "narrowed": [],
+      "expected_range_preserved": true,
+      "total_usd": 0.0379452
+    },
+    {
+      "id": "form-signin-plugin",
+      "task": "form-signin",
+      "arm": "plugin",
+      "claude_tokens": 23653,
+      "input_tokens": 4,
+      "cache_write_5m": 0,
+      "cache_write_1h": 7827,
+      "cache_read": 15418,
+      "output_tokens": 404,
+      "claude_usd": 0.038439600000000004,
+      "claude_usd_recomputed": 0.0384396,
+      "jev_usd": 0.00012314400000000003,
+      "jev_requests": 1,
+      "jev_input_tokens": 2932,
+      "jev_output_tokens": 176,
+      "seconds": 4.986,
+      "process_seconds": 8.091170541,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Les quatre points sont explicitement décrits.",
+      "answer": "Au clic sur le bouton `TextButton` (ligne 71-87), un POST est envoyé via `widget.httpClient!.post` (ligne 75-79) vers `https://example.com/signin` (ligne 76). Le corps est `formData` (email/password saisis) encodé en JSON via `json.encode(formData.toJson())` (ligne 77), avec l'en-tête `content-type: application/json` (ligne 78).\n\nSelon le code de statut de la réponse (`result.statusCode`, ligne 81-85), une boîte de dialogue s'affiche via `_showDialog` :\n- `200` → « Successfully signed in. » (ligne 82)\n- `401` → « Unable to sign in. » (ligne 83)\n- tout autre code → « Something went wrong. Please try again. » (ligne 84)",
+      "narrowed": [],
+      "expected_range_preserved": true,
+      "total_usd": 0.038562744
+    },
+    {
+      "id": "localsend-state-control",
+      "task": "localsend-state",
+      "arm": "control",
+      "claude_tokens": 34437,
+      "input_tokens": 4,
+      "cache_write_5m": 0,
+      "cache_write_1h": 18712,
+      "cache_read": 15263,
+      "output_tokens": 458,
+      "claude_usd": 0.0824886,
+      "claude_usd_recomputed": 0.0824886,
+      "jev_usd": 0,
+      "jev_requests": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 7.114,
+      "process_seconds": 10.093814417,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "accepted": false,
+      "review": "La réponse omet la représentation des petites sessions dans une map contenant aussi une grande session. Grille stricte : point 2 absent.",
+      "answer": "`describeState` (lignes 69‑83) sert uniquement à Refena pour le debug observer.\n\n- **Ligne 71** : si toutes les sessions ont ≤10 fichiers, on garde `state.toString()` intact, la représentation habituelle standard.\n- **Lignes 74‑82** : sinon, on reconstruit un `Map` (via `.map`) : chaque session avec >10 fichiers (ligne 75) est remplacée par une copie (`session.copyWith(files: {})`, ligne 80) dont on remplace le texte `files: {}` par `files: <N files>` — un résumé textuel, pas les vraies données.\n- **Sessions originales** : non modifiées. `copyWith` crée une nouvelle instance immuable ; le `state` réel dans le notifier (`this.state`, ligne 45/103…) reste inchangé. Seule la chaîne retournée par `describeState` (utilisée pour le logging/debug) est affectée.",
+      "narrowed": [],
+      "expected_range_preserved": true,
+      "total_usd": 0.0824886
+    },
+    {
+      "id": "localsend-state-plugin",
+      "task": "localsend-state",
+      "arm": "plugin",
+      "claude_tokens": 35220,
+      "input_tokens": 6,
+      "cache_write_5m": 0,
+      "cache_write_1h": 7965,
+      "cache_read": 26569,
+      "output_tokens": 680,
+      "claude_usd": 0.043985800000000005,
+      "claude_usd_recomputed": 0.0439858,
+      "jev_usd": 0.000628614,
+      "jev_requests": 2,
+      "jev_input_tokens": 14967,
+      "jev_output_tokens": 975,
+      "seconds": 7.698,
+      "process_seconds": 10.128009708,
+      "tool_calls": 2,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "La réponse précise aussi session.toString pour les petites sessions dans le cas mixte.",
+      "answer": "`describeState` (lignes 70-83) est utilisé par l'observer de debug pour afficher l'état à chaque changement sans ralentir les transferts.\n\n- **Cas normal** (ligne 71-73) : si toutes les sessions ont ≤ 10 fichiers, la représentation habituelle est conservée via `state.toString()`.\n- **Listes longues** (lignes 74-82) : dès qu'une session dépasse 10 fichiers, on reconstruit une map où, pour chaque session : si elle a ≤ 10 fichiers, on garde `session.toString()` (ligne 76) ; sinon on prend `session.copyWith(files: {})` (fichiers vidés) puis on remplace le texte `'files: {}'` par `'files: <N files>'` (N = nombre réel de fichiers, ligne 80).\n- **Sessions originales** : elles ne sont jamais modifiées. `copyWith` crée une copie ; le `state` de l'objet (`Map<String, SendSessionState>`) reste intact, seul le texte retourné par `describeState` diffère.",
+      "narrowed": [
+        {
+          "ts": 1790705616.434731,
+          "session": "7fa9f4d6-d2ff-4e33-adf1-bdd4091b4f28",
+          "file": "421507c120b11d09",
+          "lines": 851,
+          "confidence": 0.85,
+          "focused": 0.88,
+          "event": "narrowed",
+          "prepared": true,
+          "offset": 43,
+          "limit": 64,
+          "full_chars": 29319,
+          "shown_chars": 2579,
+          "ms": 41,
+          "run": "localsend-state-plugin"
+        }
+      ],
+      "expected_range_preserved": true,
+      "total_usd": 0.044614414000000005
+    },
+    {
+      "id": "appflowy-screen-control",
+      "task": "appflowy-screen",
+      "arm": "control",
+      "claude_tokens": 49640,
+      "input_tokens": 4,
+      "cache_write_5m": 0,
+      "cache_write_1h": 33876,
+      "cache_read": 15271,
+      "output_tokens": 489,
+      "claude_usd": 0.1434562,
+      "claude_usd_recomputed": 0.14345619999999998,
+      "jev_usd": 0,
+      "jev_requests": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 5.643,
+      "process_seconds": 8.127511208999998,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Initialisation, distance, égalité et entrée vide sont couverts.",
+      "answer": "`_closestScreen` (lignes 798‑807) initialise `closest` avec le premier écran de l'itérable (`screens.first`, ligne 799), puis parcourt tous les écrans (ligne 800) et remplace `closest` dès qu'un écran a son centre strictement plus proche du `point` donné (comparaison `<` sur la distance, lignes 801‑803).\n\n- **Distances égales** : la comparaison utilise `<` (strictement inférieur), donc en cas d'égalité `closest` n'est pas remplacé — le premier écran trouvé à cette distance minimale (dans l'ordre d'itération) est conservé.\n- **Liste vide** : `screens.first` (ligne 799) lève une exception (`StateError: No element`) si `screens` est vide, sans gestion d'erreur particulière — la méthode suppose implicitement qu'il y a toujours au moins un écran.",
+      "narrowed": [],
+      "expected_range_preserved": true,
+      "total_usd": 0.1434562
+    },
+    {
+      "id": "appflowy-screen-plugin",
+      "task": "appflowy-screen",
+      "arm": "plugin",
+      "claude_tokens": 23632,
+      "input_tokens": 4,
+      "cache_write_5m": 0,
+      "cache_write_1h": 7719,
+      "cache_read": 15443,
+      "output_tokens": 466,
+      "claude_usd": 0.0386326,
+      "claude_usd_recomputed": 0.038632599999999996,
+      "jev_usd": 0.0011492460000000003,
+      "jev_requests": 2,
+      "jev_input_tokens": 27363,
+      "jev_output_tokens": 1772,
+      "seconds": 5.642,
+      "process_seconds": 8.083166124999998,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Initialisation, distance, égalité et entrée vide sont couverts.",
+      "answer": "`_closestScreen` (lignes 798-807) :\n\n- Initialise `closest = screens.first` (ligne 799) : suppose la liste non vide, sinon `StateError` (aucune vérification).\n- Parcourt tous les écrans (l. 800-804) et compare `(screen.center - point).distance` à `(closest.center - point).distance` avec un `<` strict (l. 801-802) : ne garde le nouvel écran que si sa distance au centre `point` est strictement inférieure.\n- En cas d'égalité de distance, la comparaison stricte `<` échoue, donc `closest` n'est pas remplacé : le premier écran rencontré (le plus proche selon l'ordre d'itération, généralement le premier de la liste en cas d'ex æquo) est conservé.\n- Retourne finalement l'écran le plus proche du centre du bouton (`originCenter`, calculé ligne 788).",
+      "narrowed": [
+        {
+          "ts": 1790705643.14338,
+          "session": "e1ab2384-ccaf-4a51-aa11-a3641658502f",
+          "file": "5ac285d5dfc4160b",
+          "lines": 1667,
+          "confidence": 0.86,
+          "focused": 0.95,
+          "event": "narrowed",
+          "prepared": true,
+          "offset": 770,
+          "limit": 64,
+          "full_chars": 58358,
+          "shown_chars": 2445,
+          "ms": 57,
+          "run": "appflowy-screen-plugin"
+        }
+      ],
+      "expected_range_preserved": true,
+      "total_usd": 0.039781846
+    }
+  ],
+  "release_note": "Engine frozen before internal package rename and offline init/doctor commands. The renamed package passed the same offline checks; these paid measurements are from the frozen candidate, not a second paid campaign."
+}

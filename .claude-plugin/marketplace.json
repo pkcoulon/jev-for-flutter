@@ -8,7 +8,7 @@
     {
       "name": "jev-for-flutter",
       "description": "Jev finds the Dart/Flutter code you need and narrows large reads before they enter Claude’s context.",
-      "source": "./plugins/dartlens"
+      "source": "./plugins/jev-for-flutter"
     }
   ]
 }

@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import os
+import json
+import sys
+from pathlib import Path
+
+directory = Path(__file__).resolve().parent
+args = sys.argv[1:]
+if args == ['--version']:
+    print(json.loads((directory.parent / '.claude-plugin/plugin.json').read_text())['version'])
+    sys.exit(0)
+if not args or args[0] in ("help", "--help", "-h"):
+    print('Jev for Flutter\n\n  jev-flutter find "behaviour" [directory] [--max-files N]\n'
+          '  jev-flutter ask "yes/no question" file-or-directory\n'
+          '  jev-flutter read "question" file\n'
+          '  jev-flutter context "question" [directory]\n'
+          '  jev-flutter init --enable-jev\n'
+          '  jev-flutter doctor\n'
+          '  jev-flutter status\n')
+    sys.exit(0)
+command = args.pop(0)
+if command in ("find", "ask", "read", "context"):
+    target = "lens"
+    if command != "read":
+        args.insert(0, "which" if command == "ask" else command)
+else:
+    sys.path.insert(0, str(directory.parent / "lib"))
+    from jev_flutter import cli
+    sys.exit(cli.main([command, *args]))
+os.execv(sys.executable, [sys.executable, str(directory / target), *args])

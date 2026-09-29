@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "jev-for-flutter": {
+      "type": "stdio",
+      "alwaysLoad": true,
+      "command": "python3",
+      "args": [
+        "-B",
+        "${CLAUDE_PLUGIN_ROOT}/mcp/server.py",
+        "--project",
+        "${CLAUDE_PROJECT_DIR}"
+      ]
+    }
+  }
+}

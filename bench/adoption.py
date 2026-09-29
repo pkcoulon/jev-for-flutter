@@ -14,7 +14,7 @@ SHELL_READS = ("cat", "sed", "head", "tail")
 LENS_FILE = re.compile(r"^== (?!\$ )(.+?) \((\d+) lignes\) · (?:intégral|\d+/\d+ blocs · (\d+)/(\d+) lignes)", re.M)
 LENS_KINDS = {"focus": "fichier", "command": "commande", "find": "find", "which": "which"}
 LENS_LABELS = {"fichier": "lens", "commande": "lens cmd", "find": "lens find", "which": "lens which"}
-MCP_FIND_TOOLS = {"mcp__plugin_dartlens_dartlens__find_code", "mcp__dartlens__find_code"}
+MCP_FIND_TOOLS = {"mcp__plugin_dartlens_dartlens__find_code", "mcp__plugin_jev-for-flutter_jev-for-flutter__find_code", "mcp__dartlens__find_code"}
 
 
 def load(path):
@@ -134,7 +134,7 @@ def trial_metrics(directory):
                 continue
             if block.get("type") == "tool_use":
                 uses[block["id"]] = block
-                if block.get("name") == "Skill" and "dartlens" in json.dumps(block.get("input")):
+                if block.get("name") == "Skill" and any(n in json.dumps(block.get("input")) for n in ("dartlens", "jev-for-flutter")):
                     stats["skill"] += 1
                 continue
             if block.get("type") != "tool_result" or block.get("tool_use_id") not in uses:
@@ -149,7 +149,7 @@ def trial_metrics(directory):
                 path = rel(data.get("file_path") or "")
                 event["files"].add(path)
                 ranged = data.get("offset") is not None or data.get("limit") is not None
-                if error and "dartlens" in text:
+                if error and any(n in text for n in ("dartlens", "jev-for-flutter", "Jev for Flutter")):
                     stats["read_refused"] += 1
                     size = re.search(r"fait (\d+) lignes", text)
                     event.update(label="Read(refus)", refused=path, size=int(size[1]) if size else 0)

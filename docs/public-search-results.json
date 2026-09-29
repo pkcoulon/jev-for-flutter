@@ -1,0 +1,1198 @@
+{
+  "date": "2026-09-29",
+  "projects": [
+    {
+      "id": "form-app",
+      "repo": "flutter/samples",
+      "dir": "flutter-samples",
+      "targets": [
+        "form_app/lib"
+      ],
+      "sha": "8a4cf1db16d52741f0e59e1bfe818723430c35bc",
+      "inventory": {
+        "dart_files": 6,
+        "lines": 738
+      }
+    },
+    {
+      "id": "localsend",
+      "repo": "localsend/localsend",
+      "dir": "localsend",
+      "targets": [
+        "app/lib",
+        "packages/localsend_isolates/lib",
+        "packages/typed_isolates/lib"
+      ],
+      "sha": "c5bbe3630bb50e0de8253502b41523c4a58825bb",
+      "inventory": {
+        "dart_files": 250,
+        "lines": 36748
+      }
+    },
+    {
+      "id": "appflowy",
+      "repo": "AppFlowy-IO/AppFlowy",
+      "dir": "appflowy",
+      "targets": [
+        "frontend/appflowy_flutter/lib",
+        "frontend/appflowy_flutter/packages"
+      ],
+      "sha": "5cf3a365dec0d59f64bad1ee4bb1050471a39b93",
+      "inventory": {
+        "dart_files": 1694,
+        "lines": 262972
+      }
+    }
+  ],
+  "protocol": {
+    "arms": [
+      1,
+      8
+    ],
+    "top": 5,
+    "min": 0.6,
+    "max_files": 3000,
+    "timeout_s": 180,
+    "quality": "Every expected file must be in top 5 at p >= 0.6. Negative query must have no candidate at p >= 0.6. Both arms use all eligible files, approximate regex outline, same frozen sources. Alternate arm order.",
+    "accept_batch": "No positive query lost versus individual screening; report false positives and full judged-file count. If worse, retain individual screening by default."
+  },
+  "cases": [
+    {
+      "project": "form-app",
+      "id": "signin",
+      "query": "Where are sign-in form values encoded as JSON and HTTP status codes converted into a user message?",
+      "expected": [
+        "form_app/lib/src/sign_in_http.dart"
+      ]
+    },
+    {
+      "project": "form-app",
+      "id": "validation-fr",
+      "query": "Où la soumission du formulaire est-elle interrompue lorsque les mots saisis ou les conditions acceptées sont invalides ?",
+      "expected": [
+        "form_app/lib/src/validation.dart"
+      ]
+    },
+    {
+      "project": "form-app",
+      "id": "negative",
+      "query": "Where is blockchain wallet transaction signing implemented?",
+      "expected": []
+    },
+    {
+      "project": "localsend",
+      "id": "cancel",
+      "query": "Where does cancelling an outgoing transfer stop checksum calculations, cancel the upload preparation request and notify the recipient?",
+      "expected": [
+        "app/lib/provider/network/send_provider.dart"
+      ]
+    },
+    {
+      "project": "localsend",
+      "id": "logging-fr",
+      "query": "Où les longues listes de fichiers des sessions de transfert sont-elles remplacées par leur nombre pour éviter de saturer les logs ?",
+      "expected": [
+        "app/lib/provider/network/send_provider.dart"
+      ]
+    },
+    {
+      "project": "localsend",
+      "id": "negative",
+      "query": "Where are customer invoices stored and queried in a SQL database?",
+      "expected": []
+    },
+    {
+      "project": "appflowy",
+      "id": "trash",
+      "query": "Where does the trash service restore a deleted view by its id and permanently delete a list of deleted views?",
+      "expected": [
+        "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart"
+      ]
+    },
+    {
+      "project": "appflowy",
+      "id": "focus-fr",
+      "query": "Où le menu déroulant décide-t-il si un appui doit donner le focus au champ de recherche selon la plateforme mobile ou ordinateur ?",
+      "expected": [
+        "frontend/appflowy_flutter/lib/flutter/af_dropdown_menu.dart"
+      ]
+    },
+    {
+      "project": "appflowy",
+      "id": "negative",
+      "query": "Where are federated machine learning model gradients aggregated from client devices?",
+      "expected": []
+    }
+  ],
+  "extra_protocol": {
+    "searches": [
+      {
+        "project": "form-app",
+        "id": "signin-flow",
+        "query": "Find the form code constructing the sign-in JSON request and the mock HTTP handler deciding whether those credentials are accepted.",
+        "expected": [
+          "form_app/lib/src/sign_in_http.dart",
+          "form_app/lib/src/http/mock_client.dart"
+        ]
+      },
+      {
+        "project": "localsend",
+        "id": "cancel-both",
+        "query": "Find the Dart code initiating cancellation of an outgoing transfer and the controller cancelling incoming transfer sessions.",
+        "expected": [
+          "app/lib/provider/network/send_provider.dart",
+          "app/lib/provider/network/server/controller/receive_controller.dart"
+        ]
+      },
+      {
+        "project": "appflowy",
+        "id": "trash-flow",
+        "query": "Find the Dart code dispatching restore and delete events for trash, and the trash service implementing those operations.",
+        "expected": [
+          "frontend/appflowy_flutter/lib/plugins/trash/application/trash_bloc.dart",
+          "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart"
+        ]
+      }
+    ],
+    "reads": [
+      {
+        "id": "localsend-state-broad",
+        "project": "localsend",
+        "file": "app/lib/provider/network/send_provider.dart",
+        "target_lines": [
+          70,
+          83
+        ],
+        "prompt": "Review the entire Dart file app/lib/provider/network/send_provider.dart for all error handling, state changes, rendering and asynchronous behaviour. Include all independent methods.",
+        "criteria": [
+          "All sessions with at most 10 files use the ordinary state string",
+          "Mixed case: small sessions still use their ordinary string",
+          "Large sessions replace the file map with a file count marker",
+          "copyWith creates a copy; original sessions are not mutated"
+        ],
+        "source_sha256": "c13a67c446ce5f8c1b7789687200a17fb03bbe99ad235568384eb526a88dde9d",
+        "lines": 851,
+        "bytes": 29319,
+        "expect": "full"
+      },
+      {
+        "id": "localsend-state-repeat",
+        "project": "localsend",
+        "file": "app/lib/provider/network/send_provider.dart",
+        "target_lines": [
+          70,
+          83
+        ],
+        "prompt": "Dans app/lib/provider/network/send_provider.dart, explique exactement `describeState` : quand la représentation habituelle est conservée, ce qui arrive aux longues listes de fichiers, et si les sessions originales sont modifiées. Cite les lignes, réponds en français en moins de 180 mots. Ne modifie aucun fichier.",
+        "criteria": [
+          "All sessions with at most 10 files use the ordinary state string",
+          "Mixed case: small sessions still use their ordinary string",
+          "Large sessions replace the file map with a file count marker",
+          "copyWith creates a copy; original sessions are not mutated"
+        ],
+        "source_sha256": "c13a67c446ce5f8c1b7789687200a17fb03bbe99ad235568384eb526a88dde9d",
+        "lines": 851,
+        "bytes": 29319,
+        "expect": "repeat-full"
+      },
+      {
+        "id": "appflowy-screen-broad",
+        "project": "appflowy",
+        "file": "frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
+        "target_lines": [
+          798,
+          807
+        ],
+        "prompt": "Review the entire Dart file frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart for all error handling, state changes, rendering and asynchronous behaviour. Include all independent methods.",
+        "criteria": [
+          "Initial candidate is the first screen",
+          "Uses Euclidean distance from screen center to the given point",
+          "Strictly smaller distance replaces candidate; ties keep the first",
+          "Empty iterable has no guard and screens.first throws"
+        ],
+        "source_sha256": "6c29d6ad9b6dbb45bec196f25a0cd86e38387d2a5a4550cee8ed00da1bae1f37",
+        "lines": 1667,
+        "bytes": 58358,
+        "expect": "full"
+      },
+      {
+        "id": "appflowy-screen-repeat",
+        "project": "appflowy",
+        "file": "frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
+        "target_lines": [
+          798,
+          807
+        ],
+        "prompt": "Dans frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart, explique exactement `_closestScreen` : comment il choisit un écran, le cas des distances égales et celui d’une liste vide. Cite les lignes, réponds en français en moins de 180 mots. Ne modifie aucun fichier.",
+        "criteria": [
+          "Initial candidate is the first screen",
+          "Uses Euclidean distance from screen center to the given point",
+          "Strictly smaller distance replaces candidate; ties keep the first",
+          "Empty iterable has no guard and screens.first throws"
+        ],
+        "source_sha256": "6c29d6ad9b6dbb45bec196f25a0cd86e38387d2a5a4550cee8ed00da1bae1f37",
+        "lines": 1667,
+        "bytes": 58358,
+        "expect": "repeat-full"
+      }
+    ],
+    "search_arms": [
+      1,
+      8
+    ],
+    "top": 5,
+    "criterion": "All expected paths in top 5 with p >= 0.6; no claim of full semantic answer. Broad and second identical reads must stay whole. Same frozen plugin as initial campaign; no Claude calls."
+  },
+  "summary": [
+    {
+      "project": "form-app",
+      "files": 6,
+      "individual": {
+        "seconds": 1.6898800105000005,
+        "jev_usd": 0.0005330955000000452,
+        "requests": 13.75,
+        "passed": 4,
+        "n": 4
+      },
+      "grouped": {
+        "seconds": 1.4026682289999994,
+        "jev_usd": 0.00047470500000003314,
+        "requests": 8.75,
+        "passed": 4,
+        "n": 4
+      },
+      "percent_change": {
+        "seconds": -16.99598668044017,
+        "jev_usd": -10.953103149437037,
+        "requests": -36.36363636363637
+      }
+    },
+    {
+      "project": "localsend",
+      "files": 250,
+      "individual": {
+        "seconds": 14.756170489500004,
+        "jev_usd": 0.00797696549999987,
+        "requests": 260.25,
+        "passed": 4,
+        "n": 4
+      },
+      "grouped": {
+        "seconds": 3.892989083749998,
+        "jev_usd": 0.005587302000000011,
+        "requests": 42.25,
+        "passed": 4,
+        "n": 4
+      },
+      "percent_change": {
+        "seconds": -73.61789031564714,
+        "jev_usd": -29.95704945696328,
+        "requests": -83.76560999039386
+      }
+    },
+    {
+      "project": "appflowy",
+      "files": 1691,
+      "individual": {
+        "seconds": 89.77840331224999,
+        "jev_usd": 0.04769125200000012,
+        "requests": 1700.5,
+        "passed": 4,
+        "n": 4
+      },
+      "grouped": {
+        "seconds": 15.880051374999994,
+        "jev_usd": 0.030973949999999997,
+        "requests": 221.5,
+        "passed": 4,
+        "n": 4
+      },
+      "percent_change": {
+        "seconds": -82.31194720653579,
+        "jev_usd": -35.05318333852942,
+        "requests": -86.97441928844457
+      }
+    }
+  ],
+  "trials": [
+    {
+      "id": "form-app-signin-batch1",
+      "project": "form-app",
+      "case": "signin",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 1.680733042,
+      "jev_usd": 0.0005011020000000013,
+      "requests": 13,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/sign_in_http.dart",
+          "p": 0.96
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 6,
+        "ts": 1790705650.244,
+        "ms": 1542,
+        "backend": "jev",
+        "requests": 13,
+        "tokens_est": 13547,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "form-app-signin-batch8",
+      "project": "form-app",
+      "case": "signin",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 1.4537820830000001,
+      "jev_usd": 0.00044297400000000006,
+      "requests": 8,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/sign_in_http.dart",
+          "p": 0.96
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 6,
+        "ts": 1790705651.706,
+        "ms": 1307,
+        "backend": "jev",
+        "requests": 8,
+        "tokens_est": 13288,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "form-app-validation-fr-batch8",
+      "project": "form-app",
+      "case": "validation-fr",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 1.3440636659999967,
+      "jev_usd": 0.00047241600000000024,
+      "requests": 8,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/validation.dart",
+          "p": 0.93
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 6,
+        "ts": 1790705653.083,
+        "ms": 1226,
+        "backend": "jev",
+        "requests": 8,
+        "tokens_est": 14565,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "form-app-validation-fr-batch1",
+      "project": "form-app",
+      "case": "validation-fr",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 1.6103997920000026,
+      "jev_usd": 0.0005332740000000002,
+      "requests": 13,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/validation.dart",
+          "p": 0.93
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 6,
+        "ts": 1790705654.708,
+        "ms": 1482,
+        "backend": "jev",
+        "requests": 13,
+        "tokens_est": 14860,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "form-app-negative-batch1",
+      "project": "form-app",
+      "case": "negative",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 1.8732764579999994,
+      "jev_usd": 0.000570821999999999,
+      "requests": 15,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 6,
+        "ts": 1790705656.61,
+        "ms": 1742,
+        "backend": "jev",
+        "requests": 15,
+        "tokens_est": 14704,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "form-app-negative-batch8",
+      "project": "form-app",
+      "case": "negative",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 1.409419917000001,
+      "jev_usd": 0.0005150039999999995,
+      "requests": 10,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 6,
+        "ts": 1790705658.052,
+        "ms": 1278,
+        "backend": "jev",
+        "requests": 10,
+        "tokens_est": 14510,
+        "files": 6,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-cancel-batch8",
+      "project": "localsend",
+      "case": "cancel",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 3.9425013339999992,
+      "jev_usd": 0.005594526000000002,
+      "requests": 42,
+      "candidates": [
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.77
+        },
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/upload_isolate.dart",
+          "p": 0.71
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 250,
+        "ts": 1790705662.02,
+        "ms": 3806,
+        "backend": "jev",
+        "requests": 42,
+        "tokens_est": 155232,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-cancel-batch1",
+      "project": "localsend",
+      "case": "cancel",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 14.71520120800001,
+      "jev_usd": 0.00798991199999999,
+      "requests": 260,
+      "candidates": [
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.74
+        },
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/upload_isolate.dart",
+          "p": 0.74
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 250,
+        "ts": 1790705676.775,
+        "ms": 14537,
+        "backend": "jev",
+        "requests": 260,
+        "tokens_est": 164528,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-logging-fr-batch1",
+      "project": "localsend",
+      "case": "logging-fr",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 14.761184,
+      "jev_usd": 0.008487024000000003,
+      "requests": 260,
+      "candidates": [
+        {
+          "path": "app/lib/provider/network/server/server_provider.dart",
+          "p": 0.86
+        },
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.85
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 250,
+        "ts": 1790705691.548,
+        "ms": 14571,
+        "backend": "jev",
+        "requests": 260,
+        "tokens_est": 177182,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-logging-fr-batch8",
+      "project": "localsend",
+      "case": "logging-fr",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 3.7997990829999964,
+      "jev_usd": 0.005775294,
+      "requests": 41,
+      "candidates": [
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.84
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 250,
+        "ts": 1790705695.383,
+        "ms": 3633,
+        "backend": "jev",
+        "requests": 41,
+        "tokens_est": 162906,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-negative-batch8",
+      "project": "localsend",
+      "case": "negative",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 3.8028005839999963,
+      "jev_usd": 0.005138825999999992,
+      "requests": 43,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 250,
+        "ts": 1790705699.216,
+        "ms": 3618,
+        "backend": "jev",
+        "requests": 43,
+        "tokens_est": 137572,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "localsend-negative-batch1",
+      "project": "localsend",
+      "case": "negative",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 14.73536591700001,
+      "jev_usd": 0.007109171999999976,
+      "requests": 260,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 250,
+        "ts": 1790705713.96,
+        "ms": 14607,
+        "backend": "jev",
+        "requests": 260,
+        "tokens_est": 133631,
+        "files": 250,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-trash-batch1",
+      "project": "appflowy",
+      "case": "trash",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 89.540235,
+      "jev_usd": 0.04742929800000006,
+      "requests": 1700,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart",
+          "p": 0.88
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/mobile/presentation/home/mobile_home_trash_page.dart",
+          "p": 0.6
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 1691,
+        "ts": 1790705803.506,
+        "ms": 89349,
+        "backend": "jev",
+        "requests": 1700,
+        "tokens_est": 903086,
+        "files": 1691,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-trash-batch8",
+      "project": "appflowy",
+      "case": "trash",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 15.656875791999994,
+      "jev_usd": 0.03060086399999995,
+      "requests": 220,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart",
+          "p": 0.87
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 1691,
+        "ts": 1790705819.2,
+        "ms": 15477,
+        "backend": "jev",
+        "requests": 220,
+        "tokens_est": 826907,
+        "files": 1691,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-focus-fr-batch8",
+      "project": "appflowy",
+      "case": "focus-fr",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 15.948801082999978,
+      "jev_usd": 0.0319622940000001,
+      "requests": 222,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/flutter/af_dropdown_menu.dart",
+          "p": 0.93
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/document/presentation/editor_plugins/code_block/code_block_language_selector.dart",
+          "p": 0.63
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 1691,
+        "ts": 1790705835.161,
+        "ms": 15832,
+        "backend": "jev",
+        "requests": 222,
+        "tokens_est": 861384,
+        "files": 1691,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-focus-fr-batch1",
+      "project": "appflowy",
+      "case": "focus-fr",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 90.10410974999999,
+      "jev_usd": 0.04912105799999983,
+      "requests": 1700,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/flutter/af_dropdown_menu.dart",
+          "p": 0.93
+        }
+      ],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 1691,
+        "ts": 1790705925.277,
+        "ms": 89944,
+        "backend": "jev",
+        "requests": 1700,
+        "tokens_est": 943838,
+        "files": 1691,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-negative-batch1",
+      "project": "appflowy",
+      "case": "negative",
+      "batch_files": 1,
+      "returncode": 0,
+      "seconds": 90.02297308299995,
+      "jev_usd": 0.04659744600000018,
+      "requests": 1701,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 1,
+        "screened_files": 1691,
+        "ts": 1790706015.312,
+        "ms": 89857,
+        "backend": "jev",
+        "requests": 1701,
+        "tokens_est": 876156,
+        "files": 1691,
+        "errors": 0
+      }
+    },
+    {
+      "id": "appflowy-negative-batch8",
+      "project": "appflowy",
+      "case": "negative",
+      "batch_files": 8,
+      "returncode": 0,
+      "seconds": 16.123059667000007,
+      "jev_usd": 0.03040048199999984,
+      "requests": 222,
+      "candidates": [],
+      "passed": true,
+      "event": {
+        "mode": "find",
+        "batch_files": 8,
+        "screened_files": 1691,
+        "ts": 1790706031.459,
+        "ms": 15878,
+        "backend": "jev",
+        "requests": 222,
+        "tokens_est": 817788,
+        "files": 1691,
+        "errors": 0
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "localsend-state-broad",
+      "kind": "read",
+      "expect": "full",
+      "passed": true,
+      "results": [
+        null
+      ]
+    },
+    {
+      "id": "localsend-state-repeat",
+      "kind": "read",
+      "expect": "repeat-full",
+      "passed": true,
+      "results": [
+        {
+          "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "additionalContext": "Jev for Flutter: Read narrowed to lines 43-106 of 851. This is a selected region, not the whole file. Follow other calls/branches needed for the answer. Repeat Read for the whole file, or set an explicit offset/limit for another region. Source on disk is unchanged.",
+            "updatedInput": {
+              "file_path": "/Users/pierrick_coulon/.cache/dartlens-bench/flutter-public-2026-09-29/sources/localsend/app/lib/provider/network/send_provider.dart",
+              "offset": 43,
+              "limit": 64
+            }
+          }
+        },
+        null
+      ]
+    },
+    {
+      "id": "appflowy-screen-broad",
+      "kind": "read",
+      "expect": "full",
+      "passed": true,
+      "results": [
+        null
+      ]
+    },
+    {
+      "id": "appflowy-screen-repeat",
+      "kind": "read",
+      "expect": "repeat-full",
+      "passed": true,
+      "results": [
+        {
+          "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "additionalContext": "Jev for Flutter: Read narrowed to lines 770-833 of 1667. This is a selected region, not the whole file. Follow other calls/branches needed for the answer. Repeat Read for the whole file, or set an explicit offset/limit for another region. Source on disk is unchanged.",
+            "updatedInput": {
+              "file_path": "/Users/pierrick_coulon/.cache/dartlens-bench/flutter-public-2026-09-29/sources/appflowy/frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
+              "offset": 770,
+              "limit": 64
+            }
+          }
+        },
+        null
+      ]
+    },
+    {
+      "id": "flow-form-app-signin-flow-batch8",
+      "kind": "search",
+      "project": "form-app",
+      "case": "signin-flow",
+      "batch_files": 8,
+      "seconds": 1.4034072499999999,
+      "returncode": 0,
+      "jev_usd": 0.0004684260000001328,
+      "requests": 9,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/http/mock_client.dart",
+          "p": 0.86
+        },
+        {
+          "path": "form_app/lib/src/sign_in_http.dart",
+          "p": 0.81
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "flow-form-app-signin-flow-batch1",
+      "kind": "search",
+      "project": "form-app",
+      "case": "signin-flow",
+      "batch_files": 1,
+      "seconds": 1.5951107499999995,
+      "returncode": 0,
+      "jev_usd": 0.0005271840000001804,
+      "requests": 14,
+      "candidates": [
+        {
+          "path": "form_app/lib/src/http/mock_client.dart",
+          "p": 0.85
+        },
+        {
+          "path": "form_app/lib/src/sign_in_http.dart",
+          "p": 0.8
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "flow-localsend-cancel-both-batch1",
+      "kind": "search",
+      "project": "localsend",
+      "case": "cancel-both",
+      "batch_files": 1,
+      "seconds": 14.812930833,
+      "returncode": 0,
+      "jev_usd": 0.008321753999999515,
+      "requests": 261,
+      "candidates": [
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/upload_isolate.dart",
+          "p": 0.82
+        },
+        {
+          "path": "app/lib/pages/send_page.dart",
+          "p": 0.81
+        },
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.72
+        },
+        {
+          "path": "app/lib/provider/network/server/controller/receive_controller.dart",
+          "p": 0.7
+        },
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/server_isolate.dart",
+          "p": 0.7
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "flow-localsend-cancel-both-batch8",
+      "kind": "search",
+      "project": "localsend",
+      "case": "cancel-both",
+      "batch_files": 8,
+      "seconds": 4.026855334,
+      "returncode": 0,
+      "jev_usd": 0.005840562000000049,
+      "requests": 43,
+      "candidates": [
+        {
+          "path": "app/lib/pages/send_page.dart",
+          "p": 0.82
+        },
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/upload_isolate.dart",
+          "p": 0.79
+        },
+        {
+          "path": "app/lib/provider/network/send_provider.dart",
+          "p": 0.78
+        },
+        {
+          "path": "app/lib/provider/network/server/controller/receive_controller.dart",
+          "p": 0.71
+        },
+        {
+          "path": "packages/localsend_isolates/lib/src/isolate/child/server_isolate.dart",
+          "p": 0.68
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "flow-appflowy-trash-flow-batch8",
+      "kind": "search",
+      "project": "appflowy",
+      "case": "trash-flow",
+      "batch_files": 8,
+      "seconds": 15.791468958,
+      "returncode": 0,
+      "jev_usd": 0.030932160000000097,
+      "requests": 222,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_bloc.dart",
+          "p": 0.81
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart",
+          "p": 0.79
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/document/application/document_bloc.dart",
+          "p": 0.79
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/workspace/application/view/view_listener.dart",
+          "p": 0.68
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/mobile/presentation/home/mobile_home_trash_page.dart",
+          "p": 0.62
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "flow-appflowy-trash-flow-batch1",
+      "kind": "search",
+      "project": "appflowy",
+      "case": "trash-flow",
+      "batch_files": 1,
+      "seconds": 89.446295416,
+      "returncode": 0,
+      "jev_usd": 0.04761720600000041,
+      "requests": 1701,
+      "candidates": [
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_bloc.dart",
+          "p": 0.8
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/trash/application/trash_service.dart",
+          "p": 0.79
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/document/application/document_bloc.dart",
+          "p": 0.77
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/workspace/application/view/view_listener.dart",
+          "p": 0.67
+        },
+        {
+          "path": "frontend/appflowy_flutter/lib/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart",
+          "p": 0.67
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "budget": {
+    "claude_usd": 0.4234174,
+    "jev_usd": 0.3790571820000003,
+    "jev_reserved": 0.0,
+    "jev_requests": 8999,
+    "jev_rejected": 0,
+    "trials": [
+      {
+        "id": "form-signin-control",
+        "budget_accounted_usd": 0.0379452,
+        "external_stop": false
+      },
+      {
+        "id": "form-signin-plugin",
+        "budget_accounted_usd": 0.038439600000000004,
+        "external_stop": false
+      },
+      {
+        "id": "localsend-state-plugin",
+        "budget_accounted_usd": 0.044,
+        "external_stop": false
+      },
+      {
+        "id": "localsend-state-control",
+        "budget_accounted_usd": 0.0825,
+        "external_stop": false
+      },
+      {
+        "id": "appflowy-screen-control",
+        "budget_accounted_usd": 0.1435,
+        "external_stop": false
+      },
+      {
+        "id": "appflowy-screen-plugin",
+        "budget_accounted_usd": 0.0386326,
+        "external_stop": false
+      },
+      {
+        "id": "renamed-integration",
+        "budget_accounted_usd": 0.0384,
+        "external_stop": false
+      }
+    ]
+  },
+  "window_check": {
+    "checked": 200,
+    "methods_retained": 200,
+    "sampling": "100 randomly shuffled recognized declarations per non-small project; seed 20260929, at chunk start; approximate parser only."
+  },
+  "known_limits": [
+    "One run per query and configuration; four different queries per project are not four repetitions of the same query.",
+    "A positive passes when all required files occur in the top 5 at p >= 0.6; extra paths are not penalized. Negative queries must have no path above threshold.",
+    "Only Dart code in the recorded scope, not Rust or native platform implementations.",
+    "Project count is the actual screened files: AppFlowy inventory has three additional files excluded by policy.",
+    "120/180 second timeout must not be confused with the 20 second default; campaign uses 180.",
+    "Raw API receipts, prompts, pinned checkouts and logs remain in the private campaign archive."
+  ],
+  "final_integration": {
+    "purpose": "Final renamed package integration, not included in the pre-registered three-pair comparison. Path contains spaces and non-ASCII; init and doctor run before session.",
+    "plan": {
+      "plugin": {
+        "sha256": "a0a896620f2dec34",
+        "commit": null,
+        "dirty": true
+      },
+      "case": {
+        "id": "appflowy-screen",
+        "project": "appflowy",
+        "file": "frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
+        "target_lines": [
+          798,
+          807
+        ],
+        "prompt": "Dans frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart, explique exactement `_closestScreen` : comment il choisit un écran, le cas des distances égales et celui d’une liste vide. Cite les lignes, réponds en français en moins de 180 mots. Ne modifie aucun fichier.",
+        "criteria": [
+          "Initial candidate is the first screen",
+          "Uses Euclidean distance from screen center to the given point",
+          "Strictly smaller distance replaces candidate; ties keep the first",
+          "Empty iterable has no guard and screens.first throws"
+        ],
+        "source_sha256": "6c29d6ad9b6dbb45bec196f25a0cd86e38387d2a5a4550cee8ed00da1bae1f37",
+        "lines": 1667,
+        "bytes": 58358
+      },
+      "max_claude_usd": 0.15,
+      "scope": "One final package integration in a path with spaces and non-ASCII; not a repeated performance comparison."
+    },
+    "claude_usd": 0.038383,
+    "jev_usd": 0.0011492460000000003,
+    "seconds": 7.35,
+    "answer": "`_closestScreen` (lignes 798-807) initialise `closest` avec `screens.first` (ligne 799), puis parcourt tous les écrans (`screens`) et remplace `closest` dès qu'un écran a son centre strictement plus proche (`distance <`, ligne 801-802) du `point` donné que le `closest` courant.\n\n- **Distances égales** : la comparaison est stricte (`<`), donc en cas d'égalité `closest` n'est pas remplacé : c'est le premier écran rencontré avec cette distance minimale qui est conservé (donc en pratique le plus proche dans l'ordre d'itération, souvent `screens.first` si aucun autre écran n'est strictement plus proche).\n- **Liste vide** : `screens.first` (ligne 799) lève une exception (`StateError: No element`) puisqu'aucune vérification de liste vide n'est faite avant.",
+    "criteria": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "accepted": true,
+    "reviewer": "Astra, not blind or independent",
+    "events": [
+      {
+        "ts": 1790707335.1412969,
+        "session": "9c4e01cb-6bf0-4c1a-874d-165a84fdf573",
+        "event": "prepared",
+        "ready": true,
+        "ms": 538,
+        "run": "renamed-integration"
+      },
+      {
+        "ts": 1790707337.333072,
+        "session": "9c4e01cb-6bf0-4c1a-874d-165a84fdf573",
+        "file": "895703f30d19f270",
+        "lines": 1667,
+        "confidence": 0.86,
+        "focused": 0.95,
+        "event": "narrowed",
+        "prepared": true,
+        "offset": 770,
+        "limit": 64,
+        "full_chars": 58358,
+        "shown_chars": 2445,
+        "ms": 65,
+        "run": "renamed-integration"
+      }
+    ],
+    "source_unchanged": true
+  }
+}

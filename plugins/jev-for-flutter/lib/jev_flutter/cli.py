@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+import importlib
+import os
+import pkgutil
+import re
+import sys
+
+LIB = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, LIB)
+
+NAME = re.compile(r"^[a-z][a-z0-9_]*$")
+
+
+def available():
+    return sorted(m.name for m in pkgutil.iter_modules([os.path.join(LIB, "jev_flutter", "commands")]) if NAME.match(m.name))
+
+
+def usage(names, out):
+    out.write("usage : jev-flutter <commande> [args]   (jev-flutter <commande> -h pour l'aide)\n")
+    out.write("commandes : %s\n" % (", ".join(n.replace("_", " ") for n in names) or "aucune"))
+
+
+def resolve(argv, names):
+    words = [w.replace("-", "_") for w in argv[:2]]
+    if len(words) == 2 and "_".join(words) in names:
+        return "_".join(words), argv[2:]
+    if words and words[0] in names:
+        return words[0], argv[1:]
+    return None, argv
+
+
+def main(argv):
+    names = available()
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        usage(names, sys.stdout)
+        return 0
+    name, rest = resolve(argv, names)
+    if not name:
+        prefix = argv[0].replace("-", "_") + "_"
+        group = [n[len(prefix):] for n in names if n.startswith(prefix)]
+        if group:
+            sys.stderr.write("jev-flutter %s : sous-commande attendue (%s)\n" % (argv[0], ", ".join(group)))
+        else:
+            sys.stderr.write("jev-flutter : commande inconnue « %s »\n" % argv[0])
+            usage(names, sys.stderr)
+        return 2
+    try:
+        module = importlib.import_module("jev_flutter.commands." + name)
+    except Exception as error:
+        sys.stderr.write("jev-flutter : commande « %s » indisponible : %s: %s\n" % (name.replace("_", " "), type(error).__name__, error))
+        return 1
+    code = module.main(rest)
+    return code if isinstance(code, int) else 0
+
+
+if __name__ == "__main__":
+    try:
+        code = main(sys.argv[1:])
+        sys.stdout.flush()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except BrokenPipeError:
+        # The interpreter flushes stdout again at exit: point it at devnull so the closed pipe stays silent.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        sys.exit(0)
+    sys.exit(code)

@@ -16,13 +16,13 @@ import sys
 from pathlib import Path
 
 BENCH = Path(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "plugins", "dartlens", "lib"))
-from dartlens import paths  # noqa: E402
-from dartlens.commands.status import PRICE_PER_MTOK as JEV_USD_PER_MTOK  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "plugins", "jev-for-flutter", "lib"))
+from jev_flutter import paths  # noqa: E402
+from jev_flutter.commands.status import PRICE_PER_MTOK as JEV_USD_PER_MTOK  # noqa: E402
 
-CC_USAGE = BENCH.parent / "plugins" / "dartlens" / "bin" / "cc-usage"
-LENS_WORDS = ("lens", "dartlens")
-TOOLING_WORDS = (r"dartlens", r"\blens\b", r"\bjev\b", r"typesafe", r"system ?one", r"convention_guard", r"context_router",
+CC_USAGE = BENCH.parent / "plugins" / "jev-for-flutter" / "bin" / "cc-usage"
+LENS_WORDS = ("lens", "dartlens", "jev-flutter")
+TOOLING_WORDS = (r"dartlens", r"jev[-_]for[-_]flutter", r"jev_flutter", r"\blens\b", r"\bjev\b", r"typesafe", r"system ?one", r"convention_guard", r"context_router",
                  r"dart-outline", r"\bgarde\b.{0,30}\bconventions?\b", r"conventions? à vérifier", r"avis probabiliste",
                  r"\bp\s?=\s?[01][.,]\d+", r"\brout(?:eur|er)\b.{0,30}\b(?:mémoire|memory|skill)")
 NOTICE = ("_Dans tous les paquets, quel que soit le bras, les phrases et lignes qui mentionnent l'outillage de l'essai "

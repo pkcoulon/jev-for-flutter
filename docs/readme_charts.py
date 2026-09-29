@@ -163,38 +163,47 @@ def exploratory_chart(data, theme, preview):
     plt.close(figure)
 
 
-def read_chart(data, theme, preview):
+def read_chart(data, theme, preview, stem="read-results"):
     dark = theme == "dark"
-    background, foreground, muted, grid = (("#0b1220", "#edf4fb", "#a1b0c5", "#26354a") if dark
-                                         else ("#f6f9fc", "#142238", "#51627b", "#dce5ef"))
+    background, foreground, muted, neutral, accent = (
+        ("#111418", "#e6e9ee", "#9ba3af", "#414953", "#8faed3") if dark
+        else ("#ffffff", "#242c36", "#717b88", "#dfe4eb", "#708fb4"))
     plt.rcParams.update({"font.family": "DejaVu Sans", "text.color": foreground,
-                         "svg.fonttype": "none", "svg.hashsalt": "jev-flutter-read-2026-09-29"})
-    fig, axes = plt.subplots(1, 3, figsize=(12.8, 4.5))
-    fig.set_facecolor(background)
-    fig.subplots_adjust(left=.055, right=.955, top=.62, bottom=.32, wspace=.35)
-    fig.text(.045, .88, "Moins de contexte. Des lectures moins chères.", fontsize=21, weight="bold")
-    fig.text(.045, .79, "Jev for Flutter · 3 questions sur des fichiers connus · 1 session par variante", fontsize=12, color=muted)
-    for ax, field, label in zip(axes, ("claude_tokens", "total_usd", "seconds"),
-                               ("Tokens Claude · cache inclus", "Coût Claude + Jev", "Durée rapportée par Claude")):
+                         "svg.fonttype": "path", "svg.hashsalt": "jev-flutter-public-2026-09-29"})
+    fig = plt.figure(figsize=(11.2, 4.8), facecolor=background)
+    fig.text(.05, .91, data.get("chart_title", "Trois lectures ciblées"), fontsize=19, weight="medium")
+    fig.text(.05, .85, data.get("chart_scope", "Jev for Flutter 0.3.0 · trois questions sur des fichiers connus"),
+             fontsize=10, color=muted)
+    for x, color, label in ((.35, neutral, "Sans plugin"), (.51, accent, "Avec Jev")):
+        fig.add_artist(plt.Line2D([x, x + .017], [.75, .75], color=color, linewidth=5, solid_capstyle="round"))
+        fig.text(x + .025, .75, label, va="center", fontsize=10, color=muted)
+    for y, field, label in zip((.62, .43, .24), ("claude_tokens", "total_usd", "seconds"),
+                               ("Tokens Claude", "Coût Claude + Jev", "Temps total")):
         change = data["summary"]["percent_change"][field]
-        color = "#19bba8" if change < 0 else "#ed9459"
-        ax.set_facecolor(background)
-        ax.barh([1, 0], [100, 100 + change], height=.40, color=[grid, color])
-        ax.set_xlim(0, 145)
-        ax.set_ylim(-.6, 1.6)
+        control, plugin = (data["summary"][arm][field] for arm in ("control", "plugin"))
+        ax = fig.add_axes((.35, y - .065, .42, .13), facecolor=background)
+        ax.barh([1, 0], [control, plugin], height=.26, color=[neutral, accent])
+        ax.set_xlim(0, max(control, plugin) * 1.29)
+        ax.set_ylim(-.55, 1.55)
         ax.set_axis_off()
-        ax.text(0, 1.9, f"{change:+.0f} %".replace("-", "−"), fontsize=31, weight="bold", color=color)
-        ax.text(0, -.9, label, fontsize=11, color=foreground)
-        ax.text(103, 1, "sans", fontsize=10, va="center", color=muted)
-        ax.text(103 + change, 0, "avec", fontsize=10, va="center", color=muted)
-    fig.text(.045, .15, "Passages attendus conservés : 3/3. Réponses entièrement acceptées : 2/3 avec, 1/3 sans.", fontsize=11, color=foreground)
-    fig.text(.045, .065, "Tous les essais inclus. Pas une preuve sur un développement complet ni d'accélération générale.", fontsize=11, color=muted)
-    output = HERE / "img" / f"read-results-{theme}.svg"
+        fmt = ((lambda v: f"{v / 1000:.1f} k") if field == "claude_tokens" else
+               (lambda v: f"{v:.3f} $") if field == "total_usd" else (lambda v: f"{v:.1f} s"))
+        for level, value in ((1, control), (0, plugin)):
+            ax.text(value + max(control, plugin) * .035, level, fmt(value).replace(".", ","),
+                    va="center", fontsize=9, color=muted)
+        fig.text(.05, y, label, va="center", fontsize=12)
+        fig.text(.95, y, f"{change:+.0f} %".replace("-", "−"), ha="right", va="center",
+                 fontsize=23, weight="medium", color=accent if change < 0 else foreground)
+    accepted = data["summary"]
+    count = len(data["trials"]) // 2
+    fig.text(.05, .075, f"Réponses acceptées : {accepted['plugin']['accepted']}/{count} avec Jev · "
+             f"{accepted['control']['accepted']}/{count} sans plugin. Une mesure par variante.", fontsize=10, color=muted)
+    output = HERE / "img" / f"{stem}-{theme}.svg"
     fig.savefig(output, facecolor=background, metadata={"Date": None})
     output.write_text("\n".join(line.rstrip() for line in output.read_text().splitlines()) + "\n")
     if preview:
         preview.mkdir(parents=True, exist_ok=True)
-        fig.savefig(preview / f"read-results-{theme}.png", facecolor=background, dpi=140)
+        fig.savefig(preview / f"{stem}-{theme}.png", facecolor=background, dpi=140)
     plt.close(fig)
 
 
@@ -223,6 +232,10 @@ def main():
     reads = json.loads((HERE / "read-results.json").read_text())
     for theme in ("light", "dark"):
         read_chart(reads, theme, args.preview)
+    public = HERE / "public-read-results.json"
+    if public.exists():
+        for theme in ("light", "dark"):
+            read_chart(json.loads(public.read_text()), theme, args.preview, "public-read-results")
 
 
 if __name__ == "__main__":

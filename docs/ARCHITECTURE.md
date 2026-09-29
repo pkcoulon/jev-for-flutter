@@ -1,4 +1,4 @@
-# Architecture de Jev for Flutter 0.3.1
+# Architecture de Jev for Flutter 0.3.2
 
 Le chemin principal réduit une lecture déjà demandée par Claude. La recherche sémantique est disponible à la demande. Le moteur de contexte en arrière-plan, développé et mesuré précédemment, reste facultatif : son dernier essai ajoutait des tokens et du coût.
 
@@ -18,13 +18,15 @@ flowchart LR
 
 ## Lecture native
 
-`hooks/lens_nudge.py` sélectionne le mode. `lib/dartlens/narrow.py` applique le mode `narrow`, désormais par défaut. Une plage explicite, un fichier généré, un projet exclu, une source hors projet ou l'absence d'activation empêche tout envoi.
+`hooks/lens_nudge.py` sélectionne le mode. `lib/jev_flutter/narrow.py` applique le mode `narrow`, désormais par défaut. Une plage explicite, un fichier généré, un projet exclu, une source hors projet ou l'absence d'activation empêche tout envoi.
 
 La dernière vraie demande utilisateur est extraite du transcript de l'agent concerné ; résultats d'outils et rappels sont exclus. Le fichier entier est masqué avant un découpage en groupes de lignes. Une seule requête Jev évalue en parallèle la localisation (`choice`) et le caractère ciblé de la demande (`noul`). Aucun préfiltre lexical ne décide quelle partie du fichier Jev voit.
 
 Limites : 64 000 octets, estimation de 24 000 tokens pour état et questions, 200 groupes maximum, 3 secondes réseau, aucune relance, 24 requêtes par session au plus. Le hook entier dispose de 4 secondes. Le seuil du choix vaut 0,60 et celui du périmètre ciblé 0,85 ; ce sont des filtres, pas des garanties de rappel.
 
-La fenêtre couvre au moins 150 lignes ou un cinquième du fichier. Si le point choisi est dans une déclaration de fonction reconnue, ses bornes sont incluses. Une fenêtre couvrant plus de 60 % du fichier laisse la lecture intacte. La reconnaissance Dart utilise ici un analyseur syntaxique approximatif, sans compilation ni résolution des types.
+La fenêtre initiale couvre au moins 150 lignes ou un cinquième du fichier. Les fonctions reconnues qui croisent le groupe choisi sont incluses en entier. La version 0.3.2 corrige une mauvaise clé de résultat du parseur qui empêchait cette protection de fonctionner.
+
+Si la demande nomme explicitement une seule méthode reconnue, entre accents graves ou suivie de `(`, la fenêtre peut descendre à 64 lignes. Le moteur conserve sa déclaration entière et les déclarations du même fichier dont il repère les noms dans son corps, récursivement. Noms ambigus, plus de 32 dépendances ou dépendance hors de la fenêtre initiale : pas de réduction supplémentaire. Ce parcours reste approximatif, sans résolution des types ni des appels externes. Une fenêtre couvrant plus de 60 % du fichier laisse la lecture intacte.
 
 Avant livraison : empreinte du fichier et politique revérifiées. `hookSpecificOutput.updatedInput` conserve les autres arguments du Read et ajoute `offset`/`limit` ; il ne modifie pas les permissions. `additionalContext` signale la sélection et comment lire le reste. Un marqueur atomique par session/fichier/contenu/question permet de refaire la lecture entière et évite deux requêtes identiques concurrentes. Les marqueurs ne contiennent pas de source.
 
@@ -42,7 +44,9 @@ Le hook asynchrone garde son propre délai maximal de quatre secondes et ne rend
 
 ## Recherche sémantique et audit
 
-`jev-flutter` distribue les commandes vers les modules existants ; `lens` et `dartlens` restent compatibles. `find` examine les déclarations de chaque fichier séparément, avec huit requêtes simultanées au plus, vérifie le contenu intégral des meilleurs candidats quand le budget le permet, puis localise les blocs. Après huit erreurs initiales, il revient au classement local.
+`jev-flutter` distribue les commandes vers les modules existants ; `lens` et `dartlens` restent compatibles. `find` regroupe au plus huit plans de fichiers par requête. Chaque fichier garde sa question et son score propres ; la question référence explicitement sa clé dans le groupe. Les groupes sont divisés si le budget de contexte est dépassé. Huit requêtes peuvent travailler simultanément. Le contenu intégral des huit meilleurs candidats est ensuite vérifié quand le budget le permet, puis les blocs des trois premiers résultats sont localisés.
+
+Un premier groupe teste la disponibilité du service avant de lancer le reste. Si aucun jugement exploitable ne revient, la recherche passe au classement local. `find.batch_files: 1` rétablit le criblage individuel. [Comparaison réelle sur trois projets publics](PUBLIC-PROJECTS.md).
 
 **Plus de sélection des 150 premiers fichiers par mots-clés.** Si le périmètre dépasse 150 fichiers, rien n'est envoyé. L'appelant choisit un dossier plus précis ou `--max-files`, plafonné à 3 000. Les scores issus du seul plan sont marqués ; erreurs et exclusions restent visibles. `ask` vérifie une propriété fichier par fichier. Aucun de ces résultats ne garantit un parcours complet ou l'absence d'une fonctionnalité.
 
@@ -58,6 +62,8 @@ Le MCP optionnel `find_code` utilise ce moteur de contexte, et reste désactivé
 
 La garde après modification et le routeur de mémoire travaillent en asynchrone. Ils restent actifs, sans prétention d'économie mesurée. Règles absentes ou inapplicables : pas d'alerte de convention.
 
-Jev est désactivé tant que le projet ne l'a pas autorisé. La politique utilisateur historique reste à `~/.config/dartlens/policy.json` ; elle protège aussi les dépôts imbriqués. Les clés TypeSafe peuvent venir de l'environnement ou d'un fichier privé. Cache et journaux restent à `~/.cache/dartlens` pour préserver les installations existantes. Le renommage ne déplace ni n'efface leurs données.
+Jev est désactivé tant que le projet ne l'a pas autorisé. La politique utilisateur se trouve dans `~/.config/jev-for-flutter/policy.json` ; elle protège aussi les dépôts imbriqués. Les exclusions de l’ancien emplacement sont aussi appliquées. Les clés TypeSafe peuvent venir de l'environnement ou d'un fichier privé. Cache et journaux utilisent `~/.cache/jev-for-flutter`, ou le cache historique déjà présent pour les installations existantes. Le renommage ne déplace ni n'efface leurs données.
 
 Les fichiers `.env`, clés privées et autres fichiers sensibles sont exclus des envois ; les motifs de secrets connus sont masqués avant découpage. Ce filtrage n'est pas une détection exhaustive. Les métriques de lecture journalisent tailles, durées et identifiants hachés, sans texte source ni question. L'analyse locale peut être forcée avec `--local` sur les commandes compatibles.
+
+Les fichiers générés `*.mapper.dart` sont exclus avec les autres formats générés. Pour une lecture isolée, les marqueurs de génération sont cherchés dans les seuls dossiers parents concernés ; le plugin ne reparcourt plus le dépôt entier.

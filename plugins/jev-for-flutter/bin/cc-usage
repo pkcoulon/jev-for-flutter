@@ -1,0 +1,597 @@
+#!/usr/bin/env python3
+import argparse
+import base64
+import collections
+import json
+import os
+import re
+import sys
+import time
+from datetime import datetime, timedelta
+from pathlib import Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib"))
+from jev_flutter.project import project_root  # noqa: E402
+
+PRICING_VERSION = "api-standard-2026-09-28"
+PRICING_SOURCE = "https://platform.claude.com/docs/en/about-claude/pricing"
+PRICING_DATE = "2026-09-28"
+CLASSES = ("input", "write_5m", "write_1h", "read", "output")
+# Standard first-party API rates, $ per million tokens, in CLASSES order.
+RATES = {
+    "claude-fable-5-1": (10, 12.5, 20, 0.25, 50),
+    "claude-mythos-5-1": (10, 12.5, 20, 0.25, 50),
+    "claude-fable-5": (10, 12.5, 20, 1.0, 50),
+    "claude-mythos-5": (10, 12.5, 20, 1.0, 50),
+    "claude-opus-5-5": (4, 5, 8, 0.2, 20),
+    "claude-opus-5": (5, 6.25, 10, 0.5, 25),
+    "claude-opus-4-8": (5, 6.25, 10, 0.5, 25),
+    "claude-opus-4-7": (5, 6.25, 10, 0.5, 25),
+    "claude-opus-4-6": (5, 6.25, 10, 0.5, 25),
+    "claude-sonnet-5": (2, 2.5, 4, 0.2, 10),
+    "claude-sonnet-4-6": (3, 3.75, 6, 0.3, 15),
+    "claude-haiku-4-5": (1, 1.25, 2, 0.1, 5),
+}
+# Server tool fees, $ per request at list price ($10 per 1,000 searches); web fetch is billed through its tokens only.
+SERVER_RATES = {"web_search_requests": 10 / 1000, "web_fetch_requests": 0.0}
+# The study's uniform weighting, in input-equivalent units whatever the model; kept for comparison.
+FLAT = (1.0, 1.25, 2.0, 0.1, 5.0)
+BILL = "non calculable depuis les transcripts (abonnement ou quotas, remises, mode rapide, tarifs historiques, taxes)"
+UNMEASURED = ("compaction summaries and side calls (WebFetch page summaries, titles...) leave no usage in transcripts: "
+              "measured usage is a lower bound")
+TIMESTAMP = re.compile(r'"timestamp":"([^"]+)"')
+MODEL_SUFFIX = re.compile(r"(-\d{8})?(\[[^\]]*\])?$")
+LARGE_REWRITE = 0.5
+TTL_MARGIN = 0.9
+CHARS_PER_TOKEN = 2.3
+IMAGE_TOKENS = 1600
+TOP_TOOLS = 8
+QUOTED = re.compile(r"\"(?:\\.|[^\"\\])*\"|'[^']*'")
+SEGMENT = re.compile(r"&&|\|\||[;\n|`]|\$\(")
+ASSIGNMENT = re.compile(r"[A-Za-z_]\w*=")
+PREFIXES = {"rtk", "proxy", "command", "exec", "time", "sudo", "env", "nice", "fvm", "timeout", "do", "then",
+            "else", "if", "while", "until", "!", "{", "("}
+SKIPPED = {"cd", "echo", "printf", "export", "set", "unset", "local", "mkdir", "sleep", "true", "false", "for",
+           "done", "fi", "}", ")", "rm", "touch", "wait"}
+
+
+def block_context(usage):
+    return sum(usage.get(k) or 0 for k in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens"))
+
+
+def base_model(model):
+    return MODEL_SUFFIX.sub("", model or "", count=1)
+
+
+def rates_for(model):
+    return RATES.get(base_model(model))
+
+
+def parse_tokens(usage):
+    written = usage.get("cache_creation_input_tokens") or 0
+    split = usage.get("cache_creation") if isinstance(usage.get("cache_creation"), dict) else {}
+    five = split.get("ephemeral_5m_input_tokens") or 0
+    hour = split.get("ephemeral_1h_input_tokens") or 0
+    split_ok = five + hour == written and (bool(split) or not written)
+    if not split_ok:
+        # Missing or inconsistent TTL split: the total wins, the rest is counted as 5 min.
+        hour = min(hour, written)
+        five = written - hour
+    tokens = [usage.get("input_tokens") or 0, five, hour, usage.get("cache_read_input_tokens") or 0,
+              usage.get("output_tokens") or 0]
+    return tokens, split_ok
+
+
+def server_requests(usage):
+    used = usage.get("server_tool_use") if isinstance(usage.get("server_tool_use"), dict) else {}
+    return {k: used[k] if isinstance(used.get(k), int) and used[k] > 0 else 0 for k in SERVER_RATES}
+
+
+class Call:
+    __slots__ = ("path", "session", "first", "model", "tokens", "blocks", "naive", "split_ok", "fast", "inside",
+                 "gap", "prev_model", "ttl", "server", "after_compact")
+
+    def __init__(self, path, session, stamp, model, usage, inside):
+        self.path, self.session, self.first, self.model, self.inside = path, session, stamp, model, inside
+        self.tokens, self.split_ok = parse_tokens(usage)
+        self.blocks, self.naive, self.fast = 1, block_context(usage), usage.get("speed") == "fast"
+        self.gap = self.prev_model = self.ttl = None
+        self.server, self.after_compact = server_requests(usage), False
+
+    def merge(self, usage):
+        # Blocks of one response repeat its usage; a forked session's copy can carry it zeroed: keep the fullest.
+        context = block_context(usage)
+        self.blocks += 1
+        self.naive += context
+        output = max(self.tokens[4], usage.get("output_tokens") or 0)
+        if context > self.context:
+            self.tokens, self.split_ok = parse_tokens(usage)
+        self.tokens[4] = output
+        fresh = server_requests(usage)
+        self.server = {k: max(v, fresh[k]) for k, v in self.server.items()}
+
+    @property
+    def written(self):
+        return self.tokens[1] + self.tokens[2]
+
+    @property
+    def context(self):
+        return self.tokens[0] + self.written + self.tokens[3]
+
+    # Five token classes, then server tool fees (none under the flat weighting).
+    def cost(self, flat):
+        rates = FLAT if flat else rates_for(self.model)
+        if rates is None:
+            return None
+        scale = 1.0 if flat else 1e-6
+        server = 0.0 if flat else sum(n * SERVER_RATES[k] for k, n in self.server.items())
+        return [t * r * scale for t, r in zip(self.tokens, rates)] + [server]
+
+
+def epoch(stamp):
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00")).timestamp()
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+# First meaningful word: skips cd/echo segments, assignments and wrappers such as rtk proxy or fvm.
+def first_word(command):
+    fallback = None
+    for segment in SEGMENT.split(QUOTED.sub("Q", command or "")):
+        for token in segment.split():
+            if token in PREFIXES or token.isdigit() or ASSIGNMENT.match(token):
+                continue
+            if token in SKIPPED:
+                fallback = fallback or token
+                break
+            return os.path.basename(token.strip("({")) or "?"
+    return fallback or "?"
+
+
+def pdf_pages(data):
+    try:
+        raw = base64.b64decode(data or "")
+    except (ValueError, TypeError):
+        return 1
+    return max(1, len(re.findall(rb"/Type\s*/Page(?![s\w])", raw)))
+
+
+def tool_key(block):
+    name = block.get("name") or "?"
+    if name.startswith("mcp__"):
+        return "mcp__" + name.split("__")[1], None
+    if name == "Bash":
+        return name, first_word((block.get("input") or {}).get("command"))
+    return name, None
+
+
+def result_tokens(content):
+    if isinstance(content, str):
+        return len(content) / CHARS_PER_TOKEN
+    chars = images = 0
+    for block in content or []:
+        if not isinstance(block, dict):
+            continue
+        kind = block.get("type")
+        if kind == "text":
+            chars += len(block.get("text") or "")
+        elif kind == "image":
+            images += 1
+        elif kind == "document" and (block.get("source") or {}).get("type") == "base64":
+            images += pdf_pages(block["source"].get("data"))
+        else:
+            chars += len(json.dumps(block))
+    return chars / CHARS_PER_TOKEN + images * IMAGE_TOKENS
+
+
+def transcript_dirs(root):
+    base = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude") / "projects"
+    slug = re.sub(r"[^A-Za-z0-9]", "-", str(root))
+    dirs = [base / slug] if (base / slug).is_dir() else []
+    # Sessions started from a subfolder live in <slug>-<sub>; keep them only if their cwd is inside the project.
+    for candidate in sorted(base.glob(slug + "-*")):
+        if candidate.is_dir() and _cwd_inside(candidate, root):
+            dirs.append(candidate)
+    return dirs
+
+
+def _cwd_inside(directory, root):
+    for path in sorted(directory.glob("*.jsonl"))[:3]:
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            for _, line in zip(range(50), handle):
+                match = re.search(r'"cwd":"([^"]+)"', line)
+                if match:
+                    cwd = Path(match.group(1))
+                    return cwd == root or root in cwd.parents
+    return False
+
+
+def transcript_files(dirs):
+    files = []
+    for directory in dirs:
+        found = [(p, p.stem) for p in directory.glob("*.jsonl")]
+        found += [(p, p.relative_to(directory).parts[0]) for p in directory.glob("*/subagents/**/*.jsonl")]
+        files += [(path, session) for path, session in found if path.name != "journal.jsonl"]
+    # Forked sessions copy earlier messages with their ids: scanning originals first keeps calls in their own session.
+    return sorted(files, key=lambda f: (first_stamp(f[0]), born(f[0]), str(f[0])))
+
+
+def first_stamp(path):
+    with open(path, encoding="utf-8", errors="replace") as handle:
+        for _, line in zip(range(50), handle):
+            match = TIMESTAMP.search(line)
+            if match and epoch(match.group(1)):
+                return epoch(match.group(1))
+    return float("inf")
+
+
+def born(path):
+    stat = path.stat()
+    return getattr(stat, "st_birthtime", stat.st_mtime)
+
+
+def scan(path, session, calls, tools, inside, results, keep, compactions):
+    uses, live, seen = {}, [], 0
+    prev_stamp = prev_model = ttl = None
+    after_compact = False
+    with open(path, encoding="utf-8", errors="replace") as handle:
+        for number, line in enumerate(handle):
+            if '"assistant"' not in line and '"tool_result"' not in line and "compact_boundary" not in line:
+                continue
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            kind = entry.get("type")
+            if kind == "assistant":
+                message = entry.get("message") or {}
+                for block in message.get("content") or []:
+                    if isinstance(block, dict) and block.get("type") == "tool_use":
+                        uses[block.get("id")] = tool_key(block)
+                usage = message.get("usage")
+                if not usage or message.get("model") == "<synthetic>" or entry.get("isApiErrorMessage"):
+                    continue
+                key = message.get("id") or entry.get("requestId") or (str(path), number)
+                stamp = epoch(entry.get("timestamp"))
+                call = calls.get(key)
+                if call:
+                    call.merge(usage)
+                else:
+                    call = calls[key] = Call(path, session, stamp, message.get("model"), usage, keep and inside(stamp))
+                    call.gap = stamp - prev_stamp if stamp and prev_stamp else None
+                    call.prev_model, call.ttl, call.after_compact = prev_model, ttl, after_compact
+                    seen += call.inside
+                after_compact = False
+                if call.written:
+                    ttl = 3600 if call.tokens[2] else 300
+                prev_stamp, prev_model = stamp or prev_stamp, call.model
+            elif kind == "user":
+                content = (entry.get("message") or {}).get("content")
+                if not isinstance(content, list):
+                    continue
+                counted = keep and inside(epoch(entry.get("timestamp")))
+                for block in content:
+                    if isinstance(block, dict) and block.get("type") == "tool_result":
+                        key = uses.get(block.get("tool_use_id"), ("?", None))
+                        fresh = counted and block.get("tool_use_id") not in results
+                        results.add(block.get("tool_use_id"))
+                        live.append((key, result_tokens(block.get("content")), seen, fresh))
+            elif kind == "system" and entry.get("subtype") == "compact_boundary":
+                settle(live, seen, tools)
+                live = []
+                # The next call rewrites a new, compacted context whatever the pause before it.
+                prev_stamp = ttl = None
+                after_compact = True
+                meta = entry.get("compactMetadata") if isinstance(entry.get("compactMetadata"), dict) else {}
+                uid = entry.get("uuid") or (str(path), number)
+                if uid not in compactions:
+                    # Forks copy the boundary with its uuid: only the first copy counts, as for tool results.
+                    pre = meta.get("preTokens")
+                    compactions[uid] = (str(meta.get("trigger") or "?"), pre if isinstance(pre, int) and pre > 0 else 0,
+                                        keep and inside(epoch(entry.get("timestamp"))))
+    settle(live, seen, tools)
+
+
+def settle(live, seen, tools):
+    for (name, word), tokens, start, fresh in live:
+        for key in [name] + (["Bash:" + word] if word else []):
+            row = tools[key]
+            row[0] += fresh
+            row[1] += tokens * fresh
+            row[2] += tokens * (seen - start)
+
+
+def percentile(values, q):
+    return values[min(len(values) - 1, int(q * len(values)))] if values else 0
+
+
+def valuation(kept, flat):
+    parts, by_model, unpriced = [0.0] * 6, collections.defaultdict(float), collections.Counter()
+    for c in kept:
+        cost = c.cost(flat)
+        if cost is None:
+            unpriced[c.model or "?"] += 1
+            continue
+        parts = [a + b for a, b in zip(parts, cost)]
+        by_model[c.model] += sum(cost)
+    total = sum(parts)
+    shares = {"read": parts[3], "write": parts[1] + parts[2], "output": parts[4], "input": parts[0],
+              "server_tools": parts[5]}
+    digits = 2 if flat else 4
+    return {
+        "unit": "input-equivalent units, study weighting" if flat else "USD, standard API rates",
+        "total": round(total, digits),
+        "shares_pct": {k: pct(v, total) for k, v in shares.items()},
+        "write_1h_pct": pct(parts[2], total),
+        "server_tools": round(parts[5], digits),
+        "by_model": {m: round(v, digits) for m, v in sorted(by_model.items(), key=lambda kv: -kv[1])},
+        "unpriced_calls": dict(unpriced),
+    }
+
+
+def summarize(calls, tools, flat, top, compactions):
+    kept = sorted((c for c in calls.values() if c.inside), key=lambda c: c.first or 0)
+    basis = {id(c): c.cost(flat) or [0.0] * 6 for c in kept}
+    total = sum(sum(v) for v in basis.values())
+    contexts = sorted(c.context for c in kept)
+    sum_context = sum(contexts)
+
+    def cost(c):
+        return sum(basis[id(c)])
+
+    def write_cost(c):
+        return sum(basis[id(c)][1:3])
+
+    def band(limit):
+        big = [c for c in kept if c.context > limit]
+        return {"calls": len(big), "calls_pct": pct(len(big), len(kept)), "cost_pct": pct(sum(map(cost, big)), total)}
+
+    rewrites = [c for c in kept if c.gap is not None and c.written > LARGE_REWRITE * c.context]
+    expired = [c for c in rewrites if c.ttl and c.gap >= TTL_MARGIN * c.ttl]
+    compacted = [c for c in kept if c.after_compact]
+    switches = [c for c in kept if c.prev_model and not c.after_compact
+                and base_model(c.model) != base_model(c.prev_model)]
+    counted = [(trigger, pre) for trigger, pre, inside in compactions.values() if inside]
+    transitions = collections.Counter(f"{c.prev_model} → {c.model}" for c in switches)
+    models = collections.defaultdict(collections.Counter)
+    sessions = collections.defaultdict(lambda: {"calls": 0, "cost": 0.0, "max_context": 0, "first": None,
+                                                "threads": set(), "tokens": [0] * 5})
+    for c in kept:
+        models[c.model or "?"].update(calls=1, **dict(zip(CLASSES, c.tokens)))
+        row = sessions[c.session]
+        row["calls"] += 1
+        row["cost"] += cost(c)
+        row["max_context"] = max(row["max_context"], c.context)
+        row["first"] = row["first"] or c.first
+        row["threads"].add(c.path)
+        row["tokens"] = [a + b for a, b in zip(row["tokens"], c.tokens)]
+    session_rows = [dict(session=s, date=day(r["first"]), threads=len(r["threads"]), calls=r["calls"],
+                         cost=round(r["cost"], 2), cost_pct=pct(r["cost"], total), max_context=r["max_context"],
+                         **dict(zip(CLASSES, r["tokens"]))) for s, r in sessions.items()]
+    session_rows.sort(key=lambda r: -r["cost"])
+    tool_rows = {k: {"results": v[0], "tokens": round(v[1]), "token_turns": round(v[2]),
+                     "token_turns_pct": pct(v[2], sum_context)} for k, v in tools.items()}
+    naive = sum(c.naive for c in kept)
+    return {
+        "period": [day(kept[0].first), day(kept[-1].first)] if kept else None,
+        "basis": "flat" if flat else "api",
+        "pricing": {"version": PRICING_VERSION, "source": PRICING_SOURCE, "date": PRICING_DATE,
+                    "rates_usd_per_mtok": {m: dict(zip(CLASSES, r)) for m, r in RATES.items()},
+                    "server_tools_usd_per_request": SERVER_RATES,
+                    "flat_weights": dict(zip(CLASSES, FLAT))},
+        "bill": BILL,
+        "usage": {
+            "sessions": len(sessions), "threads": len({c.path for c in kept}), "calls": len(kept),
+            "usage_blocks": sum(c.blocks for c in kept),
+            "naive_context_factor": round(naive / sum_context, 4) if sum_context else None,
+            "context": sum_context, **{k: sum(c.tokens[i] for c in kept) for i, k in enumerate(CLASSES)},
+            "ttl_split_missing": sum(not c.split_ok for c in kept), "fast_calls": sum(c.fast for c in kept),
+            "server_tool_use": {k: sum(c.server[k] for c in kept) for k in SERVER_RATES},
+            "by_model": {m: dict(r) for m, r in sorted(models.items(), key=lambda kv: -kv[1]["calls"])},
+        },
+        "valuation": {"api": valuation(kept, False), "flat": valuation(kept, True)},
+        "context_per_call": {"mean": round(sum_context / len(kept)) if kept else 0,
+                             "p50": percentile(contexts, 0.5), "p90": percentile(contexts, 0.9),
+                             "above_200k": band(200_000), "above_400k": band(400_000)},
+        "expired_cache_rewrites": {
+            "count": len(expired), "ttl_5m": sum(c.ttl == 300 for c in expired),
+            "ttl_1h": sum(c.ttl == 3600 for c in expired), "tokens": sum(c.written for c in expired),
+            "cost_pct": pct(sum(map(write_cost, expired)), total), "large_rewrites": len(rewrites)},
+        "rewrites_after_compaction": {"count": len(compacted), "tokens": sum(c.written for c in compacted),
+                                      "cost_pct": pct(sum(map(write_cost, compacted)), total)},
+        "unmeasured": {"compactions": len(counted), "by_trigger": dict(collections.Counter(t for t, _ in counted)),
+                       "pre_tokens": sum(p for _, p in counted),
+                       "web_fetch_calls": tools["WebFetch"][0] if "WebFetch" in tools else 0, "note": UNMEASURED},
+        "model_switches": {"count": len(switches), "tokens": sum(c.written for c in switches),
+                           "cost_pct": pct(sum(map(write_cost, switches)), total),
+                           "after_expiry": len(set(map(id, switches)) & set(map(id, expired))),
+                           "transitions": dict(transitions.most_common())},
+        "top_sessions": session_rows[:top],
+        "sessions": session_rows,
+        "tool_results": {
+            "estimate": "characters / %s x calls of residence" % CHARS_PER_TOKEN,
+            "token_turns_pct": pct(sum(v[2] for k, v in tools.items() if ":" not in k), sum_context),
+            "tools": dict(sorted(((k, v) for k, v in tool_rows.items() if ":" not in k),
+                                 key=lambda kv: -kv[1]["token_turns"])),
+            "bash": dict(sorted(((k[5:], v) for k, v in tool_rows.items() if k.startswith("Bash:")),
+                                key=lambda kv: -kv[1]["token_turns"])),
+        },
+    }
+
+
+def pct(part, whole):
+    return round(100.0 * part / whole, 2) if whole else 0.0
+
+
+def day(stamp):
+    return time.strftime("%Y-%m-%d", time.localtime(stamp)) if stamp else "?"
+
+
+def num(value):
+    return f"{round(value):,}".replace(",", " ")
+
+
+def short(value):
+    if value >= 1e6:
+        return f"{value / 1e6:.1f} M".replace(".", ",")
+    return f"{value / 1e3:.0f} k" if value >= 1e3 else str(round(value))
+
+
+def count(n, word):
+    return f"{num(n)} {word}{'s' if n > 1 else ''}"
+
+
+def per(value):
+    return f"{value:.1f} %".replace(".", ",")
+
+
+def money(value, flat):
+    if flat:
+        return num(value) + " éq."
+    return f"{value:,.2f} $".replace(",", " ").replace(".", ",")
+
+
+def shares_line(v):
+    s = v["shares_pct"]
+    return (f"lecture {per(s['read'])} · écriture {per(s['write'])} (dont 1 h {per(v['write_1h_pct'])}) · "
+            f"sortie {per(s['output'])} · entrée {per(s['input'])}")
+
+
+def render(report, root, excluded):
+    u, ctx, flat = report["usage"], report["context_per_call"], report["basis"] == "flat"
+    period = " → ".join(report["period"]) if report["period"] else "aucun appel"
+    lines = [f"{root.name} · {period}" + (f" · exclues : {', '.join(excluded)}" if excluded else "")]
+    if not u["calls"]:
+        return "\n".join(lines)
+    factor = f"{u['naive_context_factor']:.2f}".replace(".", ",")
+    lines += [
+        f"Usage mesuré : {count(u['sessions'], 'session')}, {count(u['threads'], 'fil')}, {count(u['calls'], 'appel')} "
+        f"(dédoublonnés sur {num(u['usage_blocks'])} blocs d'usage ; les sommer gonflerait le contexte ×{factor})",
+        f"  Σ contexte {num(u['context'])} = lecture {num(u['read'])} + écriture 5 min {num(u['write_5m'])} "
+        f"+ écriture 1 h {num(u['write_1h'])} + entrée {num(u['input'])} ; sortie {num(u['output'])}",
+        "  " + " · ".join(f"{m} {count(r['calls'], 'appel')}" for m, r in u["by_model"].items()),
+    ]
+    notes = []
+    if u["ttl_split_missing"]:
+        notes.append(f"{count(u['ttl_split_missing'], 'appel')} sans ventilation 5 min / 1 h cohérente (total retenu)")
+    if u["fast_calls"]:
+        notes.append(f"{count(u['fast_calls'], 'appel')} en mode rapide (tarif standard appliqué)")
+    if notes:
+        lines.append("  " + " ; ".join(notes))
+    missing = report["unmeasured"]
+    triggers = ", ".join(f"{k} {v}" for k, v in sorted(missing["by_trigger"].items()))
+    lines.append(f"Non mesuré, l'usage ci-dessus est une borne basse : {count(missing['compactions'], 'compaction')}"
+                 + (f" ({triggers} ; contexte de {short(missing['pre_tokens'])} tokens à résumer)" if triggers else "")
+                 + f", {count(missing['web_fetch_calls'], 'appel')} WebFetch résumés par un modèle annexe, "
+                 "titres et autres appels annexes : aucun usage dans les transcripts.")
+    api, uniform = report["valuation"]["api"], report["valuation"]["flat"]
+    server = u["server_tool_use"]
+    lines.append(f"Valorisation API, tarifs standard du {PRICING_DATE} ({PRICING_VERSION}) : {money(api['total'], False)}")
+    lines.append("  " + shares_line(api))
+    lines.append(f"  outils serveur : {count(server['web_search_requests'], 'recherche')} web à "
+                 f"{SERVER_RATES['web_search_requests'] * 1000:g} $ les 1 000 = {money(api['server_tools'], False)} "
+                 f"({per(api['shares_pct']['server_tools'])}) ; {count(server['web_fetch_requests'], 'récupération')} "
+                 "web, non facturées à la requête")
+    lines.append("  " + " · ".join(f"{m} {money(v, False)}" for m, v in api["by_model"].items()))
+    if api["unpriced_calls"]:
+        lines.append("  sans tarif, exclus : " + " · ".join(f"{m} ×{n}" for m, n in api["unpriced_calls"].items()))
+    lines.append(f"Pondération uniforme de l'étude (--flat) : {shares_line(uniform)}")
+    lines.append(f"Facture réelle : {BILL}.")
+    basis = "pondération uniforme" if flat else "valorisation API"
+    lines.append(f"Contexte par appel : moyenne {short(ctx['mean'])}, p50 {short(ctx['p50'])}, p90 {short(ctx['p90'])}")
+    lines.append("  " + " · ".join(
+        f"> {label} : {per(ctx[key]['calls_pct'])} des appels, {per(ctx[key]['cost_pct'])} de la {basis}"
+        for label, key in (("200 k", "above_200k"), ("400 k", "above_400k"))))
+    expired, switch = report["expired_cache_rewrites"], report["model_switches"]
+    lines.append(f"Réécritures massives après une pause ≥ durée du cache : {expired['count']} (cache 5 min : "
+                 f"{expired['ttl_5m']}, cache 1 h : {expired['ttl_1h']}), {short(expired['tokens'])} tokens, "
+                 f"{per(expired['cost_pct'])} de la {basis}.")
+    after = report["rewrites_after_compaction"]
+    if after["count"]:
+        lines.append(f"  Réécritures juste après une compaction, exclues ci-dessus : {after['count']}, "
+                     f"{short(after['tokens'])} tokens, {per(after['cost_pct'])} de la {basis}.")
+    lines.append("  Coût observé, pas une économie disponible : reprendre, résumer ou repartir coûte aussi.")
+    lines.append(f"Changements de modèle en cours de fil : {switch['count']}, {short(switch['tokens'])} tokens écrits, "
+                 f"{per(switch['cost_pct'])} de la {basis}" + (f" (dont {switch['after_expiry']} après expiration)"
+                                                             if switch["after_expiry"] else ""))
+    if switch["transitions"]:
+        lines.append("  " + " · ".join(f"{k} ×{v}" for k, v in list(switch["transitions"].items())[:4]))
+    lines.append(f"Sessions les plus coûteuses ({basis}) :")
+    for row in report["top_sessions"]:
+        lines.append(f"  {row['session'][:8]}  {row['date']}  {num(row['calls']):>6} appels  "
+                     f"{per(row['cost_pct']):>7}  {money(row['cost'], flat):>12}  max {short(row['max_context'])}")
+    tools = report["tool_results"]
+    lines.append(f"Résultats d'outils, estimation (car. / 2,3 × résidence) : "
+                 f"{per(tools['token_turns_pct'])} du contexte cumulé")
+    for label, rows in (("  ", tools["tools"]), ("  Bash : ", tools["bash"])):
+        top = list(rows.items())[:TOP_TOOLS]
+        if top:
+            lines.append(label + " · ".join(f"{k} {per(v['token_turns_pct'])}" for k, v in top))
+    return "\n".join(lines)
+
+
+def local_day(text):
+    try:
+        return datetime.strptime(text, "%Y-%m-%d")
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"date attendue au format AAAA-MM-JJ : {text}")
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="cc-usage", description="Consommation Claude Code d'un projet, lue dans "
+                                     "les transcripts locaux : usage mesuré par classe de tokens, valorisation au "
+                                     "tarif API standard daté. La facture réelle n'est pas calculable.")
+    parser.add_argument("--project", help="racine du projet (défaut : projet courant)")
+    since = parser.add_mutually_exclusive_group()
+    since.add_argument("--days", type=int, help="seulement les N derniers jours")
+    since.add_argument("--since", type=local_day, help="appels à partir du AAAA-MM-JJ inclus")
+    parser.add_argument("--until", type=local_day, help="appels jusqu'au AAAA-MM-JJ inclus")
+    parser.add_argument("--session", action="append", default=[], help="garder cette session (préfixe d'id)")
+    parser.add_argument("--exclude-session", action="append", default=[], help="exclure cette session (préfixe d'id)")
+    parser.add_argument("--top", type=int, default=5, help="nombre de sessions listées (défaut 5)")
+    parser.add_argument("--flat", "--flat-read-weight", action="store_true", dest="flat",
+                        help="classer avec la pondération uniforme de l'étude plutôt qu'avec les tarifs API")
+    parser.add_argument("--json", action="store_true", help="sortie JSON complète (toutes les sessions)")
+    args = parser.parse_args()
+
+    root = Path(args.project).expanduser().resolve() if args.project else project_root()
+    dirs = transcript_dirs(root)
+    if not dirs:
+        sys.exit(f"cc-usage : aucun transcript pour {root}")
+    start = (time.time() - args.days * 86400 if args.days is not None
+             else args.since.timestamp() if args.since else None)
+    end = (args.until + timedelta(days=1)).timestamp() if args.until else None
+
+    def inside(stamp):
+        if start is None and end is None:
+            return True
+        return stamp is not None and (start is None or stamp >= start) and (end is None or stamp < end)
+
+    def kept(session):
+        if any(session.startswith(x) for x in args.exclude_session):
+            return False
+        return not args.session or any(session.startswith(x) for x in args.session)
+
+    # Every file is read so that a call copied into a filtered session stays with its original one.
+    calls, tools, results, compactions = {}, collections.defaultdict(lambda: [0, 0.0, 0.0]), set(), {}
+    for path, session in transcript_files(dirs):
+        scan(path, session, calls, tools, inside, results, kept(session), compactions)
+    report = summarize(calls, tools, args.flat, max(args.top, 0), compactions)
+    if args.json:
+        report.update(project=str(root), transcripts=[str(d) for d in dirs], excluded=args.exclude_session)
+        print(json.dumps(report, ensure_ascii=False, indent=1))
+    else:
+        print(render(report, root, args.exclude_session))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.stdout.flush()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except BrokenPipeError:
+        # The interpreter flushes stdout again at exit: point it at devnull so the closed pipe stays silent.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        sys.exit(0)
