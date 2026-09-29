@@ -1,0 +1,353 @@
+{
+  "version": "0.3.1",
+  "date": "2026-09-29",
+  "scope": "Three cold/prepared real Jev hook pairs plus one Claude integration session. No estimate of total-response improvement.",
+  "limitations": [
+    "One observation per case and variant. Three known-file targeted questions.",
+    "Prepared-hook timing starts after preparation has completed; preparation cost and time remain real.",
+    "Measures only PreToolUse latency, not full response speed. No new total-cost savings claim.",
+    "One Claude integration session. Astra review, not independent or blind."
+  ],
+  "plugin_identity": {
+    "sha256": "4f26c5590435d57d",
+    "commit": null,
+    "dirty": true
+  },
+  "source_cases": [
+    {
+      "id": "gambade-notification-action",
+      "project": "Gambade",
+      "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+      "file": "lib/data/services/notification_service.dart",
+      "source_sha256": "fd5295e947be0ee84094dbb095ccd981cbb6936ff6e99572ed256acddee42954",
+      "target_lines": [
+        92,
+        105
+      ],
+      "prompt": "Dans lib/data/services/notification_service.dart, Comment _onTap traite-t-elle le bouton « C’est fait » d’une notification de soin ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier.",
+      "rubric": [
+        "payload null/vide ignoré",
+        "actionId comparé à kSanteTickActionId",
+        "première occurrence sante-echeancier remplacée par sante-tick, reste du payload conservé",
+        "émission sur _taps puis retour ; autre action : payload inchangé"
+      ]
+    },
+    {
+      "id": "pioudex-sync-cache",
+      "project": "Pioudex",
+      "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+      "file": "lib/data/journal_sync.dart",
+      "source_sha256": "d195169408933dfc5a33523a0fb544e324b73c3d89c073cafa7a178ba7d21d3b",
+      "target_lines": [
+        548,
+        555
+      ],
+      "prompt": "Dans lib/data/journal_sync.dart, Comment _validerLesCaches évite-t-elle de réutiliser les caches d’un autre compte ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier.",
+      "rubric": [
+        "identité actuelle _remote.identite",
+        "identité égale à _identiteDesCaches : retour sans mutation",
+        "mise à jour _identiteDesCaches et vidage _surLeDistant et _prisesSurLeDistant",
+        "_prisesConnues remis à false"
+      ]
+    },
+    {
+      "id": "pioudex-audio-agreement",
+      "project": "Pioudex",
+      "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+      "file": "lib/services/embedded_bird_identifier.dart",
+      "source_sha256": "b23c84f16532477c61fe95a6870e773dfde798a8d1760137b8ddf52bf2a984d8",
+      "target_lines": [
+        441,
+        446
+      ],
+      "prompt": "Dans lib/services/embedded_bird_identifier.dart, Comment _confirmeParAccords fait-elle évoluer le palier de confiance audio ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier.",
+      "rubric": [
+        "none reste none quel que soit le nombre d’accords",
+        "moins de deux accords : palier inchangé",
+        "échelle unsure, probable, certain",
+        "augmentation de accords moins un et plafond à certain"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "case": "gambade-notification-action",
+      "arm": "cold",
+      "process_ms": 544.971,
+      "engine_ms": 432,
+      "prepared": false,
+      "offset": 16,
+      "limit": 150,
+      "target_preserved": true,
+      "jev_requests_during_read": 1,
+      "events": [
+        {
+          "ts": 1790703821.539809,
+          "session": "4ba4e0ec-a8d7-459b-8e02-a08d60b326ee",
+          "file": "e842fff006efdb2e",
+          "lines": 590,
+          "confidence": 1.0,
+          "focused": 0.92,
+          "event": "narrowed",
+          "prepared": false,
+          "offset": 16,
+          "limit": 150,
+          "full_chars": 27600,
+          "shown_chars": 6966,
+          "ms": 432,
+          "run": "gambade-notification-action-cold"
+        }
+      ]
+    },
+    {
+      "case": "gambade-notification-action",
+      "arm": "prepared",
+      "process_ms": 92.189,
+      "engine_ms": 29,
+      "prepared": true,
+      "offset": 16,
+      "limit": 150,
+      "target_preserved": true,
+      "jev_requests_during_read": 0,
+      "events": [
+        {
+          "ts": 1790703822.113575,
+          "session": "87c9f6e1-546f-4116-afce-77d26e743507",
+          "event": "prepared",
+          "ready": true,
+          "ms": 391,
+          "run": "gambade-notification-action-prepared"
+        },
+        {
+          "ts": 1790703822.18784,
+          "session": "87c9f6e1-546f-4116-afce-77d26e743507",
+          "file": "2235eab734a65382",
+          "lines": 590,
+          "confidence": 1.0,
+          "focused": 0.91,
+          "event": "narrowed",
+          "prepared": true,
+          "offset": 16,
+          "limit": 150,
+          "full_chars": 27600,
+          "shown_chars": 6966,
+          "ms": 29,
+          "run": "gambade-notification-action-prepared"
+        }
+      ],
+      "preparation_process_ms": 533.124
+    },
+    {
+      "case": "pioudex-sync-cache",
+      "arm": "prepared",
+      "process_ms": 118.162,
+      "engine_ms": 38,
+      "prepared": true,
+      "offset": 466,
+      "limit": 151,
+      "target_preserved": true,
+      "jev_requests_during_read": 0,
+      "events": [
+        {
+          "ts": 1790703822.679436,
+          "session": "a1fb443d-26c5-416a-8102-85d27a78ca7a",
+          "event": "prepared",
+          "ready": true,
+          "ms": 381,
+          "run": "pioudex-sync-cache-prepared"
+        },
+        {
+          "ts": 1790703822.7790341,
+          "session": "a1fb443d-26c5-416a-8102-85d27a78ca7a",
+          "file": "a47c90fe62a68a42",
+          "lines": 755,
+          "confidence": 0.99,
+          "focused": 0.91,
+          "event": "narrowed",
+          "prepared": true,
+          "offset": 466,
+          "limit": 151,
+          "full_chars": 30256,
+          "shown_chars": 5824,
+          "ms": 38,
+          "run": "pioudex-sync-cache-prepared"
+        }
+      ],
+      "preparation_process_ms": 456.338
+    },
+    {
+      "case": "pioudex-sync-cache",
+      "arm": "cold",
+      "process_ms": 522.071,
+      "engine_ms": 458,
+      "prepared": false,
+      "offset": 466,
+      "limit": 151,
+      "target_preserved": true,
+      "jev_requests_during_read": 1,
+      "events": [
+        {
+          "ts": 1790703823.3061981,
+          "session": "4b26991a-9e7f-4bbc-a5c5-018f3932624f",
+          "file": "170f6ec862e50b02",
+          "lines": 755,
+          "confidence": 0.99,
+          "focused": 0.91,
+          "event": "narrowed",
+          "prepared": false,
+          "offset": 466,
+          "limit": 151,
+          "full_chars": 30256,
+          "shown_chars": 5824,
+          "ms": 458,
+          "run": "pioudex-sync-cache-cold"
+        }
+      ]
+    },
+    {
+      "case": "pioudex-audio-agreement",
+      "arm": "cold",
+      "process_ms": 551.055,
+      "engine_ms": 472,
+      "prepared": false,
+      "offset": 304,
+      "limit": 150,
+      "target_preserved": true,
+      "jev_requests_during_read": 1,
+      "events": [
+        {
+          "ts": 1790703823.9142568,
+          "session": "dcc50031-9058-4c38-95a2-b3d24f0d618a",
+          "file": "305bfc42071422e2",
+          "lines": 453,
+          "confidence": 0.97,
+          "focused": 0.95,
+          "event": "narrowed",
+          "prepared": false,
+          "offset": 304,
+          "limit": 150,
+          "full_chars": 19077,
+          "shown_chars": 6273,
+          "ms": 472,
+          "run": "pioudex-audio-agreement-cold"
+        }
+      ]
+    },
+    {
+      "case": "pioudex-audio-agreement",
+      "arm": "prepared",
+      "process_ms": 130.316,
+      "engine_ms": 32,
+      "prepared": true,
+      "offset": 304,
+      "limit": 150,
+      "target_preserved": true,
+      "jev_requests_during_read": 0,
+      "events": [
+        {
+          "ts": 1790703824.415872,
+          "session": "0f063982-0512-494b-8e4b-f5642f29317a",
+          "event": "prepared",
+          "ready": true,
+          "ms": 375,
+          "run": "pioudex-audio-agreement-prepared"
+        },
+        {
+          "ts": 1790703824.530574,
+          "session": "0f063982-0512-494b-8e4b-f5642f29317a",
+          "file": "fabf597aac9a9214",
+          "lines": 453,
+          "confidence": 0.96,
+          "focused": 0.95,
+          "event": "narrowed",
+          "prepared": true,
+          "offset": 304,
+          "limit": 150,
+          "full_chars": 19077,
+          "shown_chars": 6273,
+          "ms": 32,
+          "run": "pioudex-audio-agreement-prepared"
+        }
+      ],
+      "preparation_process_ms": 455.318
+    }
+  ],
+  "summary": {
+    "engine_ms": {
+      "cold_mean": 454.0,
+      "prepared_mean": 33.0,
+      "percent_change": -92.73127753303964
+    },
+    "process_ms": {
+      "cold_mean": 539.3656666666666,
+      "prepared_mean": 113.55566666666668,
+      "percent_change": -78.94644140617034
+    }
+  },
+  "integration": {
+    "model": "claude-sonnet-5",
+    "effort": "medium",
+    "case": "pioudex-audio-agreement",
+    "claude_duration_ms": 9053,
+    "claude_usd": 0.047921000000000005,
+    "model_usage": {
+      "claude-sonnet-5": {
+        "inputTokens": 4,
+        "outputTokens": 649,
+        "cacheReadInputTokens": 15435,
+        "cacheCreationInputTokens": 9584,
+        "webSearchRequests": 0,
+        "costUSD": 0.047921000000000005,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000,
+        "thinkingTokens": 30,
+        "canonicalModel": "claude-sonnet-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    },
+    "events": [
+      {
+        "ts": 1790703825.8118699,
+        "session": "31a3f544-2a6a-4d12-887f-3ac1bdf62992",
+        "event": "prepared",
+        "ready": true,
+        "ms": 370,
+        "run": "pioudex-audio-agreement-claude-integration"
+      },
+      {
+        "ts": 1790703828.897933,
+        "session": "31a3f544-2a6a-4d12-887f-3ac1bdf62992",
+        "file": "82b38ac4bd8459db",
+        "lines": 453,
+        "confidence": 0.95,
+        "focused": 0.95,
+        "event": "narrowed",
+        "prepared": true,
+        "offset": 304,
+        "limit": 150,
+        "full_chars": 19077,
+        "shown_chars": 6273,
+        "ms": 33,
+        "run": "pioudex-audio-agreement-claude-integration"
+      }
+    ],
+    "answer": "Oui, `_confirmeParAccords` fait bien évoluer le palier de confiance, mais sous conditions strictes.\n\n**Comportement (lignes 440-445) :**\n```dart\nstatic ConfidenceTier _confirmeParAccords(ConfidenceTier palier, int accords) {\n    if (palier == ConfidenceTier.none || accords < 2) return palier;\n    const echelle = [ConfidenceTier.unsure, ConfidenceTier.probable, ConfidenceTier.certain];\n    final depart = echelle.indexOf(palier);\n    return echelle[math.min(depart + accords - 1, echelle.length - 1)];\n}\n```\n\n- **Aucun effet si `palier == none`** ou si `accords < 2` : pas de promotion depuis « aucun » ni sans au moins 2 prises d'accord.\n- Sinon, elle monte le palier d'autant de crans que `accords - 1`, sur l'échelle `unsure → probable → certain`, plafonnée à `certain` (via `math.min`).\n\n**Appel (lignes 394-397) :**\n```dart\nfinal palier = _confirmeParAccords(\n  _palierPour(preds.first.score, preds.length > 1 ? preds[1].score : null),\n  accords,\n);\n```\nLe palier de base (`_palierPour`) est donc recalculé par ce mécanisme d'accord inter-prises avant d'être renvoyé dans `Identification.tier`.",
+    "accepted": true,
+    "review": "All four existing criteria covered; cited source checked by Astra. Not independent/blind.",
+    "read_tool_calls": 1
+  },
+  "all_target_ranges_retained": true,
+  "jev_requests_identical_to_v030": true,
+  "runtime_matches_frozen_trial": true,
+  "offline_new_checks": 27,
+  "offline_existing_checks": 69,
+  "budget": {
+    "new_claude_usd": 0.047921000000000005,
+    "new_jev_usd": 0.0031745280000000007,
+    "new_total_usd": 0.05109552800000001,
+    "cumulative_usd": 3.485147036,
+    "remaining_usd": 1.5148529640000001,
+    "requests": 8
+  }
+}

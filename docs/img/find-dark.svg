@@ -47,7 +47,7 @@
 <text x="1290.0" y="668.0" fill="#ffffff" font-size="50" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>19/20</text>
 <text x="1290.0" y="702.0" fill="#c3c2b7" font-size="17" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>en ne gardant que</text>
 <text x="1290.0" y="726.0" fill="#c3c2b7" font-size="17" font-weight="600" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>les résultats sûrs</text>
-<text x="64.0" y="848.0" fill="#c3c2b7" font-size="22" font-weight="600" text-anchor="start" font-family='"SF Mono", Menlo, Consolas, monospace'>github.com/pkcoulon/dartlens</text>
+<text x="64.0" y="848.0" fill="#c3c2b7" font-size="22" font-weight="600" text-anchor="start" font-family='"SF Mono", Menlo, Consolas, monospace'>github.com/pkcoulon/jev-for-flutter</text>
 <text x="1536.0" y="830.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>20 descriptions, dont 10 sans aucun mot du code · 3 projets Flutter perso · en français et en anglais</text>
 <text x="1536.0" y="856.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>descriptions écrites en lisant le code : c'est un plafond, pas l'usage courant</text>
 </svg>

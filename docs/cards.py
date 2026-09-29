@@ -40,7 +40,7 @@ def header(spec, th):
 
 
 def footer(spec, th):
-    out = [t(64, H - 52, "github.com/pkcoulon/dartlens", th["secondary"], 22, 600, font=MONO)]
+    out = [t(64, H - 52, "github.com/pkcoulon/jev-for-flutter", th["secondary"], 22, 600, font=MONO)]
     for k, line in enumerate(spec.get("footer", [])):
         out.append(t(W - 64, H - 70 + 26 * k, line, th["muted"], 16, 400, "end"))
     return out

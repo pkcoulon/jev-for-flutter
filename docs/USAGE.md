@@ -1,13 +1,13 @@
 # Installer et utiliser Jev for Flutter
 
-Ce document décrit la version 0.3. Le dépôt GitHub garde l'adresse `pkcoulon/dartlens` ; le nom du plugin et de sa marketplace devient `jev-for-flutter`.
+Ce document décrit la version 0.3.1. Le dépôt, le plugin et sa marketplace s'appellent `jev-for-flutter`.
 
 ## Installation
 
 Le dépôt fournit sa propre marketplace, nommée `jev-for-flutter`. Il ne s'agit pas de la marketplace officielle Anthropic. Tant que le dépôt est privé, votre environnement Git doit être authentifié avec un compte autorisé.
 
 ```bash
-claude plugin marketplace add pkcoulon/dartlens
+claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
@@ -47,11 +47,13 @@ Ne remplacez pas vos autres réglages. Priorité : `.claude/jev-for-flutter.json
 
 Le hook de démarrage ajoute les exécutables du plugin au `PATH` des commandes de cette session via [`CLAUDE_ENV_FILE`](https://code.claude.com/docs/en/hooks#persist-environment-variables). Il ne modifie pas votre profil de terminal. Depuis un terminal extérieur à Claude, les commandes ne sont donc pas automatiquement disponibles.
 
-Pour essayer les changements d'un clone local avant publication : `claude --plugin-dir /chemin/vers/dartlens/plugins/dartlens`, depuis votre projet. Évitez de charger en même temps la copie installée et la copie locale.
+Pour essayer les changements d'un clone local avant publication : `claude --plugin-dir /chemin/vers/jev-for-flutter/plugins/dartlens`, depuis votre projet. Évitez de charger en même temps la copie installée et la copie locale.
 
 ## Au quotidien
 
 Continuez à demander votre travail à Claude normalement. Une lecture complète d'un fichier Dart de 400 lignes ou plus peut être ciblée automatiquement sur la question. La note indique les lignes omises. Refaire le Read récupère le fichier entier ; un `offset` ou `limit` explicite est toujours respecté. Demande large, incertitude, fichier trop grand ou erreur : lecture inchangée.
+
+Si votre demande contient exactement un chemin de fichier Dart, Jev peut préparer cette sélection pendant que Claude raisonne. Aucun parcours du dépôt n'est lancé pour deviner le fichier. La lecture réutilise le résultat seulement si la question, le fichier et le modèle correspondent, pendant 90 secondes au plus. Une préparation en cours et la lecture partagent la même requête Jev. Celle-ci compte dans le plafond de 24 par session, même si Claude ne lit finalement pas le fichier. Pour désactiver l'anticipation : `"read": {"prefetch": false}`.
 
 Les commandes disponibles dans le terminal de Claude :
 
@@ -126,10 +128,22 @@ Dans la portée où l'ancienne version est installée (`user` par défaut), reti
 ```bash
 claude plugin uninstall dartlens@dartlens
 claude plugin marketplace remove dartlens
-claude plugin marketplace add pkcoulon/dartlens
+claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
 Pour une installation locale au projet, ajoutez `--scope local` aux commandes du plugin. Les configurations, clés, règles et exclusions historiques restent compatibles ; rien n'est déplacé ou supprimé par le plugin. Le cache et la politique personnelle gardent leur chemin `dartlens`.
+
+## Mise à jour depuis Jev for Flutter 0.3.0
+
+Pour remplacer l'ancienne adresse de la marketplace enregistrée localement :
+
+```bash
+claude plugin marketplace remove jev-for-flutter
+claude plugin marketplace add pkcoulon/jev-for-flutter
+claude plugin install jev-for-flutter@jev-for-flutter
+```
+
+Relancez ensuite Claude Code. Le retrait de la marketplace peut retirer les plugins qu'elle fournit ; la dernière commande les réinstalle sous le même nom. Vos réglages de projet et votre clé restent en place.
 
 [Retour au README](../README.md) · [Mesures](MEASURES.md) · [Architecture](ARCHITECTURE.md)

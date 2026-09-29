@@ -1,4 +1,4 @@
-# Architecture de Jev for Flutter 0.3
+# Architecture de Jev for Flutter 0.3.1
 
 Le chemin principal réduit une lecture déjà demandée par Claude. La recherche sémantique est disponible à la demande. Le moteur de contexte en arrière-plan, développé et mesuré précédemment, reste facultatif : son dernier essai ajoutait des tokens et du coût.
 
@@ -29,6 +29,16 @@ La fenêtre couvre au moins 150 lignes ou un cinquième du fichier. Si le point 
 Avant livraison : empreinte du fichier et politique revérifiées. `hookSpecificOutput.updatedInput` conserve les autres arguments du Read et ajoute `offset`/`limit` ; il ne modifie pas les permissions. `additionalContext` signale la sélection et comment lire le reste. Un marqueur atomique par session/fichier/contenu/question permet de refaire la lecture entière et évite deux requêtes identiques concurrentes. Les marqueurs ne contiennent pas de source.
 
 Une requête trop large, un score invalide, une erreur ou un dépassement de délai conserve le Read initial. Même avec un score élevé, une sélection peut manquer du code : Claude doit suivre les autres branches utiles. [Contrat officiel des hooks](https://code.claude.com/docs/en/hooks#pretooluse-decision-control).
+
+## Préparation des lectures en parallèle
+
+Le hook `UserPromptSubmit` lance `lens_nudge.py prepare` en asynchrone. Si le texte nomme exactement un chemin Dart, le même moteur prépare ses scores avant le Read, sans ajouter de texte à la conversation. Les seuils, questions Jev et fenêtres restent identiques. Sans chemin explicite, avec plusieurs chemins ou hors des limites de lecture, aucune requête anticipée ne part. `read.prefetch: false` désactive ce chemin.
+
+Le résultat est privé à la session, expire après 90 secondes et ne contient que les scores Jev. Sa clé dépend du fichier, de son empreinte, de la question, du modèle, de l'API et des instructions de sélection. Toute modification invalide donc sa réutilisation. Politique et empreinte restent vérifiées avant la livraison.
+
+Une réservation atomique commune aux préparations et aux lectures limite le tout à 24 requêtes par session. Si Read arrive pendant la préparation, il attend le résultat dans son délai habituel, sans second appel à Jev. Les erreurs sont mémorisées ; aucune reprise payante. Le marqueur de lecture reste séparé : la préparation ne consomme pas la première lecture ciblée, et relire le fichier donne toujours le contenu complet. Une préparation abandonnée peut coûter une requête sans servir ; aucun gain global supplémentaire n'est annoncé sans mesure.
+
+Le hook asynchrone garde son propre délai maximal de quatre secondes et ne rend aucun contexte au modèle. [Exécution des hooks en arrière-plan](https://code.claude.com/docs/en/hooks#run-hooks-in-the-background) · [Vérification réelle et limites des mesures](PREFETCH-RESULTS.md).
 
 ## Recherche sémantique et audit
 

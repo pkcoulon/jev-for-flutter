@@ -1,5 +1,7 @@
 # Lectures ciblées : mesures de la version 0.3
 
+Ces chiffres concernent la version 0.3.0. La version 0.3.1 ajoute une [préparation en parallèle](PREFETCH-RESULTS.md) sans changer les questions de sélection ; ses effets sur une réponse complète ne sont pas mesurés par ce lot.
+
 Le 29 septembre 2026, trois paires de sessions Claude Sonnet 5, effort moyen, évaluent le nouveau hook de lecture. **Le coût baisse sur ces trois cas, le temps augmente au total.** Les critères de réponse, prompts, sources et plafonds étaient fixés avant les appels ; aucun essai n'a été relancé.
 
 | Somme des trois sessions | Sans plugin | Jev for Flutter | Variation |

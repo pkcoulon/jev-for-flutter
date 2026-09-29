@@ -45,7 +45,7 @@
 <text x="1290.0" y="668.0" fill="#0b0b0b" font-size="50" font-weight="700" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>jamais</text>
 <text x="1290.0" y="702.0" fill="#52514e" font-size="17" font-weight="400" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>de blocage :</text>
 <text x="1290.0" y="726.0" fill="#52514e" font-size="17" font-weight="600" text-anchor="start" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>Claude continue</text>
-<text x="64.0" y="848.0" fill="#52514e" font-size="22" font-weight="600" text-anchor="start" font-family='"SF Mono", Menlo, Consolas, monospace'>github.com/pkcoulon/dartlens</text>
+<text x="64.0" y="848.0" fill="#52514e" font-size="22" font-weight="600" text-anchor="start" font-family='"SF Mono", Menlo, Consolas, monospace'>github.com/pkcoulon/jev-for-flutter</text>
 <text x="1536.0" y="830.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>60 exemples sur 2 projets Flutter perso · règles et exemples écrits par le même agent : un plafond</text>
 <text x="1536.0" y="856.0" fill="#898781" font-size="16" font-weight="400" text-anchor="end" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>fausses alertes en usage réel, avec plusieurs règles à la fois : encore à mesurer</text>
 </svg>
