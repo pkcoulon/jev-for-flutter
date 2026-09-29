@@ -57,6 +57,12 @@ Claude costs are reported by the sessions and reconciled against deduplicated me
 
 ## Checks and reproduction
 
+The README's benefit charts are generated directly from the two published JSON result files. Redraw them locally, without API calls:
+
+```bash
+uv run --with matplotlib==3.9.4 python docs/readme_charts.py --benefits-only
+```
+
 - Two whole-file review requests preserve the entire file; two repeat reads also retrieve it in full, using real Jev.
 - 200 recognized methods, sampled from LocalSend and AppFlowy with a fixed seed, remain intact in the proposed ranges or full reads. This checks the approximate parser, not resolved types or model relevance.
 - Local checks cover nearby and distant dependencies, large methods, caps, generated code, outages, explicit ranges, excluded projects, concurrency, invalidation and compatibility.

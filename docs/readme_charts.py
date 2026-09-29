@@ -7,6 +7,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 from matplotlib.ticker import FuncFormatter
 
 HERE = Path(__file__).resolve().parent
@@ -207,14 +208,101 @@ def read_chart(data, theme, preview, stem="read-results"):
     plt.close(fig)
 
 
+def benefits_chart(reads, searches, theme, preview):
+    dark = theme == "dark"
+    colors = ({"bg": "#101722", "fg": "#edf3fc", "muted": "#a6b4c9", "border": "#27354b",
+               "neutral": "#34435b", "green": "#5ce0b2", "green_bg": "#142b2b",
+               "purple": "#b3a1ff", "purple_bg": "#242139", "blue": "#70c9fb", "blue_bg": "#16283a",
+               "amber": "#f9c17a", "amber_bg": "#30271d"} if dark else
+              {"bg": "#f8fafc", "fg": "#172b42", "muted": "#566980", "border": "#dce5ee",
+               "neutral": "#d8e2ee", "green": "#087f61", "green_bg": "#edf8f3",
+               "purple": "#6851c5", "purple_bg": "#f2effc", "blue": "#087ead", "blue_bg": "#edf6fc",
+               "amber": "#9b6014", "amber_bg": "#fff5e5"})
+    plt.rcParams.update({"font.family": "DejaVu Sans", "text.color": colors["fg"],
+                         "svg.fonttype": "path", "svg.hashsalt": "jev-flutter-benefits-2026-09-30"})
+    fig = plt.figure(figsize=(12, 7.5), facecolor=colors["bg"])
+
+    def label(x, y, value, size=11, color="fg", weight="normal", **kwargs):
+        fig.text(x, y, value, fontsize=size, color=colors[color], weight=weight, **kwargs)
+
+    def box(x, y, width, height, fill, border=False):
+        radius = min(.012, height / 2, width / 2)
+        fig.add_artist(FancyBboxPatch((x, y), width, height, transform=fig.transFigure,
+                                     boxstyle=f"round,pad=0,rounding_size={radius}", linewidth=0.75,
+                                     edgecolor=colors["border"] if border else "none", facecolor=colors[fill],
+                                     zorder=0))
+
+    count = len(reads["trials"]) // 2
+    label(.04, .931, "Less context. Lower measured cost.", 23, weight="bold")
+    label(.04, .884, f"{count} paired Claude questions · plugin vs no plugin · one run per variant", 10.5, "muted")
+    metrics = ((.04, "claude_tokens", "Claude tokens", "Input, cache and output", "green"),
+               (.51, "total_usd", "Claude + Jev cost", "API-equivalent cost, Jev included", "purple"))
+    for x, field, title, subtitle, accent in metrics:
+        control, plugin = (reads["summary"][arm][field] for arm in ("control", "plugin"))
+        ratio = plugin / control
+        box(x, .584, .45, .26, accent + "_bg", True)
+        label(x + .022, .798, title, 12, weight="bold")
+        label(x + .022, .684, f"{100 * (ratio - 1):+.0f}%".replace("-", "−"), 43, accent, "bold")
+        label(x + .022, .617, subtitle, 9.5, "muted")
+        ax = fig.add_axes((x + .293, .678, .126, .094), facecolor="none")
+        ax.barh([1, 0], [100, 100 * ratio], height=.20, color=[colors["neutral"], colors[accent]])
+        ax.set(xlim=(0, 130), ylim=(-.5, 1.5))
+        ax.set_axis_off()
+        for y, name, value in ((1, "Without", 100), (0, "With Jev", 100 * ratio)):
+            ax.text(-8, y, name, ha="right", va="center", fontsize=8.5, color=colors["muted"])
+            ax.text(value + 6, y, f"{value:.0f}%", va="center", fontsize=8.5, color=colors["muted"])
+    time = reads["summary"]["plugin"]["seconds"] / reads["summary"]["control"]["seconds"] - 1
+    accepted = reads["summary"]
+    box(.04, .483, .92, .071, "amber_bg")
+    label(.06, .507, f"{time * 100:+.0f}%", 18, "amber", "bold")
+    label(.15, .510, "Claude run time", 11, "amber")
+    label(.43, .510, f"Accepted: {accepted['plugin']['accepted']}/{count} with · "
+          f"{accepted['control']['accepted']}/{count} without · non-blind review", 10, "muted")
+    label(.04, .421, "Faster code search", 18, weight="bold")
+    label(.04, .382, "Batched vs individual Jev requests · four questions per project", 10.5, "muted")
+    names = {"form-app": "Form App", "localsend": "LocalSend", "appflowy": "AppFlowy"}
+    for i, row in enumerate(searches["summary"]):
+        x = .04 + i * .3133
+        before, after = (row[arm]["seconds"] for arm in ("individual", "grouped"))
+        box(x, .127, .2933, .222, "blue_bg", True)
+        label(x + .018, .311, names[row["project"]], 11, weight="bold")
+        label(x + .275, .313, f"{row['files']:,} Dart files", 8.5, "muted", ha="right")
+        label(x + .018, .236, f"{100 * (after / before - 1):+.0f}%".replace("-", "−"), 30, "blue", "bold")
+        label(x + .142, .241, "search time", 10, "muted")
+        label(x + .018, .195, f"{before:.2f} s → {after:.2f} s", 10, "muted")
+        box(x + .018, .156, .2573, .013, "neutral")
+        box(x + .018, .156, .2573 * after / before, .013, "blue")
+    label(.04, .090, "Shorter bars = less time. Full track = individual requests.", 9, "muted")
+    passed = sum(row["grouped"]["passed"] for row in searches["summary"])
+    total = sum(row["grouped"]["n"] for row in searches["summary"])
+    label(.96, .090, f"{passed}/{total} search cases passed in both variants", 9, "muted", ha="right")
+    label(.04, .035, "Exploratory measurements · Flutter Form App, LocalSend, AppFlowy · data and limitations linked below", 9, "muted")
+    output = HERE / "img" / f"benefits-{theme}.svg"
+    fig.savefig(output, facecolor=colors["bg"], metadata={"Date": None, "Title": "Jev for Flutter: measured benefits",
+                "Description": "Claude tokens and API cost with and without the plugin; runtime and accepted answers. "
+                "Separate search comparison: batched versus individual Jev requests on three public Flutter projects."})
+    output.write_text("\n".join(line.rstrip() for line in output.read_text().splitlines()) + "\n")
+    if preview:
+        preview.mkdir(parents=True, exist_ok=True)
+        fig.savefig(preview / f"benefits-{theme}.png", facecolor=colors["bg"], dpi=150)
+    plt.close(fig)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--adoption", type=Path)
     parser.add_argument("--scores", type=Path)
     parser.add_argument("--preview", type=Path)
+    parser.add_argument("--benefits-only", action="store_true")
     args = parser.parse_args()
     if bool(args.adoption) != bool(args.scores):
         parser.error("--adoption and --scores must be supplied together")
+    if args.benefits_only:
+        reads = json.loads((HERE / "public-read-results.json").read_text())
+        searches = json.loads((HERE / "public-search-results.json").read_text())
+        for theme in ("light", "dark"):
+            benefits_chart(reads, searches, theme, args.preview)
+        return
     path = HERE / "readme-results.json"
     if args.adoption:
         data = extract(args.adoption, args.scores)
@@ -236,6 +324,8 @@ def main():
     if public.exists():
         for theme in ("light", "dark"):
             read_chart(json.loads(public.read_text()), theme, args.preview, "public-read-results")
+            benefits_chart(json.loads(public.read_text()), json.loads((HERE / "public-search-results.json").read_text()),
+                           theme, args.preview)
 
 
 if __name__ == "__main__":
