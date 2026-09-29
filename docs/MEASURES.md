@@ -110,6 +110,15 @@ Parcours observés après les arrêts :
 - Le diagnostic, seule tâche réussie partout, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt.
 - **Conclusion** : l'arrêt divise par trois le code reçu, mais une économie sur un même travail terminé n'est pas démontrée.
 
+### Le plafond d'économie
+
+Et si les gros fichiers lus en entier n'avaient rien coûté du tout ? Calcul sur les 7 essais sans dartlens, campagne et pilote réunis (`bench/ceiling.py`) :
+- Le coût aurait baissé de **9 à 14 %** : on ne paierait ni leur mise en cache, ni leur relecture à chaque échange suivant. Calcul au tarif Sonnet 5, avec 3,5 puis 2,3 caractères par token.
+- En pratique, `lens` renvoie environ un tiers de ce contenu, et le détour ajoute des échanges. Le gain réaliste est donc de **quelques pour cent**.
+- Le coût d'une même tâche varie d'environ 50 % d'un essai à l'autre. Un gain de cet ordre ne se prouve pas avec quelques dizaines d'essais.
+
+Pourquoi si peu, alors que Claude reçoit trois fois moins de code ? Parce que Claude Code met la conversation en cache : relire un fichier déjà envoyé coûte environ dix fois moins cher que de l'envoyer la première fois.
+
 ### Qualité : ce qu'on peut dire
 
 - **Rejeu.** Les vérifications ont été rejouées sur un clone propre, avec les mêmes résultats sur les 12 essais. Au départ, tout passe (339 tests, analyse, formatage), sauf le bug semé exprès pour le diagnostic.
