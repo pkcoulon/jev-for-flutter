@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.5 — 2026-09-30
+
+- Allow an exact repository URL to be exempted from a personal Git-host exclusion with `allow_remotes`.
+- Keep path exclusions, other policy files and other repositories on the same host protected. Project activation remains explicit.
+- Show configured repository exceptions in `status`.
+
 ## 0.3.4 — 2026-09-30
 
 - Show the actual exclusion policy file and matching field when activation is refused, including legacy configurations.

@@ -25,7 +25,8 @@ def policy_files():
 
 
 def user_policy():
-    rules = {"deny_remotes": [], "deny_paths": [], "sources": {}, "error": None}
+    rules = {"deny_remotes": [], "deny_paths": [], "allow_remotes": [],
+             "remote_policies": [], "sources": {}, "error": None}
     for file in policy_files():
         try:
             data = json.loads(file.read_text())
@@ -37,7 +38,7 @@ def user_policy():
         if not isinstance(data, dict):
             rules["error"] = "%s : objet JSON attendu" % file
             return rules
-        for key in ("deny_remotes", "deny_paths"):
+        for key in ("deny_remotes", "deny_paths", "allow_remotes"):
             value = data.get(key, [])
             if isinstance(value, list) and all(isinstance(v, str) for v in value):
                 rules[key].extend(value)
@@ -46,6 +47,7 @@ def user_policy():
             else:
                 rules["error"] = "%s : %s : liste de chaînes attendue" % (file, key)
                 return rules
+        rules["remote_policies"].append((file, data.get("deny_remotes", []), data.get("allow_remotes", [])))
     return rules
 
 
@@ -98,10 +100,9 @@ def refusal(root):
     for directory in (resolved, *resolved.parents):
         if (directory / ".git").exists():
             for url in git_remotes(directory):
-                for pattern in rules["deny_remotes"]:
-                    if pattern and pattern in url:
-                        source = rules["sources"][("deny_remotes", pattern)]
-                        return "dépôt exclu par %s (deny_remotes)" % memory.display(source)
+                for file, denied, allowed in rules["remote_policies"]:
+                    if url not in allowed and any(pattern and pattern in url for pattern in denied):
+                        return "dépôt exclu par %s (deny_remotes)" % memory.display(file)
     return None
 
 

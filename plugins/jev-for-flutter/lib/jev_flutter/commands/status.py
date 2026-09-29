@@ -57,6 +57,8 @@ def policy_line(root):
     rules = policy.user_policy()
     source = " + ".join(memory.display(p) for p in policy.policy_files() if p.is_file()) or "aucune politique utilisateur"
     counts = "%d dépôt(s), %d chemin(s) exclus" % (len(rules["deny_remotes"]), len(rules["deny_paths"]))
+    if rules["allow_remotes"]:
+        counts += ", %d exception(s) de dépôt exactes" % len(rules["allow_remotes"])
     refused = policy.refusal(root)
     return "%s, %s ; ce projet : %s" % (source, counts, "EXCLU (%s)" % refused if refused else "non exclu")
 

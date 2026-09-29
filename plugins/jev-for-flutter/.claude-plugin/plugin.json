@@ -1,6 +1,6 @@
 {
   "name": "jev-for-flutter",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Jev finds the Dart/Flutter code you need and narrows large reads before they enter Claude’s context.",
   "author": {
     "name": "Pierrick Coulon"

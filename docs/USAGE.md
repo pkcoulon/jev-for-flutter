@@ -1,6 +1,6 @@
 # Installing and using Jev for Flutter
 
-This guide describes version 0.3.4. The repository, plugin and marketplace are named `jev-for-flutter`.
+This guide describes version 0.3.5. The repository, plugin and marketplace are named `jev-for-flutter`.
 
 ## Installation
 
@@ -115,6 +115,17 @@ In `~/.config/jev-for-flutter/policy.json`, exclude paths or Git remotes even wh
 These lists are personal; no specific customer repository is hardcoded. An unreadable policy blocks transmission. Paths are resolved before checking, including symlinks. Remotes use substring matching.
 
 If activation is refused, the message names the policy file that actually contains the matching exclusion and its field (`deny_paths` or `deny_remotes`). A legacy policy still applies even when the new policy file does not exist.
+
+To authorize one repository on an otherwise excluded Git host, add its **exact remote URL** to `allow_remotes` in the same personal policy:
+
+```json
+{
+  "deny_remotes": ["git.example.com"],
+  "allow_remotes": ["git@git.example.com:team/approved-project.git"]
+}
+```
+
+This exception applies only to `deny_remotes` in that file. Other policies and `deny_paths` still take priority. The URL must match exactly, including its protocol and `.git` suffix. Other repositories on the host remain excluded. This does not activate Jev: run `jev-flutter init --enable-jev` separately in the approved project.
 
 Without activation, or with `JEV_FLUTTER_JEV_DISABLE=1` in Claude's environment, `lens` search stays local and says so. No code context is automatically prepared. `JEV_FLUTTER_CONTEXT_DISABLE=1` disables only Jev calls and automation for `context`.
 
