@@ -13,7 +13,9 @@ SECRET_FILES = [
 SECRET_RE = re.compile(
     r"glpat-[A-Za-z0-9_.-]{10,}|figd_[A-Za-z0-9_-]{10,}|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}"
     r"|xox[abp]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----"
-    r"|(?i:(?:api[_-]?key|secret|token|password)\s*[:=]\s*['\"][^'\"\s]{12,}['\"])"
+    r"|sk_(?:live|test)_[A-Za-z0-9]{16,}|sb_secret_[A-Za-z0-9_-]{16,}|(?i:bearer)\s+[A-Za-z0-9._~+/-]{20,}"
+    r"|(?i:(?:api[_-]?key|secret|token|password|(?<![a-z0-9])pat|service[_-]?role)['\"]?\s*[:=]\s*['\"][^'\"\s]{12,}['\"])"
+    r"|(?<![A-Za-z0-9_])eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}|(?<=://)[^/\s:@]+:[^/\s@]+(?=@)"
 )
 
 
@@ -62,12 +64,12 @@ def git_remotes(root):
 
 
 def path_refused(path):
-    resolved = Path(os.path.realpath(os.path.expanduser(str(path))))
+    resolved = Path(os.path.realpath(os.path.expanduser(str(path))).casefold())
     rules = user_policy()
     if rules["error"]:
         return True
     for denied in rules["deny_paths"]:
-        denied = Path(os.path.realpath(os.path.expanduser(denied)))
+        denied = Path(os.path.realpath(os.path.expanduser(denied)).casefold())
         if resolved == denied or denied in resolved.parents:
             return True
     return False
@@ -111,7 +113,7 @@ def sendable(path, root, extra_roots=()):
     base = next((r for r in allowed if resolved == r or r in resolved.parents), None)
     if base is None or path_refused(resolved):
         return False
-    return not paths.matches(os.path.relpath(resolved, base), SECRET_FILES)
+    return not paths.matches(os.path.relpath(resolved, base).casefold(), [p.casefold() for p in SECRET_FILES])
 
 
 def redact(text):

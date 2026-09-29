@@ -43,6 +43,8 @@ PARENT_CONTEXT_LINES = 15
 MAX_QUESTIONS = 100
 VERIFY_TOP = 8
 MAX_FIND_FILES = 3000
+FIND_JEV_FILES = 150
+FIND_PROBE = 8
 WHICH_MAX_FILES = 200
 SKELETON_CHARS = 1600
 MAP_LIMIT = 40
@@ -464,7 +466,8 @@ def structures_for(run, files, texts=None):
     dart = [str(f) for f in files if Path(f).suffix == ".dart"]
     if not dart:
         return {}, {}, ""
-    data, approx, note = outline.outline(dart, run.root, build="background")
+    data, approx, note = outline.outline(dart, run.root,
+                                         build=not os.environ.get("DARTLENS_OUTLINE_NO_BUILD") and "background")
     approx_files = {path: note for path in dart} if approx else {}
     for path in dart:
         entry = data.get(path)
@@ -889,7 +892,8 @@ def has_files(directory, extensions):
     return False
 
 
-def collect(run, targets, extensions, include_tests):
+def collect(run, targets, extensions, include_tests, project_only=False):
+    extensions = (".dart",) if project_only else extensions
     patterns = paths.generated_patterns(run.cfg, run.root)
     found, seen = [], set()
     stats = {"generated": 0, "tests": 0, "refused": 0, "missing": 0, "skipped_dirs": []}
@@ -899,7 +903,7 @@ def collect(run, targets, extensions, include_tests):
             stats["missing"] += 1
             continue
         if target.is_file():
-            candidates = [target]
+            candidates = [target] if not project_only or any(target.name.endswith(e) for e in extensions) else []
         else:
             candidates = []
             for current, dirs, names in os.walk(target):
@@ -927,7 +931,9 @@ def collect(run, targets, extensions, include_tests):
             if not include_tests and is_test_path(rel):
                 stats["tests"] += 1
                 continue
-            if run.allowed and not policy.sendable(path, run.root):
+            if (run.allowed or project_only) and not policy.sendable(path, run.root) \
+                    or project_only and (policy.refusal(resolved.parent) or not resolved.name.endswith(".dart")
+                                         or any(p.startswith(".") for p in Path(os.path.relpath(resolved, run.root)).parts)):
                 stats["refused"] += 1
                 continue
             found.append(path)
@@ -1000,6 +1006,7 @@ def find_main(argv):
     parser.add_argument("--top", type=int)
     parser.add_argument("--tests", action="store_true")
     parser.add_argument("--local", action="store_true")
+    parser.add_argument("--project-only", action="store_true", help="rester dans les chemins autorisés du projet, même en local")
     parser.add_argument("--min", type=float)
     args = parser.parse_args(argv)
     run = Run("find", args.local)
@@ -1007,7 +1014,8 @@ def find_main(argv):
     top = args.top or int(settings.get("top") or 5)
     minimum = args.min if args.min is not None else float(settings.get("min") or 0.6)
     targets = args.dirs or [str(run.root)]
-    files, stats = collect(run, targets, settings.get("extensions") or [".dart"], args.tests or settings.get("include_tests"))
+    files, stats = collect(run, targets, settings.get("extensions") or [".dart"],
+                           args.tests or settings.get("include_tests"), project_only=args.project_only)
     notes = [] if run.allowed else ["(mode local : %s)" % run.reason]
     if len(files) > MAX_FIND_FILES:
         notes.append("-- %d fichiers : seuls les %d premiers sont criblés ; restreins le dossier" % (len(files), MAX_FIND_FILES))
@@ -1025,23 +1033,29 @@ def find_main(argv):
     structures, approx_files, _ = structures_for(run, files, {str(p): t for p, t in texts.items()})
     if approx_files:
         notes.append("-- outline approx (repli regex) pour %d fichiers" % len(approx_files))
-    lines, backend = find_jev(run, args.description, files, structures, texts, top, minimum) if run.allowed else (None, "local")
+    candidates = files
+    if run.allowed and len(files) > FIND_JEV_FILES:
+        keep = sorted(i for i, _ in bm25.rank(args.description, find_documents(run, files, structures, texts))[:FIND_JEV_FILES])
+        notes.append("-- %d fichiers : seuls les %d plus proches par mots-clés sont soumis à Jev ; restreins le dossier pour élargir"
+                     % (len(files), FIND_JEV_FILES))
+        candidates = [files[i] for i in keep]
+    lines, backend = find_jev(run, args.description, candidates, structures, texts, top, minimum) if run.allowed else (None, "local")
     if lines is None and run.allowed:
         run.failed = True
         notes.append("(mode local : Jev en erreur — %s)" % ("; ".join(sorted(set(run.errors))) or "aucune réponse exploitable"))
     if lines is None:
         lines, backend = find_local(run, args.description, files, structures, texts, top), "local"
-    print("\n".join(notes + lines + [footer(run, stats, len(files))]))
+    print("\n".join(notes + lines + [footer(run, stats, len(files) if backend == "local" else len(candidates))]))
     run.log(backend=backend, files=len(files), errors=len(run.errors))
     return 0
 
 
+def find_documents(run, files, structures, texts):
+    return ["%s %s\n%s\n%s" % (run.rel(p), run.rel(p), skeleton(run.rel(p), structures.get(str(p)), texts[p]), texts[p]) for p in files]
+
+
 def find_local(run, description, files, structures, texts, top):
-    documents = []
-    for path in files:
-        rel = run.rel(path)
-        documents.append("%s %s\n%s\n%s" % (rel, rel, skeleton(rel, structures.get(str(path)), texts[path]), texts[path]))
-    ranked = [(i, s) for i, s in bm25.rank(description, documents) if s > 0][:top]
+    ranked = [(i, s) for i, s in bm25.rank(description, find_documents(run, files, structures, texts)) if s > 0][:top]
     if not ranked:
         return ["-- aucune correspondance lexicale parmi %d fichiers ; essaie grep ou une autre formulation" % len(files)]
     out = ["-- classement lexical BM25 (non sémantique) :"]
@@ -1055,70 +1069,49 @@ def find_local(run, description, files, structures, texts, top):
     return out
 
 
-def find_question(key):
+def find_question(field):
     return jev.noul(
-        {"question": "Does `files.%s` implement `goal`?" % key,
-         "focus": "Judge from the path and outline of `files.%s` only. Yes if the described behaviour or component is defined in this file." % key},
-        "The described code is defined in this file", "The described code is elsewhere or only used here")
+        {"question": "Does the code in `file.path` implement part of the behaviour described by `goal`?",
+         "focus": "Use `file.%s` to judge what this file implements. The names or language can differ from the goal. "
+                  "A matching file need not implement the entire flow." % field},
+        "This file implements a step of the requested behaviour",
+        "This file only mentions, calls or supports code implementing that behaviour")
 
 
 def find_jev(run, description, files, structures, texts, top, minimum):
     goal = policy.redact(description)
     fids = {"f%d" % (i + 1): path for i, path in enumerate(files)}
-    items = [(fid, policy.redact(skeleton(run.rel(path), structures.get(str(path)), texts[path], SECRETS)))
-             for fid, path in fids.items()]
-    requests = pack({"goal": goal}, "files", items, find_question, "screen")
-    answers, errors = ask_all(run.client, requests)
+    requests = [({"goal": goal, "file": {
+        "path": run.rel(path), "skeleton": policy.redact(skeleton(run.rel(path), structures.get(str(path)), texts[path], SECRETS))}},
+        {"match": find_question("skeleton")}, None, fid) for fid, path in fids.items()]
+    answers, errors = ask_all(run.client, requests[:FIND_PROBE])
+    if any(v is not None for v in answers.values()) and requests[FIND_PROBE:]:
+        more, more_errors = ask_all(run.client, requests[FIND_PROBE:])
+        answers.update(more)
+        errors += more_errors
     run.errors += errors
-    screen = {fid: noul_p(answers.get(("screen", fid))) for fid in fids}
+    screen = {fid: noul_p(answers.get((fid, "match"))) for fid in fids}
     if all(v is None for v in screen.values()):
         return None, "local"
     ranked = sorted((fid for fid in fids if screen[fid] is not None), key=lambda f: screen[f], reverse=True)
-    verify, sent_of = [], {}
-    for fid in ranked[:VERIFY_TOP]:
+    verify = []
+    for fid in ranked[:max(VERIFY_TOP, top)]:
         path = fids[fid]
-        blocks = [b for b in blocks_for(path, texts[path], structures.get(str(path))) if not b["context"]]
-        if not blocks:
+        state = {"goal": goal, "file": {"path": run.rel(path), "content": policy.redact(texts[path])}}
+        questions = {"match": find_question("content")}
+        if jev.estimate_tokens(state) + jev.estimate_tokens(questions) > jev.STATE_TOKEN_BUDGET:
             continue
-        relevance = local_scores(description, blocks)
-        order = sorted(blocks, key=lambda b: relevance[b["id"]], reverse=True)[:jev.MAX_OPTIONS]
-        base = {"goal": goal, "file": run.rel(path)}
-        budget = jev.STATE_TOKEN_BUDGET - jev.estimate_tokens(base) - 60
-        chosen, used = {}, 0
-        for block in order:
-            label = policy.redact(block["label"])
-            item = {"lines": span(block), "label": label, "code": fit(policy.redact(block["text"]), budget // 2)[0]}
-            cost = jev.estimate_tokens({block["id"]: item}) + jev.estimate_tokens(label) + 4
-            if used + cost > budget:
-                continue
-            chosen[block["id"]] = item
-            used += cost
-        if not chosen:
-            continue
-        ordered = {b["id"]: chosen[b["id"]] for b in blocks if b["id"] in chosen}
-        questions = {"has": jev.noul(
-            {"question": "Do `blocks` contain the code that implements `goal`?",
-             "focus": "Yes only if the described behaviour or component is implemented here, not merely used or mentioned."},
-            "The implementation is in these blocks", "It is not implemented here")}
-        if len(ordered) >= 2:
-            questions["where"] = jev.choice({"question": "Which block of `blocks` implements `goal`?"},
-                                            {bid: item["label"] for bid, item in ordered.items()})
-        verify.append((dict(base, blocks=ordered), questions, None, fid))
-        sent_of[fid] = ({b["id"]: b for b in blocks}, list(ordered), len(ordered) < len(blocks))
+        verify.append((state, questions, None, fid))
     checked, verify_errors = ask_all(run.client, verify)
     run.errors += verify_errors
     results = []
     for fid in ranked:
-        path = fids[fid]
-        p = noul_p(checked.get((fid, "has"))) if fid in sent_of else None
-        if p is None:
-            results.append({"p": screen[fid], "verified": False, "path": path})
-            continue
-        by_id, sent, partial = sent_of[fid]
-        block, exact = locate(checked.get((fid, "where")), sent, by_id, description)
-        results.append({"p": p, "verified": True, "path": path, "block": block, "exact": exact, "partial": partial})
-    results.sort(key=lambda r: (not r["verified"], -r["p"]))
-    kept = [r for r in results if r["p"] >= minimum][:top]
+        p = noul_p(checked.get((fid, "match")))
+        results.append({"p": screen[fid] if p is None else p, "verified": p is not None,
+                        "path": fids[fid], "fid": fid, "block": None})
+    results.sort(key=lambda r: -r["p"])
+    matches = [r for r in results if r["p"] >= minimum]
+    kept = matches[:top]
     out = []
     if errors or verify_errors:
         out.append("-- erreurs Jev : %s" % "; ".join(sorted(set(errors + verify_errors))))
@@ -1129,16 +1122,49 @@ def find_jev(run, description, files, structures, texts, top, minimum):
         best = max((r["p"] for r in results), default=0)
         out.append("-- aucune correspondance sûre parmi %d fichiers criblés (meilleur p=%.2f) ; le criblage peut rater un fichier, "
                    "essaie grep ou une autre formulation" % (len(files) - missing, best))
-        weak = results[:3]
+        weak = results[:min(top, 3)]
         if weak:
             out.append("-- candidats faibles :")
             kept = weak
+    locations, sent_of = [], {}
+    for r in kept[:3]:
+        path, fid = r["path"], r["fid"]
+        blocks = [b for b in blocks_for(path, texts[path], structures.get(str(path))) if not b["context"]]
+        if not blocks or len(blocks) > jev.MAX_OPTIONS:
+            continue
+        if len(blocks) == 1:
+            r["block"] = blocks[0]
+            continue
+        state = {"goal": goal, "file": run.rel(path), "blocks": {
+            b["id"]: {"lines": span(b), "label": policy.redact(b["label"]), "code": policy.redact(b["text"])}
+            for b in blocks}}
+        questions = {"where": jev.choice({"question": "Which block of `blocks` best locates the part of `goal` implemented in this file?"},
+                                         {b["id"]: policy.redact(b["label"]) for b in blocks})}
+        if jev.estimate_tokens(state) + jev.estimate_tokens(questions) > jev.STATE_TOKEN_BUDGET:
+            continue
+        locations.append((state, questions, None, fid))
+        sent_of[fid] = {b["id"]: b for b in blocks}
+    located, locate_errors = ask_all(run.client, locations)
+    run.errors += locate_errors
+    if locate_errors:
+        out.append("-- localisation incomplète : %s ; les fichiers restent dans le classement" % "; ".join(sorted(set(locate_errors))))
+    for r in kept:
+        if r["fid"] in sent_of:
+            options = sent_of[r["fid"]]
+            answer = located.get((r["fid"], "where"))
+            picked = choice_of(answer, options)
+            if (noul_p(answer) or 0) >= 0.5:
+                r["block"] = options.get(picked)
     for r in kept:
         if r["verified"]:
-            out.append("%.2f  %s%s" % (r["p"], where_text(run.rel(r["path"]), r["block"], r["exact"]),
-                                       " (vérifié sur une partie du fichier)" if r.get("partial") else ""))
+            out.append("%.2f  %s" % (r["p"], where_text(run.rel(r["path"]), r["block"], True)))
         else:
-            out.append("~%.2f %s  (non vérifié : plan seul)" % (r["p"], run.rel(r["path"])))
+            out.append("~%.2f %s  (score non vérifié : plan seul)" % (
+                r["p"], where_text(run.rel(r["path"]), r["block"], True)))
+    if len(matches) > len(kept):
+        out.append("-- %d autres candidats au-dessus du seuil non affichés (--top %d)" % (len(matches) - len(kept), top))
+    out.append("-- pistes, pas inventaire complet : pour un parcours, suis les appels et les modèles de données ; "
+               "vérifie chaque partie de la demande avant de conclure.")
     return out, "jev"
 
 

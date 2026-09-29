@@ -20,6 +20,9 @@ START = ("dartlens est actif dans ce projet. Pour comprendre un comportement dan
          "Pour retrouver du code dont tu ignores le nom : `lens find \"ce que fait le code\" lib`. "
          "Pour un symbole connu, cherche son nom. Avant une modification, lis la zone concernée avec Read.")
 
+FIND_CODE = (" L'outil `mcp__plugin_dartlens_dartlens__find_code` fait la même recherche que `lens find` ; "
+             "ses résultats sont des pistes : suis le parcours complet et vérifie chaque partie avant de conclure.")
+
 HINT = ("dartlens : %(name)s fait %(lines)d lignes. Pour une question précise sur un fichier de cette taille, "
         "`lens \"ta question\" %(rel)s` ne montre que les passages concernés ; `dart-outline %(rel)s` en donne le plan.")
 
@@ -76,7 +79,8 @@ def start(payload):
     if not allowed or mode == "off":
         return None
     log({"session": payload.get("session_id"), "event": "start", "mode": mode, "source": payload.get("source")})
-    return hookio.context("SessionStart", START)
+    offered = config.load(os.environ.get("CLAUDE_PROJECT_DIR") or catalog.root_of(cwd))["find"].get("mcp") is True
+    return hookio.context("SessionStart", START + (FIND_CODE if offered else ""))
 
 
 def read(payload):
