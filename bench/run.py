@@ -41,6 +41,7 @@ ALLOWED_TOOLS = (
     "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)", "Bash(git grep:*)",
     "Bash(rg:*)", "Bash(grep:*)", "Bash(find:*)", "Bash(ls:*)", "Bash(cat:*)", "Bash(head:*)",
     "Bash(tail:*)", "Bash(sed -n:*)", "Bash(wc:*)",
+    "mcp__plugin_dartlens_dartlens__find_code",
 )
 # Inherited values that would leak the operator's session into the trial.
 STRIPPED_ENV = ("CLAUDE_PROJECT_DIR", "CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")

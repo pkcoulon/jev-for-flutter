@@ -171,7 +171,7 @@ def last_text(paths_):
     text = ""
     for path in paths_:
         for entry in entries(path):
-            if entry.get("type") != "assistant":
+            if entry.get("type") != "assistant" or entry.get("isSidechain") or entry.get("parent_tool_use_id"):
                 continue
             parts = [b.get("text", "") for b in (entry.get("message") or {}).get("content") or []
                      if isinstance(b, dict) and b.get("type") == "text"]
@@ -670,6 +670,7 @@ def main():
     args.arm_order = arms_seen
     by_arm = {arm: cell([r for r in rows if r["arm"] == arm]) for arm in arms_seen}
     comparisons = {arm: compare(by_task, arm, args) for arm in arms_seen if arm != args.baseline}
+    comparisons = {arm: comp for arm, comp in comparisons.items() if comp is not None}
     fake = any(r.get("fake") for r in rows)
     pending = sum(1 for r in rows if r["valid"] and r["accepted"] is None)
     mixed = heterogeneity(rows)

@@ -110,14 +110,118 @@ Parcours observés après les arrêts :
 - Le diagnostic, seule tâche réussie partout, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt.
 - **Conclusion** : l'arrêt divise par trois le code reçu, mais une économie sur un même travail terminé n'est pas démontrée.
 
-### Le plafond d'économie
+### Ce que le calcul des lectures permet d'estimer
 
-Et si les gros fichiers lus en entier n'avaient rien coûté du tout ? Calcul sur les 7 essais sans dartlens, campagne et pilote réunis (`bench/ceiling.py`) :
-- Le coût aurait baissé de **9 à 14 %** : on ne paierait ni leur mise en cache, ni leur relecture à chaque échange suivant. Calcul au tarif Sonnet 5, avec 3,5 puis 2,3 caractères par token.
-- En pratique, `lens` renvoie environ un tiers de ce contenu, et le détour ajoute des échanges. Le gain réaliste est donc de **quelques pour cent**.
-- Le coût d'une même tâche varie d'environ 50 % d'un essai à l'autre. Un gain de cet ordre ne se prouve pas avec quelques dizaines d'essais.
+`bench/ceiling.py` conserve son nom, mais ne calcule pas un plafond d'économie du plugin. Il estime seulement le coût attribuable aux grandes lectures complètes de Dart, en supposant que le reste du parcours ne change pas. Il ne simule ni les recherches que `find` ou `which` pourraient éviter, ni le détour par `lens`, ni le coût de Jev.
 
-Pourquoi si peu, alors que Claude reçoit trois fois moins de code ? Parce que Claude Code met la conversation en cache : relire un fichier déjà envoyé coûte environ dix fois moins cher que de l'envoyer la première fois.
+Le calcul utilise les tarifs par modèle et les classes de tokens observées dans les traces, avec les écritures de cache de cinq minutes et d'une heure distinguées. Chaque résultat Read reste dans le contexte de l'agent qui l'a reçu, jusqu'à une compaction ou à la fin de cet agent. Les usages répétés sont dédoublonnés ; les journaux persistés complètent notamment les tokens de sortie absents du flux terminal.
+
+Deux incertitudes restent explicites : la conversion des caractères en tokens (2,3 ou 3,5 caractères par token) et la classe de facturation de chaque passage. Les traces donnent les totaux par appel, sans dire quelle classe correspond à chaque extrait. Le script affiche donc les deux allocations extrêmes compatibles avec ces totaux, sous l'hypothèse de conservation du texte. Ce ne sont pas des intervalles de confiance.
+
+Sur les sept témoins, le coût des appels enregistrés est de 9,68 $. Selon la conversion et l'attribution supposées, les lectures sélectionnées représentent entre 0,57 $ et 2,23 $. **Cette fourchette n'est ni une économie observée ni une promesse de gain.** Elle ne permet pas de conclure sur l'intérêt global de dartlens ou du plugin de Boris.
+
+Les anciennes conclusions « quelques pour cent au mieux » et « des centaines d'essais nécessaires » sont retirées : le calcul ne les établissait pas. Aucun effectif d'essais n'est déclaré décisif sans protocole et analyse adaptés.
+
+Reproduction hors ligne, sans appel Claude ou Jev :
+
+```bash
+python3 -B bench/ceiling.py '~/.cache/dartlens-bench/results/*/*.control.*' --json /tmp/dartlens-read-estimate.json
+```
+
+### Où examiner le parcours de recherche
+
+L'analyse de la branche `claude/savings-scope` est conservée dans `bench/search_cost.py`. Elle situe les appels avant la première modification ou, pour une tâche sans modification, avant la réponse finale. Cette phase représente 58 % du coût des sept témoins, et 48 % en retirant leur premier appel principal.
+
+Ce total comprend aussi la compréhension, des tests et le chargement de consignes. **Il n'indique pas une part économisable par `find` ou `which`.** Les coûts attribués aux contenus d'outils restent des estimations qui supposent leur conservation jusqu'à la fin de leur contexte.
+
+Le script repère également les fichiers lus qui ne sont ensuite ni modifiés ni cités dans les éléments examinés. Ce repérage par nom ne prouve pas qu'une lecture était inutile : elle peut avoir servi à vérifier une hypothèse ou à écarter une piste.
+
+Dans les douze essais avec plugin, aucune commande ni entrée de journal n'atteste un appel à `find` ou `which`. Leurs gains éventuels restent inconnus. Les commandes et journaux sont comptés séparément, car ils peuvent décrire une même exécution.
+
+```bash
+python3 -B bench/search_cost.py --json /tmp/dartlens-search-analysis.json
+```
+
+### Ajout ultérieur : l'outil `find_code`
+
+Après cette campagne, le plugin expose aussi la recherche par comportement comme outil `find_code`, au moyen d'un [serveur MCP fourni par le plugin](https://code.claude.com/docs/en/plugins-reference#mcpservers). Il appelle la même commande `lens find`. L'hypothèse est qu'un outil directement disponible soit plus facile à choisir que la commande de terminal mentionnée dans une consigne. Ce n'est pas une cause démontrée de l'absence d'appels dans les essais précédents.
+
+Vérification locale du 29 septembre : déclaration du plugin validée par Claude Code, échanges MCP, recherche sur les trois fichiers attendus de la tâche Pioudex, aller-retour avec le faux serveur Jev existant, repli local sans activation, refus des chemins extérieurs, arrêt du processus de recherche après annulation ou déconnexion. Le faux serveur vérifie le raccordement ; il ne mesure pas la pertinence de Jev.
+
+Le banc reconnaît ces appels MCP et les distingue des commandes et journaux. Le texte du classement n'est pas compté comme du code Dart reçu. Le recalcul des mesures d'adoption sur les 19 archives donne les mêmes résultats qu'avant ce changement.
+
+#### Première observation réelle de `find_code`
+
+Le 29 septembre, après autorisation d'un budget de 1 $, Claude a exécuté une fois la tâche `pioudex-loc-silence`, avec Sonnet 5, la demande française inchangée et le plugin complet. Archive : `find-code-obs-2026-09-29/pioudex-loc-silence.all.fr.r1`.
+
+- `find_code` figurait parmi les 106 outils disponibles, dont 75 MCP. Dans les traces de la conversation principale et du sous-agent `Explore`, il apparaît dans la liste des outils différés : son nom est visible, sa description doit être chargée par `ToolSearch`.
+- Aucun appel à `ToolSearch`, `find_code` ou `lens`. Claude a délégué la recherche à `Explore`, qui a utilisé les outils habituels. Le refus de grandes lectures a joué trois fois ; la session comporte onze lectures partielles de Dart, dont huit dans le sous-agent. Ce parcours ne reproduit donc pas l'adoption de `lens` observée dans la campagne précédente.
+- Réponse acceptée par le relecteur sur les quatre critères existants, sans fichier modifié. Une attribution de commentaire inexacte est signalée hors grille.
+- Coût Claude au tarif API : 0,598 $. Durée enregistrée par le banc : 157 s. C'est un seul essai, sans nouveau témoin apparié ; ce résultat ne démontre ni une économie du plugin ni un bénéfice de `find_code`, qui n'a pas été appelé. Les autres composants du plugin restaient actifs.
+
+#### Correction de la visibilité
+
+La [documentation Claude Code](https://code.claude.com/docs/en/mcp#exempt-a-server-from-deferral) prévoit `alwaysLoad: true` dans la configuration d'un serveur MCP, y compris stdio : sa description d'outil est chargée au démarrage sans recherche préalable. Ce réglage est ajouté au seul serveur dartlens, qui expose un outil. Le rappel de démarrage ne demande plus de charger cet outil avec `ToolSearch`.
+
+Le nom différé était bien présent dans les deux agents : leur absence d'appel ne prouve ni une impossibilité d'intégration, ni que le chargement différé soit l'unique cause. Cette correction vise l'accès à la description ; elle ne force pas Claude à choisir `find_code` et ne contourne pas les restrictions d'outils des sous-agents.
+
+La correction de visibilité a ensuite été observée dans les sessions ci-dessous, autorisées séparément. Elle ne suffit pas à établir la qualité ni l'économie.
+
+#### Observations après `alwaysLoad` : réponses incomplètes
+
+Campagnes `find-code-obs2-2026-09-29` et `find-code-obs3-2026-09-29`, sur la même tâche et la même demande. Les coûts ci-dessous concernent Claude au tarif API, sans Jev.
+
+| Session | `find_code` | Coût Claude | Relecture |
+|---|---|---|---|
+| adoption, sans plugin | absent | 0,96 $ | refusée |
+| adoption, note | absent | 0,80 $ | acceptée |
+| adoption, refus | absent | 0,67 $ | acceptée |
+| obs1, outil différé | non utilisé | 0,60 $ | acceptée |
+| obs2, `alwaysLoad` | utilisé | 0,29 $ | refusée |
+| obs3, répétition 1 | utilisé | 0,22 $ | refusée |
+| obs3, répétition 2 | non utilisé | 0,54 $ | refusée |
+
+Les deux sessions utilisant `find_code` reçoivent cinq résultats centrés sur le modèle et l'affichage, sans les services d'identification. Les réponses omettent `ConfidenceTier.parse`, exigé par la grille. Elles n'expliquent pas non plus que l'écoute peut construire directement le résultat via le moteur embarqué, sans passer par `Identification.fromJson`.
+
+**Vérification des traces par Codex :** dans les deux sessions avec `find_code`, un Read intégral de `identification.dart` a bien fourni `ConfidenceTier.parse` à Claude. Son omission dans la réponse n'est donc pas une disparition de ce code causée par le filtrage. La recherche incomplète des services et l'oubli d'un élément pourtant lu sont deux problèmes distincts.
+
+Le bilan est descriptif : les versions, l'exploration et la relecture diffèrent entre sessions. Les deux derniers relecteurs ont reçu une consigne attirant l'attention sur le moteur embarqué. L'oubli de `parse` reste un manquement au critère préexistant. Ces essais ne démontrent pas un gain à qualité égale ; on ne présente pas leur petit coût comme une réussite du produit.
+
+#### Révision du moteur à partir de Jev
+
+Comparaison du 29 septembre avec le [code de Boris au commit `e81c1d0`](https://github.com/BorisLeMeec/jev/blob/e81c1d006b8b23a616486610f311039088521d0c/internal/run/find.go). Son criblage juge un seul fichier par requête ; il documente une dégradation des classements quand plusieurs fichiers étaient réunis. La version de dartlens des essais ci-dessus groupait les 120 fichiers en deux requêtes. Elle vérifiait ensuite huit candidats en présélectionnant leurs morceaux par mots-clés, et plaçait tous les fichiers vérifiés avant les autres, indépendamment du score.
+
+Changements locaux :
+- Une requête de criblage par fichier ; même question de pertinence au criblage et à la vérification, seul le contenu présenté change.
+- Vérification sur le contenu intégral des premiers candidats, après masquage. Si le contenu dépasse le budget de la requête, son score reste explicitement non vérifié ; aucun préfixe n'est présenté comme un fichier entier.
+- Classement par score, puis localisation dans au plus trois résultats. Une localisation incertaine ou indisponible ne retire pas le fichier du classement.
+- Candidats au-dessus du seuil masqués par la limite signalés. Le résultat rappelle de suivre les appels et les modèles pour couvrir chaque partie de la demande.
+
+Le nombre de résultats par défaut reste cinq. Le changement ne repose ni sur une hausse arbitraire de cette limite, ni sur une traduction supposée réparer la qualité. Les écarts d'implémentation sont établis ; leur rôle causal dans les deux mauvaises réponses reste à mesurer.
+
+Contrôles hors ligne : les deux formulations françaises archivées passent par le serveur MCP et le faux Jev existant sur les 120 fichiers du commit Pioudex épinglé. Pour chacune : 120 requêtes de criblage, huit vérifications contenant bien le fichier entier, trois localisations ; aucune requête hors budget. Des réponses contrôlées vérifient les erreurs, les contenus trop grands, le classement, les positions incertaines et la limite d'affichage. Le manifeste Claude Code et la syntaxe passent également. **Le faux modèle valide le raccordement, pas la pertinence de Jev.**
+
+Cette méthode fait plus de requêtes Jev. La rapidité de toute la tâche doit être mesurée ; on ne promet pas que l'appel de recherche seul soit plus rapide. Les résultats composants précédents décrivent l'ancien moteur et ne valident pas cette révision.
+
+#### Observations du moteur révisé : couverture améliorée, qualité non validée
+
+Claude a ensuite exécuté les deux recherches avec le vrai Jev, puis trois sessions, dans des lots autorisés séparément. Les deux recherches proposent désormais `embedded_bird_identifier.dart`, cinquième résultat. L'aiguillage `repli_bird_identifier.dart` reste hors des huit candidats vérifiés. Les requêtes et réponses Jev sont archivées dans `jev-search-2026-09-29` : 262 appels, 285 260 tokens d'entrée et 6 144 de sortie. Ce résultat de recherche ne prouve pas que Claude examine le parcours complet.
+
+| Session | `find_code` | Coût Claude, hors Jev | Durée du banc | Résultat |
+|---|---|---:|---:|---|
+| obs4 | utilisé | 0,2712 $ | 52,7 s | acceptée par la grille ; erreur factuelle hors grille |
+| obs5, répétition 1 | utilisé deux fois | 0,2474 $ | 65,7 s | refusée |
+| obs5, répétition 2 | non utilisé | 0,3355 $ | 103,7 s | aucune réponse, budget épuisé |
+
+**L'acceptation d'obs4 ne valide pas la qualité demandée.** La réponse nomme les symboles exigés, mais situe une conversion commune avant la séparation écoute/photo. L'écoute essaie pourtant d'abord le moteur embarqué, qui construit directement `Identification`, tandis que la photo utilise le serveur. Le fichier du moteur figure dans les résultats, mais Claude ne l'ouvre pas. Le même raccourci est reproché à obs5 r1, qui omet aussi le nom `ConfidenceTier.parse`. Les verdicts historiques sont conservés ; leur différence de sévérité interdit de conclure à une qualité équivalente.
+
+Obs5 r2 ne livre qu'un message d'attente avant `error_max_budget_usd`. Son rapport de sous-agent avait d'abord été pris à tort pour la réponse : le banc exclut désormais les textes de sous-agents du texte final de secours. Cette répétition reste un échec, même si le sous-agent avait trouvé les éléments demandés.
+
+Les durées ci-dessus sont descriptives. Les anciennes durées d'adoption, contaminées par les attentes de permission, ne doivent pas servir à annoncer un gain de vitesse. Aucun bénéfice à qualité égale n'est établi par ces trois essais.
+
+Le réglage `--max-budget-usd 0.30` n'a pas empêché obs5 r2 d'atteindre 0,3355 $. La [documentation du CLI](https://code.claude.com/docs/en/cli-reference) inclut les sous-agents de la session dans ce budget ; les appels Jev et les workflows de relecture lancés séparément n'y sont pas compris. Ce réglage ne doit pas être présenté comme une garantie de dépense totale maximale. Les coûts Jev restent des estimations tant que le tarif du modèle utilisé n'est pas confirmé.
+
+La prochaine correction doit traiter l'arrêt de l'exploration alors que des branches du parcours restent à vérifier. Une nouvelle liste de fichiers ou une consigne supplémentaire ne suffisent pas à en démontrer la résolution. Exploiter d'abord les traces archivées ; tout nouvel appel réel reste soumis à un lot et un budget autorisés.
 
 ### Qualité : ce qu'on peut dire
 

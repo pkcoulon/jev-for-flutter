@@ -14,6 +14,7 @@ SHELL_READS = ("cat", "sed", "head", "tail")
 LENS_FILE = re.compile(r"^== (?!\$ )(.+?) \((\d+) lignes\) · (?:intégral|\d+/\d+ blocs · (\d+)/(\d+) lignes)", re.M)
 LENS_KINDS = {"focus": "fichier", "command": "commande", "find": "find", "which": "which"}
 LENS_LABELS = {"fichier": "lens", "commande": "lens cmd", "find": "lens find", "which": "lens which"}
+MCP_FIND_TOOLS = {"mcp__plugin_dartlens_dartlens__find_code", "mcp__dartlens__find_code"}
 
 
 def load(path):
@@ -176,6 +177,12 @@ def trial_metrics(directory):
                             stats["read_range_whole"] += ranged
                             stats["full_read_after_lens"] += path in lensed
                             send(event["label"], path, lines, ts)
+            elif name in MCP_FIND_TOOLS:
+                event["label"] = "lens find (MCP)"
+                if not error:
+                    stats["lens_n"] += 1
+                    stats["find_mcp_n"] += 1
+                    stats["search_result_chars"] += len(text)
             elif name == "Bash":
                 command = data.get("command") or ""
                 segments = [p for pipeline in pipelines(command) for p in pipeline]
@@ -191,7 +198,7 @@ def trial_metrics(directory):
                     lensed.update(event["files"])
                     if not error:
                         stats["lens_n"] += 1
-                        stats["lens_chars"] += len(text)
+                        stats["search_result_chars" if all(k in ("find", "which") for k in kinds) else "lens_chars"] += len(text)
                         for match in LENS_FILE.finditer(text):
                             path, total = rel(match[1]), int(match[4] or match[2])
                             sizes[path] = total
