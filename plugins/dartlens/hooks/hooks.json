@@ -33,6 +33,17 @@
           {
             "type": "command",
             "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/lens_nudge.py", "prepare"],
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
             "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/code_context.py"],
             "timeout": 3
           }

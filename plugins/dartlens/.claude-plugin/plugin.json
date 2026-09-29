@@ -1,6 +1,6 @@
 {
   "name": "jev-for-flutter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Jev finds the Dart/Flutter code you need and narrows large reads before they enter Claude’s context.",
   "author": {
     "name": "Pierrick Coulon"
@@ -13,6 +13,6 @@
     "context",
     "hooks"
   ],
-  "homepage": "https://github.com/pkcoulon/dartlens",
-  "repository": "https://github.com/pkcoulon/dartlens"
+  "homepage": "https://github.com/pkcoulon/jev-for-flutter",
+  "repository": "https://github.com/pkcoulon/jev-for-flutter"
 }

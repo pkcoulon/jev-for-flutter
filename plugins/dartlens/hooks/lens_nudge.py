@@ -3,6 +3,7 @@ import fcntl
 import hashlib
 import json
 import os
+import re
 import shlex
 import sys
 import time
@@ -128,5 +129,24 @@ def read(payload):
     return hookio.context("PreToolUse", HINT % words)
 
 
+def prepare(payload):
+    prompt = narrow.clean_goal(payload.get("prompt"))
+    if not prompt or not payload.get("session_id"):
+        return None
+    names = set(re.findall(r"(?<![\w./:-])(?:\./|/)?(?:[\w.-]+/)*[\w.-]+\.dart(?![\w/-]|\.\w)", prompt))
+    if len(names) != 1:
+        return None
+    cwd = payload.get("cwd") or os.getcwd()
+    if policy.path_refused(cwd):
+        return None
+    root, cfg, allowed, mode = settings(cwd)
+    if not allowed or mode != "narrow" or not cfg["read"]["prefetch"]:
+        return None
+    request = dict(payload, tool_name="Read", tool_input={"file_path": names.pop()})
+    return narrow.read(request, Path(root).resolve(), cfg, prepare=True)
+
+
 if __name__ == "__main__":
-    hookio.run({"start": start, "read": read}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda payload: None), deadline=4.0)
+    os.umask(0o077)
+    hookio.run({"start": start, "read": read, "prepare": prepare}.get(
+        sys.argv[1] if len(sys.argv) > 1 else "", lambda payload: None), deadline=4.0)

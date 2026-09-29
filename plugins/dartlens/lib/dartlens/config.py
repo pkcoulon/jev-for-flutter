@@ -21,7 +21,7 @@ DEFAULTS = {
     "generated_dir_markers": [".openapi-generator"],
     "jev": {"enabled": False, "model": "jev-1.13.0", "hook_timeout_s": 1.5, "cli_timeout_s": 20},
     "lens": {"threshold": 0.5, "max_files": 20, "nudge": "narrow", "nudge_min_lines": 300, "nudge_max": 3},
-    "read": {"min_lines": 400, "max_bytes": 64000, "max_calls": 24, "timeout_s": 3,
+    "read": {"min_lines": 400, "max_bytes": 64000, "max_calls": 24, "timeout_s": 3, "prefetch": True,
              "confidence": 0.6, "focused": 0.85},
     "find": {"extensions": [".dart"], "include_tests": False, "top": 5, "min": 0.6, "mcp": False},
     "context": {"enabled": False, "max_chars": 8000, "max_requests": 8, "max_input_tokens": 24000, "timeout_s": 8},

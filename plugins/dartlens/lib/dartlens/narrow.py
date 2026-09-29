@@ -9,6 +9,15 @@ from pathlib import Path
 from . import hookio, jev, outline, paths, policy
 
 
+def clean_goal(content):
+    if not isinstance(content, str):
+        return ""
+    for marker in ("<system-reminder>", "<command-name>", "<local-command-stdout>"):
+        content = content.split(marker, 1)[0]
+    content = content.strip()
+    return policy.redact(content) if 12 <= len(content) <= 2000 else ""
+
+
 def goal_from_transcript(path):
     if not path:
         return ""
@@ -33,10 +42,7 @@ def goal_from_transcript(path):
                                 if isinstance(b, dict) and b.get("type") == "text")
         if not isinstance(content, str) or not content.strip():
             continue
-        for marker in ("<system-reminder>", "<command-name>", "<local-command-stdout>"):
-            content = content.split(marker, 1)[0]
-        content = content.strip()
-        return policy.redact(content) if 12 <= len(content) <= 2000 else ""
+        return clean_goal(content)
     return ""
 
 
@@ -45,10 +51,10 @@ def probability(answer, key):
     return value if type(value) in (int, float) and math.isfinite(value) and 0 <= value <= 1 else None
 
 
-def reserve(session, key, maximum):
+def reserve(session, key, maximum, kind="read-windows"):
     if not session:
         return False
-    directory = hookio.state_file("read-windows", session)
+    directory = hookio.state_file(kind, session)
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     with open(directory.parent / (directory.name + ".lock"), "a") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
@@ -59,6 +65,37 @@ def reserve(session, key, maximum):
         except FileExistsError:
             return False
     return True
+
+
+def judge(payload, cfg, key, state, questions, prepare):
+    directory = hookio.state_file("read-prepared", payload.get("session_id"))
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    cached = directory / (key + ".json")
+    timeout = min(3, max(0.1, cfg["read"]["timeout_s"]))
+    deadline = time.monotonic() + timeout
+    requested = False
+    while True:
+        result = hookio.read_json(cached, {})
+        if isinstance(result, dict) and type(result.get("time")) in (int, float) \
+                and 0 <= time.time() - result["time"] <= 90:
+            return result.get("answers"), True
+        if not requested:
+            requested = True
+            maximum = min(24, max(0, cfg["read"]["max_calls"]))
+            if reserve(payload.get("session_id"), key, maximum, "read-requests"):
+                client = jev.Client(cfg, "read", timeout=timeout, retries=0, use_breaker=True)
+                try:
+                    answers = client.ask(state, questions)
+                except jev.JevError:
+                    answers = None
+                hookio.write_json(cached, {"time": time.time(), "answers": answers})
+                return answers, False
+            marker = hookio.state_file("read-requests", payload.get("session_id")) / key
+            if prepare or not marker.is_file() or time.time() - marker.stat().st_mtime > timeout + 1:
+                return None, False
+        if time.monotonic() >= deadline:
+            return None, False
+        time.sleep(min(0.025, max(0, deadline - time.monotonic())))
 
 
 def window(text, line):
@@ -80,16 +117,17 @@ def window(text, line):
     return (start, end) if end - start + 1 <= total * 0.6 else None
 
 
-def read(payload, root, cfg):
+def read(payload, root, cfg, prepare=False):
     began = time.monotonic()
     tool_input = payload.get("tool_input") or {}
-    if payload.get("tool_name") != "Read" or "offset" in tool_input or "limit" in tool_input:
+    if not payload.get("session_id") or payload.get("tool_name") != "Read" \
+            or "offset" in tool_input or "limit" in tool_input:
         return None
     name = tool_input.get("file_path")
     if not isinstance(name, str) or not name.endswith(".dart"):
         return None
     file = (Path(payload.get("cwd") or root) / name).resolve()
-    if not policy.sendable(file, root) or paths.is_generated(str(file), cfg, root):
+    if not policy.sendable(file, root) or paths.is_generated(str(file), cfg, root) or not file.is_file():
         return None
     limits = cfg["read"]
     if file.stat().st_size > min(64000, max(1, limits["max_bytes"])):
@@ -101,7 +139,7 @@ def read(payload, root, cfg):
     lines = policy.redact(text).splitlines()
     if len(lines) < max(400, limits["min_lines"]):
         return None
-    goal = goal_from_transcript(payload.get("transcript_path"))
+    goal = clean_goal(payload.get("prompt")) if prepare else goal_from_transcript(payload.get("transcript_path"))
     if not goal:
         return None
     step = max(10, math.ceil(len(lines) / 200))
@@ -121,20 +159,23 @@ def read(payload, root, cfg):
     if jev.estimate_tokens(state) + jev.estimate_tokens(questions) > jev.STATE_TOKEN_BUDGET:
         return None
     stamp = hashlib.sha256(raw).hexdigest()
-    key = hashlib.sha256((str(file) + stamp + goal).encode()).hexdigest()[:32]
-    if not reserve(payload.get("session_id"), key, min(24, max(0, limits["max_calls"]))):
+    key = hashlib.sha256(json.dumps([str(file), stamp, goal, jev.model_name(cfg), jev.base_url(), questions],
+                                   sort_keys=True).encode()).hexdigest()[:32]
+    if not prepare and not reserve(payload.get("session_id"), key, min(24, max(0, limits["max_calls"]))):
         return None
-    client = jev.Client(cfg, "read", timeout=min(3, max(0.1, limits["timeout_s"])), retries=0, use_breaker=True)
-    try:
-        answers = client.ask(state, questions)
-    except jev.JevError:
+    answers, reused = judge(payload, cfg, key, state, questions, prepare)
+    if prepare:
+        jev._log("read.jsonl", {"ts": time.time(), "session": payload.get("session_id"), "event": "prepared",
+                               "ready": isinstance(answers, dict), "ms": round((time.monotonic() - began) * 1000)})
+        return None
+    if not isinstance(answers, dict):
         return None
     where = answers.get("where")
     confidence = probability(where, "confidence")
     focused = probability(answers.get("focused"), "noul")
     choice = where.get("choice") if isinstance(where, dict) else None
     record = {"ts": time.time(), "session": payload.get("session_id"), "file": hashlib.sha256(str(file).encode()).hexdigest()[:16],
-              "lines": len(lines), "confidence": confidence, "focused": focused, "event": "unchanged"}
+              "lines": len(lines), "confidence": confidence, "focused": focused, "event": "unchanged", "prepared": reused}
     selected = None
     if isinstance(choice, str) and choice in blocks and confidence is not None and confidence >= max(0.6, limits["confidence"]) \
             and focused is not None and focused >= max(0.85, limits["focused"]):
