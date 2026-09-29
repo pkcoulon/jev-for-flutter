@@ -574,9 +574,19 @@ def gate_settings():
         {"matcher": "Bash", "hooks": [{"type": "command", "command": command, "timeout": 10}]}]}})
 
 
+def real_claude():
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        path = os.path.join(directory, "claude")
+        if os.access(path, os.X_OK) and "cmux" not in os.path.realpath(path):
+            return path
+    return "claude"
+
+
 def claude_argv(args, trial, session_id):
     argv = [args.claude, "-p", trial["prompt"], "--output-format", "stream-json", "--verbose",
             "--permission-mode", args.permission_mode, "--session-id", session_id]
+    if not args.user_settings:
+        argv += ["--setting-sources", "project,local"]
     if args.model:
         argv += ["--model", args.model]
     if ARMS[trial["arm"]]["plugin"]:
@@ -923,7 +933,7 @@ def conditions(args, version, plugin):
     # Everything that changes what a trial measures: a resumed campaign must keep all of it.
     return {
         "model": args.model, "permission_mode": args.permission_mode, "allowed_tools": sorted(allowed_rules(args)),
-        "extra_args": list(args.extra_arg), "max_turns": args.max_turns, "timeout_min": args.timeout_min,
+        "extra_args": list(args.extra_arg), "user_settings": args.user_settings, "max_turns": args.max_turns, "timeout_min": args.timeout_min,
         "grace": args.grace, "pause": args.pause, "jev_backend": jev_backend(args), "jev_url": args.jev_url,
         "at": args.at, "projects": sorted(args.project), "gate": gate_enabled(args),
         "plugin": plugin["sha256"], "claude_version": version,
@@ -1121,7 +1131,9 @@ def parse():
     parser.add_argument("--timeout-min", type=float, default=45)
     parser.add_argument("--pause", type=float, default=0, help="secondes entre deux essais (cache chaud)")
     parser.add_argument("--grace", type=float, default=15, help="secondes laissées aux hooks en arrière-plan")
-    parser.add_argument("--claude", default="claude")
+    parser.add_argument("--claude", default=real_claude())
+    parser.add_argument("--user-settings", action="store_true",
+                        help="charge aussi ~/.claude/settings.json (hooks utilisateur comme rtk) ; écarté par défaut")
     parser.add_argument("--plugin-dir", type=Path, default=PLUGIN)
     parser.add_argument("--home", type=Path, default=Path.home() / ".cache" / "dartlens-bench",
                         help="miroirs et résultats (jamais visibles depuis le dépôt d'un essai)")

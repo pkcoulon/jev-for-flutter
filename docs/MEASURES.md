@@ -63,47 +63,85 @@ Ce sont des estimations du besoin, pas des économies. Elles supposent environ 2
 - Usage : aucun appel à `lens`, `dart-outline` ni au skill. La garde a tourné sans fausse alerte.
 
 **Campagne d'adoption du 2026-09-29** (`adoption-2026-09-29`).
-- Tâches : 4, toutes sur Pioudex.
-- Variantes : 3, chacune avec la garde et la mémoire actives.
+- Tâches : 4, toutes sur Pioudex, au commit `91036cc`.
+- Variantes : 3, garde et mémoire actives dans les deux variantes avec plugin.
   - Sans dartlens.
   - `all` : consigne au démarrage, puis une note sur chaque lecture complète d'un fichier Dart de 300 lignes ou plus, au plus 3 par session.
-  - `all_refuse` : consigne au démarrage, puis un refus unique de cette lecture.
+  - `all_refuse` : consigne au démarrage, puis arrêt unique de cette lecture. C'est le réglage par défaut depuis.
 - Déroulé : Sonnet 5, un essai par tâche et par variante, avec la vraie clé Jev.
-- Réussite : il faut que les critères automatiques passent **et** qu'un agent relecteur, à qui l'on n'a pas dit quelle variante avait produit le travail, l'accepte. Relecture : 12 paquets, aucun retouché par le masquage.
+- Réussite : critères automatiques **et** accord d'un agent relecteur, à qui l'on n'a pas dit quelle variante avait produit le travail.
 
-| Tâche | Sans dartlens | Note | Refus |
+| Tâche | Sans dartlens | Note | Arrêt |
 |---|---|---|---|
 | `loc-silence` (localiser) | échec, 0,96 $ | réussite, 0,80 $ | réussite, 0,67 $ |
 | `diag-gain-xp` (diagnostiquer) | réussite, 0,77 $ | réussite, 1,06 $ | réussite, 1,17 $ |
 | `convention-olive` (convention) | échec, 1,14 $ | échec, 0,33 $ | échec, 0,62 $ |
-| `memoire-vibrations` (mémoire) | échec, 3,35 $ | échec, 3,97 $ | échec, 2,67 $ (délai de 25 min dépassé) |
-| **Total** | **1 sur 4, 6,23 $** | **2 sur 4, 6,16 $** | **2 sur 4, 5,12 $** |
+| `memoire-vibrations` (mémoire) | échec, 3,35 $ | échec, 3,97 $ | échec, 2,67 $ (coupé à 25 min) |
+| **Total Claude** | **1 sur 4, 6,23 $** | **2 sur 4, 6,16 $** | **2 sur 4, 5,12 $** |
+| Jev, tokens (tarif publié pour `jev-1.12`) | 0 | 32 197 (≈ 0,001 $) | 125 808 (≈ 0,005 $) |
 
-Aucune régression relevée par le relecteur.
+### Ce que Claude a reçu
 
-Le parcours d'adoption (`bench/adoption.py`) :
+Mesuré par `bench/adoption.py` : code Dart effectivement reçu, par outil. Les caractères comprennent les numéros de ligne de Read.
 
-| | Sans dartlens | Note | Refus |
+| | Sans dartlens | Note | Arrêt |
 |---|---|---|---|
-| Lectures complètes de fichiers Dart ≥ 300 lignes | 14 (≈ 163 k tokens) | 10 (≈ 115 k) | 0 |
-| Notes ou refus affichés | — | 9 notes | 8 refus |
-| Appels à `lens` | 0 | 0 | 10 |
-| Lecture complète relancée après un refus | — | — | 0 |
-| Lecture complète après un appel à `lens` | — | — | 0 |
-| Lectures ciblées (`offset`/`limit`) | 18 | 11 | 11 |
-| Modifications refusées faute de lecture | 0 | 0 | 0 |
+| Read complet | 26 appels, 450 010 car. | 19, 318 533 | 8, 56 395 |
+| Read avec plage | 12, 26 511 | 6, 25 247 | 9, 24 984 |
+| `lens` (lignes montrées / totales) | — | — | 10 appels, 1 367 / 5 995, 72 564 car. |
+| Shell (`sed -n`…) | — | — | 2, 3 235 |
+| **Code Dart reçu** | **476 521 car.** | **343 780** | **157 178** |
+| Fichiers Dart de 300 lignes ou plus reçus entiers | 14 | 10 | 1, par `lens` |
+| Notes ou arrêts affichés | — | 9 notes | 8 arrêts |
+| Lecture complète redemandée après un arrêt | — | — | 0 |
 
-Ce qu'on peut en dire :
-- **La note ne suffit pas** : Claude la reçoit, puis lit le fichier en entier quand même.
-- **Le refus unique change le parcours** : `lens` en mode Jev, sans erreur, en 0,33 à 0,51 s ; puis une lecture ciblée ; puis la modification. Une lecture partielle suffit à Claude Code avant une modification.
-- **Le coût total baisse de 18 % avec le refus.** Tâche par tâche, le rapport au témoin va de 0,54 à 1,52 (médiane 0,74). La tâche de diagnostic a coûté plus cher.
-- **Réussite** : 1 sur 4 sans dartlens, 2 sur 4 dans les deux autres variantes. La différence tient à une seule tâche (`loc-silence`), sur un seul essai. `score.py` affiche une « non-infériorité établie », mais sur 4 tâches cela ne veut pas dire grand-chose.
-- Le dépassement de délai sur « vibrations » avec refus vient de longs tours de réflexion du modèle, pas de `lens` : 3 appels, tous sous la demi-seconde.
+Le fichier reçu entier par `lens` fait 507 lignes. La question de Claude portait sur la structure de tout l'écran de réglages, et Jev a jugé utiles les 23 morceaux.
 
-À faire pour conclure :
-- plusieurs essais par tâche ;
-- des tâches sur d'autres projets ;
-- mesurer les fausses alertes de la garde en usage réel.
+Parcours observés après les arrêts :
+- **olive** : 2 arrêts, 2 questions à `lens`, puis la modification, sans relire la zone avec Read.
+- **diagnostic** : arrêt, `lens`, recherches et lectures ciblées, puis la correction.
+- **localisation** : arrêt, `lens`, recherches, puis la réponse. Aucune modification n'était demandée.
+- **vibrations** : arrêt, `lens`, puis une longue exploration (recherches, fiches mémoire), puis l'écriture.
+
+### Coût : ce qu'on peut dire
+
+- Le total baisse de 18 % avec l'arrêt, échecs compris. Tâche par tâche, le rapport au témoin va de 0,54 à 1,52, avec une médiane de 0,74.
+- Sur les 2 tâches réussies par les deux variantes du plugin (localisation et diagnostic), le coût est presque le même : 1,86 $ avec la note, 1,83 $ avec l'arrêt. Environ 97 % de l'écart total vient des tâches échouées.
+- Le diagnostic, seule tâche réussie partout, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt.
+- **Conclusion** : l'arrêt divise par trois le code reçu, mais une économie sur un même travail terminé n'est pas démontrée.
+
+### Qualité : ce qu'on peut dire
+
+- **Rejeu.** Les vérifications ont été rejouées sur un clone propre, avec les mêmes résultats sur les 12 essais. Au départ, tout passe (339 tests, analyse, formatage), sauf le bug semé exprès pour le diagnostic.
+- **Tests cassés.** Dans les trois variantes, la tâche vibrations casse 2 tests qui passaient avant.
+  - Sans plugin et avec la note : le nouveau panneau pousse la carte « À propos » hors de l'écran de test.
+  - Avec l'arrêt : une clé de traduction sans utilisateur, et un fichier généré pas à jour.
+  - Le relecteur ne voyait pas les tests : son « aucune régression » ne vaut pas pour eux.
+- **Olive**, refusée dans les trois variantes. C'est un vrai manque de l'agent, le même partout, et le plugin n'y joue aucun rôle.
+  - Les critères automatiques passaient déjà sans aucune modification.
+  - Aucune variante ne vérifie ce que la nouvelle couleur touche. Le texte crème est à 4,55:1, juste au-dessus du seuil. Le motif en filigrane tombe vers 1,34:1, sous le minimum du design system.
+  - La grille avait été écrite avant la campagne.
+- **Vibrations**, jamais aboutie.
+  - Le témoin s'arrête à 60 tours. La note « termine » en laissant ses tests tourner en arrière-plan : l'un d'eux bloque. L'arrêt est coupé à 25 minutes.
+  - La tâche est serrée : `DECISIONS.md` fait 299 Ko et coûte 7 à 9 tours de détour.
+  - Le routeur a bien classé les 5 fiches utiles en tête, sans que ça suffise.
+- **Verdict.** Avec 4 tâches et un essai chacune, `score.py` n'affiche plus de verdict de qualité.
+
+### L'environnement a faussé les durées
+
+26 demandes de permission sont restées bloquées environ 115 s chacune avant d'être refusées.
+- Le hook utilisateur `rtk` réécrivait des commandes autorisées en commandes hors liste.
+- Un lanceur de terminal (cmux) passait devant le vrai binaire `claude`. Il est suspect, sans preuve directe.
+- Sur vibrations, cela représente 691 s sans plugin, 461 s avec la note et 807 s avec l'arrêt.
+- **Les durées de cette campagne ne sont pas exploitables.** Pour l'essai coupé à 25 minutes, on sait seulement que plus de la moitié du temps s'est passée à attendre, et que chaque appel à `lens` a pris moins d'une seconde. L'effet de l'arrêt sur la suite du travail n'est pas établi.
+- Depuis, `run.py` écarte par défaut les réglages utilisateur et le lanceur (`bench/PROTOCOL.md`).
+
+### Suite
+
+1. Refaire, avec le banc isolé, quelques tâches que Claude sait réussir et assez différentes, dont une où il faut vraiment lire tout un fichier. Plusieurs essais par tâche.
+2. Pour les prochaines versions des tâches, sans ré-noter celle-ci :
+   - olive : préciser que « vérifier » veut dire « en rendre compte », et dire si la bande de barre d'état fait partie du travail ;
+   - vibrations : revoir le budget de tours.
 
 ## Rejouer
 

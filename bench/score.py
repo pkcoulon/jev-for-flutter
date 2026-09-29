@@ -18,6 +18,7 @@ from pathlib import Path
 BENCH = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "plugins", "dartlens", "lib"))
 from dartlens import paths  # noqa: E402
+from dartlens.commands.status import PRICE_PER_MTOK as JEV_USD_PER_MTOK  # noqa: E402
 
 CC_USAGE = BENCH.parent / "plugins" / "dartlens" / "bin" / "cc-usage"
 LENS_WORDS = ("lens", "dartlens")
@@ -33,6 +34,7 @@ PATH_SUSPECT = re.compile(r"dartlens-bench|/results/[^/\s]+/[^/\s]+\.r\d+|\.clau
 PATH_KEYS = ("file_path", "path", "pattern", "notebook_path")
 JEV_ARMS = ("lens", "guard", "router", "all")
 GATE_MARK = re.compile(r"run\.py'? --gate")
+EXPLORATORY = "exploratoire : pas de verdict de qualité"
 
 
 def load_cc_usage():
@@ -306,6 +308,7 @@ def cell(rows):
     usd = sum(r["usage"].get("usd", 0.0) for r in valid)
     flat = sum(r["usage"].get("flat", 0.0) for r in valid)
     ms = [m for r in valid for m in r["jev_ms"]]
+    jev_tokens = sum(r["jev_input_tokens"] for r in valid)
     return {
         "trials": len(rows), "valid": len(valid), "exec_ok": sum(r["exec_ok"] for r in valid),
         "reviewed": sum(r["accepted"] is not None for r in valid), "successes": len(success),
@@ -320,6 +323,7 @@ def cell(rows):
         "suspects": sum(len(r["suspects"]) for r in valid),
         "jev_calls": sum(r["jev_calls"] for r in valid), "jev_errors": sum(r["jev_errors"] for r in valid),
         "jev_unavailable": sum(r["jev_unavailable"] for r in valid),
+        "jev_tokens": jev_tokens, "jev_usd": jev_tokens / 1e6 * JEV_USD_PER_MTOK,
         "jev_expected": any(r["jev_expected"] for r in rows),
         "jev_p50": percentile(ms, 0.5), "jev_p95": percentile(ms, 0.95),
         "injections": sum(r["dartlens_injections"] for r in valid), "hook_chars": sum(r["hook_chars"] for r in valid),
@@ -353,13 +357,14 @@ def heterogeneity(rows):
     return "conditions hétérogènes entre essais (%s)" % ", ".join(differing)
 
 
-def compare(by_task, arm, baseline, margin, boot, seed):
-    deltas, cost_ratios, time_ratios, arm_usd, base_usd = [], [], [], 0.0, 0.0
+def compare(by_task, arm, args):
+    deltas, reps, cost_ratios, time_ratios, arm_usd, base_usd = [], [], [], [], 0.0, 0.0
     for task, arms in sorted(by_task.items()):
-        a, b = arms.get(arm), arms.get(baseline)
+        a, b = arms.get(arm), arms.get(args.baseline)
         if not a or not b or a["rate"] is None or b["rate"] is None:
             continue
         deltas.append(a["rate"] - b["rate"])
+        reps.append(min(a["valid"], b["valid"]))
         arm_usd += a["usd"]
         base_usd += b["usd"]
         if b["usd"] > 0:
@@ -368,12 +373,16 @@ def compare(by_task, arm, baseline, margin, boot, seed):
             time_ratios.append(a["duration_success_median"] / b["duration_success_median"])
     if not deltas:
         return None
-    rng = random.Random(seed)
-    means = sorted(sum(rng.choice(deltas) for _ in deltas) / len(deltas) for _ in range(boot))
-    low, high = means[int(0.025 * boot)], means[max(0, int(0.975 * boot) - 1)]
-    return {"tasks": len(deltas), "delta": sum(deltas) / len(deltas), "ci": [low, high],
-            "non_inferior": low > -margin, "cost_total_ratio": arm_usd / base_usd if base_usd else None,
+    comp = {"tasks": len(deltas), "min_reps": min(reps), "delta": sum(deltas) / len(deltas), "ci": None,
+            "non_inferior": None, "exploratory": len(deltas) < args.min_tasks or min(reps) < args.min_reps,
+            "cost_total_ratio": arm_usd / base_usd if base_usd else None,
             "cost_ratio_dist": distribution(cost_ratios), "time_ratio_dist": distribution(time_ratios)}
+    if not comp["exploratory"]:
+        rng = random.Random(args.seed)
+        means = sorted(sum(rng.choice(deltas) for _ in deltas) / len(deltas) for _ in range(args.boot))
+        comp["ci"] = [means[int(0.025 * args.boot)], means[max(0, int(0.975 * args.boot) - 1)]]
+        comp["non_inferior"] = comp["ci"][0] > -args.margin
+    return comp
 
 
 def distribution(values):
@@ -393,6 +402,10 @@ def fmt(value, kind="n"):
         return ("%.0f %%" % (100 * value)).replace(".", ",")
     if kind == "usd":
         return ("%.2f $" % value).replace(".", ",")
+    if kind == "usd4":
+        return ("%.4f $" % value).replace(".", ",")
+    if kind == "int":
+        return "{:,}".format(value).replace(",", " ")
     if kind == "s":
         return "%.0f s" % value
     if kind == "ratio":
@@ -418,11 +431,13 @@ def render(rows, by_task, by_arm, comparisons, args, blockers, cc):
         lines.append("Pannes d'infrastructure à relancer (hors comparaison) : %s" % ", ".join(r["trial"] for r in infra))
     lines.append("Valorisation API au tarif standard %s (bin/cc-usage), usages dédoublonnés par message. Facture réelle : %s."
                  % (cc.PRICING_VERSION, cc.BILL))
+    lines.append("Coût Jev à part : tokens d'entrée de usage.jsonl à %s $/Mtok, tarif publié pour jev-1.12 et non confirmé "
+                 "pour le modèle épinglé (sortie gratuite) ; ni facture ni quota d'abonnement." % ("%g" % JEV_USD_PER_MTOK).replace(".", ","))
     unpriced = sum(c["unpriced"] for c in by_arm.values())
     if unpriced:
         lines.append("Attention : %d appels sans tarif connu, exclus de la valorisation." % unpriced)
     header = "%-34s %-10s %6s %8s %9s %10s %9s %6s %6s %9s %6s" % (
-        "tâche", "bras", "essais", "réussis", "taux", "$ total", "$/réussi", "t méd", "lens", "Jev p50", "injec")
+        "tâche", "bras", "essais", "réussis", "taux", "$ Claude", "$/réussi", "t méd", "lens", "Jev p50", "injec")
     lines += ["", "Par tâche et par bras", header, "-" * len(header)]
     for task in sorted(by_task):
         for arm in args.arm_order:
@@ -433,18 +448,21 @@ def render(rows, by_task, by_arm, comparisons, args, blockers, cc):
                 task[:34], arm, c["trials"], "%d/%d" % (c["successes"], c["valid"]), fmt(c["rate"], "pct"),
                 fmt(c["usd"], "usd"), fmt(c["usd_per_success"], "usd"), fmt(c["duration_success_median"], "s"),
                 c["lens_calls"], fmt(c["jev_p50"]), c["injections"]))
-    lines += ["", "Totaux par bras (coût par réussite = coût total / nombre de réussites, échecs compris)"]
+    lines += ["", "Totaux par bras (coût par réussite = coût Claude total / nombre de réussites, échecs compris)"]
     for arm in args.arm_order:
         c = by_arm.get(arm)
         if not c:
             continue
-        lines.append("  %-10s essais %d, réussis %d/%d (%s), $ total %s, $/réussite %s, durée totale %s, "
-                     "Jev %d appels (%d erreurs dont %d sans requête, p50 %s ms, p95 %s ms), injections %d (%d car.), "
+        lines.append("  %-10s essais %d, réussis %d/%d (%s), $ Claude %s, $/réussite %s, durée totale %s, "
+                     "Jev %d appels (%d erreurs dont %d sans requête, p50 %s ms, p95 %s ms), "
+                     "Jev %s tokens soit %s (hypothèse), Claude + Jev %s, injections %d (%d car.), "
                      "refus %d, git %d, signalements %d, pannes infra %d (%s, hors totaux)"
-                     % (arm, c["trials"], c["successes"], c["valid"], fmt(c["rate"], "pct"), fmt(c["usd"], "usd"),
+                     % (arm, c["trials"], c["successes"], c["valid"], fmt(c["rate"], "pct"), fmt(c["usd"], "usd4"),
                         fmt(c["usd_per_success"], "usd"), fmt(c["duration_total"], "s"), c["jev_calls"],
-                        c["jev_errors"], c["jev_unavailable"], fmt(c["jev_p50"]), fmt(c["jev_p95"]), c["injections"],
-                        c["hook_chars"], c["denials"], c["git_cmds"], c["suspects"], c["infra"], fmt(c["infra_usd"], "usd")))
+                        c["jev_errors"], c["jev_unavailable"], fmt(c["jev_p50"]), fmt(c["jev_p95"]),
+                        fmt(c["jev_tokens"], "int"), fmt(c["jev_usd"], "usd4"), fmt(c["usd"] + c["jev_usd"], "usd4"),
+                        c["injections"], c["hook_chars"], c["denials"], c["git_cmds"], c["suspects"], c["infra"],
+                        fmt(c["infra_usd"], "usd")))
         if blockers["arms"].get(arm):
             lines.append("  %-10s %s" % ("", blockers["arms"][arm]))
     flagged = [r for r in rows if r["valid"] and r["suspects"]]
@@ -453,17 +471,20 @@ def render(rows, by_task, by_arm, comparisons, args, blockers, cc):
         for r in flagged:
             lines.append("  %s : %s" % (r["trial"], " | ".join(s[:120] for s in r["suspects"][:5])))
     if comparisons:
-        lines += ["", "Comparaison au bras %s, répétitions regroupées par tâche (bootstrap sur les tâches, %d tirages)"
-                  % (args.baseline, args.boot)]
+        method = ("exploratoire, sans rééchantillonnage" if all(c.get("exploratory") for c in comparisons.values())
+                  else "bootstrap sur les tâches, %d tirages" % args.boot)
+        lines += ["", "Comparaison au bras %s, répétitions regroupées par tâche (%s)" % (args.baseline, method),
+                  "  Verdict de qualité à partir de %d tâches et %d répétitions par tâche et par bras (seuils du pilote, "
+                  "PROTOCOL.md) ; en deçà, campagne exploratoire : ni IC ni verdict, l'écart est descriptif."
+                  % (args.min_tasks, args.min_reps)]
         for arm, comp in comparisons.items():
             if not comp:
                 continue
-            reason = blockers["verdict"] or blockers["arms"].get(arm) or blockers["arms"].get(args.baseline)
-            verdict = ("— (%s)" % reason) if reason else ("non-infériorité établie" if comp["non_inferior"] else "non établie")
-            lines.append("  %-10s %d tâches, écart de taux %+.0f pts, IC95 [%+.0f ; %+.0f], marge %.0f pts : %s" % (
-                arm, comp["tasks"], 100 * comp["delta"], 100 * comp["ci"][0], 100 * comp["ci"][1],
-                100 * args.margin, verdict))
-            lines.append("  %-10s coût : rapport des totaux %s ; par tâche %s" % (
+            ci = (", IC95 [%+.0f ; %+.0f], marge %.0f pts" % (100 * comp["ci"][0], 100 * comp["ci"][1], 100 * args.margin)
+                  if comp["ci"] else "")
+            lines.append("  %-10s %d tâches, au moins %d répétition(s) par tâche, écart de taux %+.0f pts%s : %s" % (
+                arm, comp["tasks"], comp["min_reps"], 100 * comp["delta"], ci, comp["verdict"]))
+            lines.append("  %-10s coût Claude : rapport des totaux %s ; par tâche %s" % (
                 "", fmt(comp["cost_total_ratio"], "ratio"), dist_text(comp["cost_ratio_dist"])))
             lines.append("  %-10s temps médian des réussites, par tâche : %s" % ("", dist_text(comp["time_ratio_dist"])))
     return "\n".join(lines)
@@ -593,6 +614,10 @@ def main():
     parser.add_argument("--export-review", type=Path, help="écrit ou complète un paquet de revue aveugle dans ce dossier")
     parser.add_argument("--baseline", default="control")
     parser.add_argument("--margin", type=float, default=0.10, help="marge de non-infériorité sur le taux de réussite")
+    parser.add_argument("--min-tasks", type=int, default=20, help="tâches comparées sous lesquelles la campagne est "
+                        "exploratoire, sans verdict de qualité")
+    parser.add_argument("--min-reps", type=int, default=3, help="répétitions par tâche et par bras sous lesquelles la "
+                        "campagne est exploratoire, sans verdict de qualité")
     parser.add_argument("--max-jev-errors", type=float, default=0.10,
                         help="part d'erreurs Jev au-delà de laquelle un bras est déclaré sans Jev")
     parser.add_argument("--boot", type=int, default=2000)
@@ -644,8 +669,7 @@ def main():
     arms_seen = sorted({r["arm"] for r in rows}, key=lambda a: (a != args.baseline, a))
     args.arm_order = arms_seen
     by_arm = {arm: cell([r for r in rows if r["arm"] == arm]) for arm in arms_seen}
-    comparisons = {arm: compare(by_task, arm, args.baseline, args.margin, args.boot, args.seed)
-                   for arm in arms_seen if arm != args.baseline}
+    comparisons = {arm: compare(by_task, arm, args) for arm in arms_seen if arm != args.baseline}
     fake = any(r.get("fake") for r in rows)
     pending = sum(1 for r in rows if r["valid"] and r["accepted"] is None)
     mixed = heterogeneity(rows)
@@ -660,10 +684,20 @@ def main():
                                   "seuls (provisoire)." % (pending, " (%d revues à moitié remplies)" % incomplete if incomplete else ""))
     blockers["verdict"] = ("faux serveur" if fake else "campagne hétérogène" if mixed else
                            "revue incomplète" if pending else None)
+    for arm, comp in comparisons.items():
+        if not comp:
+            continue
+        reason = blockers["verdict"] or blockers["arms"].get(arm) or blockers["arms"].get(args.baseline)
+        if reason:
+            comp["non_inferior"] = None
+        comp["verdict"] = (EXPLORATORY if comp["exploratory"] else "— (%s)" % reason if reason else
+                           "non-infériorité établie" if comp["non_inferior"] else "non établie")
     print(render(rows, by_task, by_arm, comparisons, args, blockers, cc))
     if args.json:
         detail = [{k: v for k, v in r.items() if k != "answer"} for r in rows]
         args.json.write_text(json.dumps({"pricing": cc.PRICING_VERSION, "fake": fake, "pending_reviews": pending,
+                                         "jev_usd_per_mtok": JEV_USD_PER_MTOK, "jev_price_hypothetical": True,
+                                         "verdict_min": {"tasks": args.min_tasks, "reps": args.min_reps},
                                          "heterogeneous": mixed, "jev_blocked": blockers["arms"],
                                          "trials": detail, "by_task": by_task, "by_arm": by_arm,
                                          "comparisons": comparisons}, ensure_ascii=False, indent=1, default=str))
