@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="907.2pt" height="388.8pt" viewBox="0 0 907.2 388.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.9.4, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 388.8
+L 907.2 388.8
+L 907.2 0
+L 0 0
+z
+" style="fill: #f8fafc"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 158.76 293.544
+L 523.197425 293.544
+L 523.197425 116.64
+L 158.76 116.64
+z
+" style="fill: #f8fafc"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 158.76 293.544
+L 158.76 116.64
+" clip-path="url(#p2ae197c624)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2"/>
+     <g id="text_1">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="158.76" y="312.662125" transform="rotate(-0 158.76 312.662125)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 324.413375 293.544
+L 324.413375 116.64
+" clip-path="url(#p2ae197c624)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4"/>
+     <g id="text_2">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="324.413375" y="312.662125" transform="rotate(-0 324.413375 312.662125)">250 000</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 490.06675 293.544
+L 490.06675 116.64
+" clip-path="url(#p2ae197c624)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6"/>
+     <g id="text_3">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="490.06675" y="312.662125" transform="rotate(-0 490.06675 312.662125)">500 000</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="340.978712" y="336.956031" transform="rotate(-0 340.978712 336.956031)">caractères, échecs compris</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_7"/>
+     <g id="text_5">
+      <text style="fill: #142033; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="152.585256" transform="rotate(-0 148.76 152.585256)">Sans dartlens</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_8"/>
+     <g id="text_6">
+      <text style="fill: #142033; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="209.651063" transform="rotate(-0 148.76 209.651063)">Simple suggestion</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_9"/>
+     <g id="text_7">
+      <text style="fill: #142033; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="266.716869" transform="rotate(-0 148.76 266.716869)">Lecture ciblée</text>
+     </g>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 158.76 134.3304
+L 474.509248 134.3304
+L 474.509248 161.721987
+L 158.76 161.721987
+z
+" clip-path="url(#p2ae197c624)" style="fill: #8390a5"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 158.76 191.396206
+L 386.553269 191.396206
+L 386.553269 218.787794
+L 158.76 218.787794
+z
+" clip-path="url(#p2ae197c624)" style="fill: #8493d7"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 158.76 248.462013
+L 262.908265 248.462013
+L 262.908265 275.8536
+L 158.76 275.8536
+z
+" clip-path="url(#p2ae197c624)" style="fill: #14b8a6"/>
+   </g>
+   <g id="text_8">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="480.472769" y="151.337444" transform="rotate(-0 480.472769 151.337444)">476 521</text>
+   </g>
+   <g id="text_9">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="392.51679" y="208.40325" transform="rotate(-0 392.51679 208.40325)">343 780</text>
+   </g>
+   <g id="text_10">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="268.871786" y="265.469056" transform="rotate(-0 268.871786 265.469056)">157 178</text>
+   </g>
+   <g id="text_11">
+    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="158.76" y="98.64" transform="rotate(-0 158.76 98.64)">Code Dart reçu · les 4 tâches</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 623.417717 293.544
+L 866.376 293.544
+L 866.376 116.64
+L 623.417717 116.64
+z
+" style="fill: #f8fafc"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_4">
+     <g id="line2d_10">
+      <path d="M 623.417717 293.544
+L 623.417717 116.64
+" clip-path="url(#pd0975560a6)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11"/>
+     <g id="text_12">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="623.417717" y="312.662125" transform="rotate(-0 623.417717 312.662125)">0 $</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_12">
+      <path d="M 710.188532 293.544
+L 710.188532 116.64
+" clip-path="url(#pd0975560a6)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13"/>
+     <g id="text_13">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="710.188532" y="312.662125" transform="rotate(-0 710.188532 312.662125)">0,5 $</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_14">
+      <path d="M 796.959348 293.544
+L 796.959348 116.64
+" clip-path="url(#pd0975560a6)" style="fill: none; stroke: #dce3ed; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15"/>
+     <g id="text_14">
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="796.959348" y="312.662125" transform="rotate(-0 796.959348 312.662125)">1 $</text>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="744.896858" y="336.516031" transform="rotate(-0 744.896858 336.516031)">Claude au tarif API, hors Jev · 1 essai</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_4">
+     <g id="line2d_16"/>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_17"/>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18"/>
+    </g>
+   </g>
+   <g id="patch_7">
+    <path d="M 623.417717 134.3304
+L 756.905939 134.3304
+L 756.905939 161.721987
+L 623.417717 161.721987
+z
+" clip-path="url(#pd0975560a6)" style="fill: #8390a5"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 623.417717 191.396206
+L 807.267721 191.396206
+L 807.267721 218.787794
+L 623.417717 218.787794
+z
+" clip-path="url(#pd0975560a6)" style="fill: #8493d7"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 623.417717 248.462013
+L 825.854029 248.462013
+L 825.854029 275.8536
+L 623.417717 275.8536
+z
+" clip-path="url(#pd0975560a6)" style="fill: #14b8a6"/>
+   </g>
+   <g id="text_16">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="762.979896" y="151.337444" transform="rotate(-0 762.979896 151.337444)">0,77 $</text>
+   </g>
+   <g id="text_17">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="813.341678" y="208.40325" transform="rotate(-0 813.341678 208.40325)">1,06 $</text>
+   </g>
+   <g id="text_18">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="831.927986" y="265.469056" transform="rotate(-0 831.927986 265.469056)">1,17 $</text>
+   </g>
+   <g id="text_19">
+    <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="623.417717" y="98.64" transform="rotate(-0 623.417717 98.64)">Coût · la seule tâche acceptée partout</text>
+   </g>
+  </g>
+  <g id="text_20">
+   <text style="fill: #142033; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="31.752" y="34.992" transform="rotate(-0 31.752 34.992)">Moins de code reçu. L’économie reste à prouver.</text>
+  </g>
+  <g id="text_21">
+   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="60.264" transform="rotate(-0 31.752 60.264)">Essais sur un projet Flutter · 29 septembre 2026 · résultats exploratoires</text>
+  </g>
+  <g id="text_22">
+   <text style="fill: #087f75; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="31.752" y="351.864" transform="rotate(-0 31.752 351.864)">−67 % de code reçu avec la lecture ciblée.</text>
+  </g>
+  <g id="text_23">
+   <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="370.5264" transform="rotate(-0 31.752 370.5264)">Avant v0.2 · 1 essai par tâche et par variante · qualité équivalente et gain global non démontrés.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p2ae197c624">
+   <rect x="158.76" y="116.64" width="364.437425" height="176.904"/>
+  </clipPath>
+  <clipPath id="pd0975560a6">
+   <rect x="623.417717" y="116.64" width="242.958283" height="176.904"/>
+  </clipPath>
+ </defs>
+</svg>

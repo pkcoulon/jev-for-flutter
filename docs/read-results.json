@@ -1,0 +1,393 @@
+{
+  "date": "2026-09-29",
+  "name": "Jev for Flutter 0.3",
+  "plugin_identity": {
+    "sha256": "dbabf19bef408b14",
+    "commit": null,
+    "dirty": true
+  },
+  "model": "claude-sonnet-5",
+  "repetitions": 1,
+  "scope": "Targeted known-file reading, only Read tool available in both arms. Not an end-to-end development task or spontaneous search evaluation. Prompt never mentions Jev and does not force a full read. Full shipped plugin in plugin arm, standard defaults; empty project memory/conventions.",
+  "reviewer": "Astra; neither blinded nor independent",
+  "cost_note": "Official returned USD, reconciled to deduplicated API usage with cache category prices; Jev included. Tokens are Claude only, including output and cache reads. All trials included, including incomplete answers.",
+  "time_note": "Claude-reported duration_ms, from launch completion result. Process times include up to two seconds of polling and are retained separately.",
+  "summary": {
+    "control": {
+      "claude_tokens": 102780,
+      "total_usd": 0.2477522,
+      "seconds": 20.638,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "tool_calls": 3,
+      "accepted": 1
+    },
+    "plugin": {
+      "claude_tokens": 76974,
+      "total_usd": 0.145253468,
+      "seconds": 24.786,
+      "jev_input_tokens": 40954,
+      "jev_output_tokens": 2234,
+      "tool_calls": 3,
+      "accepted": 2
+    },
+    "percent_change": {
+      "claude_tokens": -25.10799766491535,
+      "total_usd": -41.3714719788563,
+      "seconds": 20.098846787479395
+    }
+  },
+  "trials": [
+    {
+      "id": "gambade-notification-action-control",
+      "task": "gambade-notification-action",
+      "arm": "control",
+      "claude_tokens": 34952,
+      "input_tokens": 4,
+      "cache_write_1h": 19130,
+      "cache_write_5m": 0,
+      "cache_read": 15250,
+      "output_tokens": 568,
+      "claude_usd": 0.085258,
+      "claude_usd_recomputed": 0.0853,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 6.186,
+      "process_seconds": 8.090786833000001,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        false,
+        true,
+        true,
+        true
+      ],
+      "accepted": false,
+      "review": "Omet le retour sur payload null/vide prévu dans la grille.",
+      "narrowed": [],
+      "answer": "Oui, `_onTap` (lignes 92-103) traite spécifiquement le bouton « C'est fait ✓ » des notifications de soin.\n\nElle vérifie `response.actionId == kSanteTickActionId` (ligne 98, `kSanteTickActionId` défini ligne 90). Si c'est le cas, elle rebaptise le payload de la notif (qui pointe vers `sante-echeancier?tid=…`) en le remplaçant par `sante-tick` (ligne 99 : `payload.replaceFirst('sante-echeancier', 'sante-tick')`), puis l'émet dans le flux `_taps` et retourne — sans tomber dans le traitement générique de la ligne 102.\n\nLe commentaire lignes 95-97 précise l'intention : « l'ACTION le rebaptise en `sante-tick`, que le shell traite comme une coche SANS navigation ». Autrement dit, `_onTap` distingue bien un tap sur le bouton d'action d'un tap normal sur la notification, et route le premier vers une coche (pas une ouverture d'écran) tandis que le second (ligne 102, `_taps.add(payload)`) garde le payload santé d'origine pour naviguer vers l'échéancier.",
+      "total_usd": 0.085258
+    },
+    {
+      "id": "gambade-notification-action-plugin",
+      "task": "gambade-notification-action",
+      "arm": "plugin",
+      "claude_tokens": 25898,
+      "input_tokens": 4,
+      "cache_write_1h": 9868,
+      "cache_write_5m": 0,
+      "cache_read": 15422,
+      "output_tokens": 604,
+      "claude_usd": 0.048604400000000006,
+      "claude_usd_recomputed": 0.0486,
+      "jev_usd": 0.0005939640000000001,
+      "jev_input_tokens": 14142,
+      "jev_output_tokens": 732,
+      "seconds": 7.58,
+      "process_seconds": 10.109856791,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Les quatre points sont montrés, dont les gardes et la branche normale dans le code cité.",
+      "narrowed": [
+        {
+          "ts": 1790701520.575499,
+          "session": "c2d50d1c-f0ea-488d-a0ef-6163c272e60a",
+          "file": "8fc63415112915f5",
+          "lines": 590,
+          "confidence": 1.0,
+          "focused": 0.91,
+          "event": "narrowed",
+          "offset": 16,
+          "limit": 150,
+          "full_chars": 27600,
+          "shown_chars": 6966,
+          "ms": 364,
+          "run": "gambade-notification-action-plugin"
+        }
+      ],
+      "answer": "Oui, `_onTap` traite spécifiquement ce bouton.\n\n```dart\nvoid _onTap(NotificationResponse response) {\n  final payload = response.payload;\n  if (payload == null || payload.isEmpty) return;\n  if (response.actionId == kSanteTickActionId) {\n    _taps.add(payload.replaceFirst('sante-echeancier', 'sante-tick'));\n    return;\n  }\n  _taps.add(payload);\n}\n```\n(lignes 92-103)\n\nLe bouton « C'est fait ✓ » a pour id d'action `kSanteTickActionId = 'sante_tick'` (ligne 90). Quand `response.actionId` correspond à cette valeur, `_onTap` réécrit le payload (initialement `sante-echeancier?tid=…`) en remplaçant `sante-echeancier` par `sante-tick`, puis l'envoie dans le stream `_taps` — sans navigation, comme l'indique le commentaire lignes 95-97 : « l'ACTION le rebaptise en `sante-tick`, que le shell traite comme une coche SANS navigation ».\n\nÀ noter aussi le commentaire lignes 147-149 : l'action Android doit avoir `showsUserInterface: true`, sinon le tap n'ouvre pas l'app et n'atteint jamais `_onTap`.",
+      "total_usd": 0.04919836400000001
+    },
+    {
+      "id": "pioudex-audio-agreement-control",
+      "task": "pioudex-audio-agreement",
+      "arm": "control",
+      "claude_tokens": 31415,
+      "input_tokens": 4,
+      "cache_write_1h": 15522,
+      "cache_write_5m": 0,
+      "cache_read": 15257,
+      "output_tokens": 632,
+      "claude_usd": 0.0714674,
+      "claude_usd_recomputed": 0.0715,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 8.105,
+      "process_seconds": 10.106186708000003,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Règle, garde none, seuil de deux accords, échelle et plafond couverts.",
+      "narrowed": [],
+      "answer": "Oui : `_confirmeParAccords` fait monter le palier d'un cran par prise en accord au-delà de la première, plafonné à `certain`, mais jamais depuis `none` (embedded_bird_identifier.dart:440-444).\n\n```dart\nstatic ConfidenceTier _confirmeParAccords(ConfidenceTier palier, int accords) {\n  if (palier == ConfidenceTier.none || accords < 2) return palier;\n  const echelle = [ConfidenceTier.unsure, ConfidenceTier.probable, ConfidenceTier.certain];\n  final depart = echelle.indexOf(palier);\n  return echelle[math.min(depart + accords - 1, echelle.length - 1)];\n}\n```\n\n- Si `palier == none` ou `accords < 2`, retour inchangé : aucune évolution.\n- Sinon, `depart` est l'index du palier dans `[unsure, probable, certain]`, et on avance de `accords - 1` crans, plafonné à `certain`.\n\nExemple : `unsure` + 2 accords → `probable` ; `unsure` + 3 accords → `certain`.\n\nAppelée ligne 394-397, avec `accords` calculé par la boucle de concordance (lignes 353-374), qui compte le nombre de prises dont le score du candidat majoritaire dépasse `SeuilsAudio.plancher`.",
+      "total_usd": 0.0714674
+    },
+    {
+      "id": "pioudex-audio-agreement-plugin",
+      "task": "pioudex-audio-agreement",
+      "arm": "plugin",
+      "claude_tokens": 25588,
+      "input_tokens": 4,
+      "cache_write_1h": 9583,
+      "cache_write_5m": 0,
+      "cache_read": 15429,
+      "output_tokens": 572,
+      "claude_usd": 0.0471458,
+      "claude_usd_recomputed": 0.0471,
+      "jev_usd": 0.00047334000000000005,
+      "jev_input_tokens": 11270,
+      "jev_output_tokens": 616,
+      "seconds": 7.215,
+      "process_seconds": 10.089155958000006,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": true,
+      "review": "Règle, garde none, seuil de deux accords, échelle et plafond couverts.",
+      "narrowed": [
+        {
+          "ts": 1790701560.673165,
+          "session": "9b19f3a4-403b-41ea-a0d4-97593b4b4114",
+          "file": "beddfb0192d27861",
+          "lines": 453,
+          "confidence": 0.97,
+          "focused": 0.95,
+          "event": "narrowed",
+          "offset": 304,
+          "limit": 150,
+          "full_chars": 19077,
+          "shown_chars": 6273,
+          "ms": 412,
+          "run": "pioudex-audio-agreement-plugin"
+        }
+      ],
+      "answer": "Oui, `_confirmeParAccords` fait bien évoluer le palier de confiance, mais sous conditions strictes.\n\n**Fonctionnement** (`embedded_bird_identifier.dart:440-445`) :\n- Si `palier == ConfidenceTier.none` ou `accords < 2`, elle renvoie le palier **inchangé** (ligne 441) — jamais de promotion depuis `none`.\n- Sinon, elle fait monter le palier d'un cran par accord au-delà du premier, sur l'échelle `[unsure, probable, certain]` (lignes 442-444), plafonné à `certain`.\n\n**Appel** (ligne 394-397) : le palier de base vient de `_palierPour` (score + marge), et `accords` du décompte de concordance calculé en amont (lignes 353-374) — le nombre de prises dont le top, au-dessus du plancher, pointe vers la même espèce.\n\n**Résumé** : une espèce détectée de façon concordante sur au moins 2 prises (`accords >= 2`) fait donc monter le palier initial (ex. `unsure` → `probable`, ou `probable` → `certain`), mais uniquement s'il n'était pas déjà `none`.",
+      "total_usd": 0.047619140000000004
+    },
+    {
+      "id": "pioudex-sync-cache-control",
+      "task": "pioudex-sync-cache",
+      "arm": "control",
+      "claude_tokens": 36413,
+      "input_tokens": 4,
+      "cache_write_1h": 20597,
+      "cache_write_5m": 0,
+      "cache_read": 15254,
+      "output_tokens": 558,
+      "claude_usd": 0.09102679999999999,
+      "claude_usd_recomputed": 0.091,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "seconds": 6.347,
+      "process_seconds": 8.086124458,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": false,
+      "review": "Critères fonctionnels couverts mais erreur de chronologie : identité enregistrée AVANT les clear, contrairement au texte. Réponse non entièrement exacte.",
+      "narrowed": [],
+      "answer": "Oui, elle évite bien la réutilisation croisée entre comptes.\n\n`_validerLesCaches` (lignes 548-555) compare `_remote.identite` (l'uid courant) à `_identiteDesCaches` (l'uid pour lequel les caches sont valides). Si l'identité a changé, elle vide `_surLeDistant`, `_prisesSurLeDistant` et remet `_prisesConnues = false` avant de mémoriser la nouvelle identité (ligne 551).\n\nElle est appelée systématiquement avant toute utilisation des caches : dans `load()` (ligne 570, avant de relire `_remote.lignes()`) et dans `_synchroniserSansBruit` (ligne 615, avant `_pousser`). Ainsi un « Se déconnecter », une suppression de sauvegarde ou un rattachement qui bascule vers un autre compte (D95/D96/D97) invalident les caches avant toute lecture/écriture.\n\nLe commentaire lignes 541-545 confirme l'intention : c'est le correctif d'une régression trouvée en relecture adverse le 2026-08-23, où le push croyait à tort tout déjà monté chez le compte neuf et les photos ne suivaient jamais.",
+      "total_usd": 0.09102679999999999
+    },
+    {
+      "id": "pioudex-sync-cache-plugin",
+      "task": "pioudex-sync-cache",
+      "arm": "plugin",
+      "claude_tokens": 25488,
+      "input_tokens": 4,
+      "cache_write_1h": 9315,
+      "cache_write_5m": 0,
+      "cache_read": 15426,
+      "output_tokens": 743,
+      "claude_usd": 0.0477832,
+      "claude_usd_recomputed": 0.0478,
+      "jev_usd": 0.0006527640000000001,
+      "jev_input_tokens": 15542,
+      "jev_output_tokens": 886,
+      "seconds": 9.991,
+      "process_seconds": 12.115537332999999,
+      "tool_calls": 1,
+      "source_unchanged": true,
+      "criteria": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "accepted": false,
+      "review": "Code cité exact, mais prose inverse aussi l’ordre de mise à jour de l’identité et des clear. Réponse non entièrement exacte.",
+      "narrowed": [
+        {
+          "ts": 1790701530.976777,
+          "session": "15510e21-051d-470f-b53b-74be940e0e88",
+          "file": "93a9bf60630bbc1b",
+          "lines": 755,
+          "confidence": 0.99,
+          "focused": 0.91,
+          "event": "narrowed",
+          "offset": 466,
+          "limit": 151,
+          "full_chars": 30256,
+          "shown_chars": 5824,
+          "ms": 400,
+          "run": "pioudex-sync-cache-plugin"
+        }
+      ],
+      "answer": "Oui, `_validerLesCaches` empêche bien la réutilisation des caches d'un autre compte.\n\n**Justification (lib/data/journal_sync.dart:548-555) :**\n```dart\nvoid _validerLesCaches() {\n  final identite = _remote.identite;\n  if (identite == _identiteDesCaches) return;\n  _identiteDesCaches = identite;\n  _surLeDistant.clear();\n  _prisesSurLeDistant.clear();\n  _prisesConnues = false;\n}\n```\n- Elle compare l'identité courante (`_remote.identite`) à celle mémorisée (`_identiteDesCaches`).\n- Si elles diffèrent (changement de compte), elle vide `_surLeDistant` et `_prisesSurLeDistant`, et remet `_prisesConnues` à `false`, avant d'enregistrer la nouvelle identité.\n- Elle est appelée systématiquement avant toute lecture/écriture des caches, dans `load()` (ligne 570) et dans `_synchroniserSansBruit()` (ligne 615), donc aucun accès aux caches ne peut se faire sans validation préalable de l'identité.\n\nLe commentaire aux lignes 541-545 confirme l'intention : ce garde-fou vise explicitement à éviter qu'un push croie « tout déjà monté » chez un nouveau compte après une déconnexion/reconnexion sans relance de l'app.",
+      "total_usd": 0.048435964
+    }
+  ],
+  "budget": {
+    "claude_usd": 0.39137700000000003,
+    "jev_usd": 0.0017200680000000004,
+    "jev_reserved": 0.0,
+    "jev_requests": 6,
+    "jev_rejected": 0,
+    "trials": [
+      {
+        "id": "gambade-notification-action-control",
+        "budget_accounted_usd": 0.0853,
+        "external_stop": false
+      },
+      {
+        "id": "gambade-notification-action-plugin",
+        "budget_accounted_usd": 0.048604400000000006,
+        "external_stop": false
+      },
+      {
+        "id": "pioudex-sync-cache-plugin",
+        "budget_accounted_usd": 0.0478,
+        "external_stop": false
+      },
+      {
+        "id": "pioudex-sync-cache-control",
+        "budget_accounted_usd": 0.09102679999999999,
+        "external_stop": false
+      },
+      {
+        "id": "pioudex-audio-agreement-control",
+        "budget_accounted_usd": 0.0715,
+        "external_stop": false
+      },
+      {
+        "id": "pioudex-audio-agreement-plugin",
+        "budget_accounted_usd": 0.0471458,
+        "external_stop": false
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "gambade-notification-action",
+      "project": "Gambade",
+      "commit": "fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c",
+      "file": "lib/data/services/notification_service.dart",
+      "question": "Comment _onTap traite-t-elle le bouton « C’est fait » d’une notification de soin ?",
+      "rubric": [
+        "payload null/vide ignoré",
+        "actionId comparé à kSanteTickActionId",
+        "première occurrence sante-echeancier remplacée par sante-tick, reste du payload conservé",
+        "émission sur _taps puis retour ; autre action : payload inchangé"
+      ],
+      "target_lines": [
+        92,
+        105
+      ],
+      "arms": [
+        "control",
+        "plugin"
+      ],
+      "source_sha256": "fd5295e947be0ee84094dbb095ccd981cbb6936ff6e99572ed256acddee42954",
+      "prompt": "Dans lib/data/services/notification_service.dart, Comment _onTap traite-t-elle le bouton « C’est fait » d’une notification de soin ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier."
+    },
+    {
+      "id": "pioudex-sync-cache",
+      "project": "Pioudex",
+      "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+      "file": "lib/data/journal_sync.dart",
+      "question": "Comment _validerLesCaches évite-t-elle de réutiliser les caches d’un autre compte ?",
+      "rubric": [
+        "identité actuelle _remote.identite",
+        "identité égale à _identiteDesCaches : retour sans mutation",
+        "mise à jour _identiteDesCaches et vidage _surLeDistant et _prisesSurLeDistant",
+        "_prisesConnues remis à false"
+      ],
+      "target_lines": [
+        548,
+        555
+      ],
+      "arms": [
+        "plugin",
+        "control"
+      ],
+      "source_sha256": "d195169408933dfc5a33523a0fb544e324b73c3d89c073cafa7a178ba7d21d3b",
+      "prompt": "Dans lib/data/journal_sync.dart, Comment _validerLesCaches évite-t-elle de réutiliser les caches d’un autre compte ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier."
+    },
+    {
+      "id": "pioudex-audio-agreement",
+      "project": "Pioudex",
+      "commit": "91036cc5a13a474a3743c56919b598919cd84500",
+      "file": "lib/services/embedded_bird_identifier.dart",
+      "question": "Comment _confirmeParAccords fait-elle évoluer le palier de confiance audio ?",
+      "rubric": [
+        "none reste none quel que soit le nombre d’accords",
+        "moins de deux accords : palier inchangé",
+        "échelle unsure, probable, certain",
+        "augmentation de accords moins un et plafond à certain"
+      ],
+      "target_lines": [
+        441,
+        446
+      ],
+      "arms": [
+        "control",
+        "plugin"
+      ],
+      "source_sha256": "b23c84f16532477c61fe95a6870e773dfde798a8d1760137b8ddf52bf2a984d8",
+      "prompt": "Dans lib/services/embedded_bird_identifier.dart, Comment _confirmeParAccords fait-elle évoluer le palier de confiance audio ? Réponds en français, en 180 mots maximum, avec les lignes qui justifient ta réponse. Ne modifie aucun fichier."
+    }
+  ],
+  "additional_real_gates": {
+    "passed": 6,
+    "total": 6,
+    "jev_usd": 0.0028120260000000005,
+    "criteria": "leave broad or unrelated requests unchanged; fixed before calls"
+  },
+  "total_authorized_spend_usd": 3.434051508
+}

@@ -182,6 +182,7 @@ def last_text(paths_):
 
 def jev_stats(trial_dir):
     calls, errors, unavailable, latencies, questions, tokens, models, files = 0, 0, 0, [], 0, 0, set(), collections.Counter()
+    output_tokens, missing_output = 0, 0
     window = 0
     for record in entries(trial_dir / "dartlens_logs.jsonl"):
         files[record.get("_file", "?")] += 1
@@ -197,10 +198,17 @@ def jev_stats(trial_dir):
             latencies.append(record["ms"])
         questions += record.get("questions") or 0
         tokens += record.get("input_tokens") or 0
+        output = record.get("output_tokens")
+        if type(output) is int and output >= 0:
+            output_tokens += output
+        else:
+            missing_output += 1
         if record.get("model"):
             models.add(record["model"])
     return {"jev_calls": calls, "jev_errors": errors, "jev_unavailable": unavailable, "jev_ms": latencies,
             "jev_questions": questions, "jev_input_tokens": tokens, "jev_models": sorted(models),
+            "jev_output_tokens": output_tokens if not missing_output else None,
+            "jev_output_known_tokens": output_tokens, "jev_output_missing_calls": missing_output,
             "dartlens_logs": dict(files), "window_attributed": window}
 
 
@@ -431,8 +439,9 @@ def render(rows, by_task, by_arm, comparisons, args, blockers, cc):
         lines.append("Pannes d'infrastructure à relancer (hors comparaison) : %s" % ", ".join(r["trial"] for r in infra))
     lines.append("Valorisation API au tarif standard %s (bin/cc-usage), usages dédoublonnés par message. Facture réelle : %s."
                  % (cc.PRICING_VERSION, cc.BILL))
-    lines.append("Coût Jev à part : tokens d'entrée de usage.jsonl à %s $/Mtok, tarif publié pour jev-1.12 et non confirmé "
-                 "pour le modèle épinglé (sortie gratuite) ; ni facture ni quota d'abonnement." % ("%g" % JEV_USD_PER_MTOK).replace(".", ","))
+    lines.append("Coût Jev à part : tokens d'entrée de usage.jsonl à %s $/Mtok pour jev-1.13.0, sortie gratuite "
+                 "(docs.typesafe.ai/models, vérifié le 29/09/2026 ; autre modèle à vérifier). Ni facture ni quota d'abonnement."
+                 % ("%g" % JEV_USD_PER_MTOK).replace(".", ","))
     unpriced = sum(c["unpriced"] for c in by_arm.values())
     if unpriced:
         lines.append("Attention : %d appels sans tarif connu, exclus de la valorisation." % unpriced)
@@ -455,7 +464,7 @@ def render(rows, by_task, by_arm, comparisons, args, blockers, cc):
             continue
         lines.append("  %-10s essais %d, réussis %d/%d (%s), $ Claude %s, $/réussite %s, durée totale %s, "
                      "Jev %d appels (%d erreurs dont %d sans requête, p50 %s ms, p95 %s ms), "
-                     "Jev %s tokens soit %s (hypothèse), Claude + Jev %s, injections %d (%d car.), "
+                     "Jev %s tokens d'entrée soit %s (valorisation), Claude + Jev %s, injections %d (%d car.), "
                      "refus %d, git %d, signalements %d, pannes infra %d (%s, hors totaux)"
                      % (arm, c["trials"], c["successes"], c["valid"], fmt(c["rate"], "pct"), fmt(c["usd"], "usd4"),
                         fmt(c["usd_per_success"], "usd"), fmt(c["duration_total"], "s"), c["jev_calls"],
@@ -697,7 +706,8 @@ def main():
     if args.json:
         detail = [{k: v for k, v in r.items() if k != "answer"} for r in rows]
         args.json.write_text(json.dumps({"pricing": cc.PRICING_VERSION, "fake": fake, "pending_reviews": pending,
-                                         "jev_usd_per_mtok": JEV_USD_PER_MTOK, "jev_price_hypothetical": True,
+                                         "jev_usd_per_mtok": JEV_USD_PER_MTOK,
+                                         "jev_price_hypothetical": any(row.get("jev_calls") and row.get("jev_models") != ["jev-1.13.0"] for row in rows),
                                          "verdict_min": {"tasks": args.min_tasks, "reps": args.min_reps},
                                          "heterogeneous": mixed, "jev_blocked": blockers["arms"],
                                          "trials": detail, "by_task": by_task, "by_arm": by_arm,

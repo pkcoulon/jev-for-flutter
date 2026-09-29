@@ -1,0 +1,226 @@
+{
+  "campaign": "adoption-2026-09-29",
+  "date": "2026-09-29",
+  "scope": "4 tâches Pioudex, 1 essai par variante, avant la version 0.2",
+  "units": {
+    "dart_characters": "Code Dart reçu via Read, lens et shell, numéros de ligne compris ; pas des tokens",
+    "claude_usd": "Valorisation API des usages Claude ; hors Jev, pas une facture d'abonnement"
+  },
+  "limitations": [
+    "Échecs compris dans les volumes",
+    "Relecture initiale imparfaite",
+    "Durées contaminées par des attentes de permission",
+    "Aucune équivalence de qualité démontrée"
+  ],
+  "inputs": {
+    "adoption_sha256": "7b7e544ef523fb599f338f8355addc396fd3bb6e48172771a665a53c81a0eb43",
+    "score_sha256": "a151f2781b4a5979817e5b7f74e9e1f459ea616cac04158e257afd457d5a2f18",
+    "pricing": "api-standard-2026-09-28"
+  },
+  "trials": [
+    {
+      "id": "pioudex-convention-olive.all.fr.r1",
+      "task": "pioudex-convention-olive",
+      "variant": "all",
+      "dart_characters": 1637,
+      "claude_usd": 0.333,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 4323,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 20,
+        "write_5m": 0,
+        "write_1h": 47189,
+        "read": 577409,
+        "output": 2869
+      }
+    },
+    {
+      "id": "pioudex-convention-olive.all_refuse.fr.r1",
+      "task": "pioudex-convention-olive",
+      "variant": "all_refuse",
+      "dart_characters": 9832,
+      "claude_usd": 0.6199,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 17631,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 20,
+        "write_5m": 0,
+        "write_1h": 98546,
+        "read": 980735,
+        "output": 2951
+      }
+    },
+    {
+      "id": "pioudex-convention-olive.control.fr.r1",
+      "task": "pioudex-convention-olive",
+      "variant": "control",
+      "dart_characters": 122440,
+      "claude_usd": 1.1425,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 50,
+        "write_5m": 0,
+        "write_1h": 116981,
+        "read": 2649441,
+        "output": 14461
+      }
+    },
+    {
+      "id": "pioudex-diag-gain-xp.all.en.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "all",
+      "dart_characters": 102921,
+      "claude_usd": 1.0594,
+      "accepted_by_original_review": true,
+      "jev_input_tokens": 4461,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 30,
+        "write_5m": 0,
+        "write_1h": 152016,
+        "read": 1976080,
+        "output": 5610
+      }
+    },
+    {
+      "id": "pioudex-diag-gain-xp.all_refuse.en.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "all_refuse",
+      "dart_characters": 36826,
+      "claude_usd": 1.1665,
+      "accepted_by_original_review": true,
+      "jev_input_tokens": 41863,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 46,
+        "write_5m": 0,
+        "write_1h": 131492,
+        "read": 2813838,
+        "output": 7765
+      }
+    },
+    {
+      "id": "pioudex-diag-gain-xp.control.en.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "control",
+      "dart_characters": 83412,
+      "claude_usd": 0.7692,
+      "accepted_by_original_review": true,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 44,
+        "write_5m": 0,
+        "write_1h": 89206,
+        "read": 1791949,
+        "output": 5389
+      }
+    },
+    {
+      "id": "pioudex-loc-silence.all.fr.r1",
+      "task": "pioudex-loc-silence",
+      "variant": "all",
+      "dart_characters": 75185,
+      "claude_usd": 0.799,
+      "accepted_by_original_review": true,
+      "jev_input_tokens": 3115,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 20,
+        "write_5m": 0,
+        "write_1h": 127928,
+        "read": 1116273,
+        "output": 6396
+      }
+    },
+    {
+      "id": "pioudex-loc-silence.all_refuse.fr.r1",
+      "task": "pioudex-loc-silence",
+      "variant": "all_refuse",
+      "dart_characters": 27411,
+      "claude_usd": 0.6662,
+      "accepted_by_original_review": true,
+      "jev_input_tokens": 18330,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 18,
+        "write_5m": 0,
+        "write_1h": 108226,
+        "read": 898346,
+        "output": 5358
+      }
+    },
+    {
+      "id": "pioudex-loc-silence.control.fr.r1",
+      "task": "pioudex-loc-silence",
+      "variant": "control",
+      "dart_characters": 133227,
+      "claude_usd": 0.9638,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 28,
+        "write_5m": 100351,
+        "write_1h": 98136,
+        "read": 911476,
+        "output": 13807
+      }
+    },
+    {
+      "id": "pioudex-memoire-vibrations.all.en.r1",
+      "task": "pioudex-memoire-vibrations",
+      "variant": "all",
+      "dart_characters": 164037,
+      "claude_usd": 3.9681,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 20298,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 120,
+        "write_5m": 0,
+        "write_1h": 232551,
+        "read": 12490268,
+        "output": 53961
+      }
+    },
+    {
+      "id": "pioudex-memoire-vibrations.all_refuse.en.r1",
+      "task": "pioudex-memoire-vibrations",
+      "variant": "all_refuse",
+      "dart_characters": 83109,
+      "claude_usd": 2.6716,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 47984,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 86,
+        "write_5m": 0,
+        "write_1h": 190271,
+        "read": 6889385,
+        "output": 53249
+      }
+    },
+    {
+      "id": "pioudex-memoire-vibrations.control.en.r1",
+      "task": "pioudex-memoire-vibrations",
+      "variant": "control",
+      "dart_characters": 137442,
+      "claude_usd": 3.353,
+      "accepted_by_original_review": false,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": null,
+      "claude_tokens": {
+        "input": 120,
+        "write_5m": 0,
+        "write_1h": 202521,
+        "read": 10871917,
+        "output": 36825
+      }
+    }
+  ]
+}

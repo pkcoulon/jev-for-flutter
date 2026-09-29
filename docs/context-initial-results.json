@@ -1,0 +1,219 @@
+{
+  "date": "2026-09-29",
+  "campaign": "context-real-2026-09-29",
+  "plugin_snapshot": "d50981a339237f07",
+  "model": "claude-sonnet-5",
+  "effort": "medium",
+  "pricing": {
+    "claude_rates_per_million": {
+      "input": 2,
+      "write_5m": 2.5,
+      "write_1h": 4,
+      "read": 0.2,
+      "output": 10
+    },
+    "jev_input_per_million": 0.042,
+    "jev_output_per_million": 0,
+    "verified": "2026-09-29",
+    "sources": {
+      "jev": "https://docs.typesafe.ai/models",
+      "claude": "https://platform.claude.com/docs/en/about-claude/pricing"
+    }
+  },
+  "units": {
+    "claude_total_tokens": "Somme des entrées, écritures cache, lectures cache et sorties ; contextes répétés compris, pas des tokens uniques.",
+    "total_usd": "Valorisation au tarif API standard Claude + Jev, contrôles de connexion Jev inclus ; pas une facture ni une mesure de quota d’abonnement.",
+    "verified_seconds": "Session Claude puis contrôles automatiques externes ; préparation des copies et relecture humaine/assistée exclues."
+  },
+  "review": "Astra dans la session principale ; non indépendante et non aveugle. Critères figés avant chaque lot.",
+  "limitations": [
+    "Une session par variante, variabilité non estimée.",
+    "Résultats du prototype initial et du format compact séparés.",
+    "Tâches connues du banc, pas de validation générale."
+  ],
+  "trials": [
+    {
+      "id": "gambade-loc-chaleur.all.fr.r1",
+      "task": "gambade-loc-chaleur",
+      "variant": "all",
+      "accepted_by_astra": false,
+      "review_note": "Seuil 30 °C, décalage de 5 °C, HeatAdvice et profil PDSA corrects. Raccordement à l’outil météo de l’assistant non expliqué, malgré le critère écrit avant le lot. Aucun fichier modifié.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 20,
+        "write_5m": 0,
+        "write_1h": 27469,
+        "read": 419212,
+        "output": 2497
+      },
+      "claude_total_tokens": 449198,
+      "claude_calls": 10,
+      "claude_usd": 0.2187284,
+      "jev_usd": 0.0007136640000000001,
+      "jev_input_tokens": 16992,
+      "jev_output_tokens": 902,
+      "session_seconds": 42.3,
+      "external_check_seconds": 0,
+      "context": [
+        {
+          "files_indexed": 248,
+          "ms": 5431,
+          "backend": "jev",
+          "requests": 8,
+          "cache": false,
+          "errors": 0,
+          "ts": 1790699043.524796,
+          "event": "prepared"
+        },
+        {
+          "event": "delivered",
+          "chars": 11660,
+          "ts": 1790699045.1457741
+        }
+      ],
+      "tools": {
+        "Grep": 5,
+        "Read": 2,
+        "Bash": 3
+      },
+      "total_usd": 0.219442064,
+      "verified_seconds": 42.3
+    },
+    {
+      "id": "gambade-loc-chaleur.control.fr.r1",
+      "task": "gambade-loc-chaleur",
+      "variant": "control",
+      "accepted_by_astra": false,
+      "review_note": "Seuil 30 °C, HeatAdvice, BreedProfile et source PDSA corrects. Raccordement à l’outil météo de l’assistant non expliqué, même critère préalable que la variante avec plugin. Aucun fichier modifié.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 20,
+        "write_5m": 0,
+        "write_1h": 26775,
+        "read": 407714,
+        "output": 2222
+      },
+      "claude_total_tokens": 436731,
+      "claude_calls": 10,
+      "claude_usd": 0.21090279999999997,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "session_seconds": 32.4,
+      "external_check_seconds": 0,
+      "context": [],
+      "tools": {
+        "Grep": 7,
+        "Read": 2
+      },
+      "total_usd": 0.21090279999999997,
+      "verified_seconds": 32.4
+    },
+    {
+      "id": "pioudex-loc-silence.all.fr.r1",
+      "task": "pioudex-loc-silence",
+      "variant": "all",
+      "accepted_by_astra": false,
+      "review_note": "Parsing, paliers et UI corrects, mais chemin embarqué et repli omis. Le contexte livré au sous-agent a été externalisé par Claude Code : aperçu de 2 Ko seulement. Critère de parcours complet non satisfait.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 22,
+        "write_5m": 37900,
+        "write_1h": 17709,
+        "read": 295663,
+        "output": 7053
+      },
+      "claude_total_tokens": 358347,
+      "claude_calls": 11,
+      "claude_usd": 0.2952926,
+      "jev_usd": 0.0011405520000000002,
+      "jev_input_tokens": 27156,
+      "jev_output_tokens": 1506,
+      "session_seconds": 74.6,
+      "external_check_seconds": 0,
+      "context": [
+        {
+          "files_indexed": 120,
+          "ms": 2661,
+          "backend": "jev",
+          "requests": 8,
+          "cache": false,
+          "errors": 0,
+          "ts": 1790698736.9773068,
+          "event": "prepared"
+        },
+        {
+          "event": "delivered",
+          "chars": 11712,
+          "ts": 1790698743.288225
+        }
+      ],
+      "tools": {
+        "Agent": 1,
+        "Read": 7,
+        "Grep": 4
+      },
+      "total_usd": 0.29643315200000003,
+      "verified_seconds": 74.6
+    },
+    {
+      "id": "pioudex-loc-silence.control.fr.r1",
+      "task": "pioudex-loc-silence",
+      "variant": "control",
+      "accepted_by_astra": false,
+      "review_note": "Embarqué et repli cités, mais ConfidenceTier.parse omis et construction directe sans fromJson non expliquée. Les deux parcours UI sont correctement distingués. Aucun fichier modifié.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 24,
+        "write_5m": 48354,
+        "write_1h": 22269,
+        "read": 359908,
+        "output": 9762
+      },
+      "claude_total_tokens": 440317,
+      "claude_calls": 12,
+      "claude_usd": 0.37961059999999996,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "session_seconds": 119.1,
+      "external_check_seconds": 0,
+      "context": [],
+      "tools": {
+        "Agent": 1,
+        "Read": 10,
+        "Bash": 5,
+        "Grep": 2
+      },
+      "total_usd": 0.37961059999999996,
+      "verified_seconds": 119.1
+    }
+  ],
+  "inputs_sha256": {
+    "results/gambade/gambade-loc-chaleur.all.fr.r1/meta.json": "1d86aed22f01ebb3320ad4db3e2e884e5e12a45a1d0b94c19b28b58de1f1af8e",
+    "results/gambade/gambade-loc-chaleur.all.fr.r1/transcript.jsonl": "10fa837ef80aebcd7c2aed71c32dff751a273f2c971cbe00d77ed78a7efb2839",
+    "results/gambade/gambade-loc-chaleur.all.fr.r1/dartlens_logs.jsonl": "04e728dbe0f903913c9ff004f66b6d21552f058b188c7e36378b78f18cc0973e",
+    "results/gambade/gambade-loc-chaleur.all.fr.r1/diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/gambade/gambade-loc-chaleur.all.fr.r1/checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "results/gambade/gambade-loc-chaleur.control.fr.r1/meta.json": "6a6e79d24269833a5276b9c4541ccafbb2a632e6e1fc374d93e3a36753c975db",
+    "results/gambade/gambade-loc-chaleur.control.fr.r1/transcript.jsonl": "51e1666d25837139ef829f760efd2fef0c1c7893c4bd08440de36314e5cfd8b7",
+    "results/gambade/gambade-loc-chaleur.control.fr.r1/dartlens_logs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/gambade/gambade-loc-chaleur.control.fr.r1/diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/gambade/gambade-loc-chaleur.control.fr.r1/checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "results/pioudex/pioudex-loc-silence.all.fr.r1/meta.json": "be76ca4d5703b8a8dbddcc753a0080ecfe52a42303cae8739fd95e49fd770cc0",
+    "results/pioudex/pioudex-loc-silence.all.fr.r1/transcript.jsonl": "9bc77c85b210c1e99343faac0c0b5a9ee79146f312ca6bbf0e9fa95d76f72428",
+    "results/pioudex/pioudex-loc-silence.all.fr.r1/dartlens_logs.jsonl": "36d3dc6d7b89943c1130502c030d59f20c55dd0f391c7092c8b796abdbd32775",
+    "results/pioudex/pioudex-loc-silence.all.fr.r1/diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/pioudex/pioudex-loc-silence.all.fr.r1/checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "results/pioudex/pioudex-loc-silence.control.fr.r1/meta.json": "5ae704298b2418ad15c333585f2215b42c1a5d472e478f5e431b3bcfe5bec785",
+    "results/pioudex/pioudex-loc-silence.control.fr.r1/transcript.jsonl": "c7783f468c6df42d4e41e1bb1c64af0fa6a91191c52db7088226a14eecfa65fa",
+    "results/pioudex/pioudex-loc-silence.control.fr.r1/dartlens_logs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/pioudex/pioudex-loc-silence.control.fr.r1/diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/pioudex/pioudex-loc-silence.control.fr.r1/checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "plan.json": "72c0d69a5edbf3a2e1a7207499dbf51eb339cd9340926ad6eb41d4f8bf523f6b",
+    "reviews.json": "cfaf5638f827f4a7f769e3b069ef4bfb4afa2e97c4b11ad8482820aa29db50fa",
+    "budget.json": "7369f83d050fcb250abc0ecfcd889f1a60f9b88ef62c1b206624852291296b5e",
+    "jev-usage.jsonl": "c6171a211590b9f714ef76a778f21e2d7bb9775bc81f7d23873f9383c3050217"
+  },
+  "total_usd": 1.1063886159999998
+}

@@ -1,0 +1,236 @@
+{
+  "date": "2026-09-29",
+  "campaign": "context-final-2026-09-29",
+  "plugin_snapshot": "8c00bf222ef420a9",
+  "model": "claude-sonnet-5",
+  "effort": "medium",
+  "pricing": {
+    "claude_rates_per_million": {
+      "input": 2,
+      "write_5m": 2.5,
+      "write_1h": 4,
+      "read": 0.2,
+      "output": 10
+    },
+    "jev_input_per_million": 0.042,
+    "jev_output_per_million": 0,
+    "verified": "2026-09-29",
+    "sources": {
+      "jev": "https://docs.typesafe.ai/models",
+      "claude": "https://platform.claude.com/docs/en/about-claude/pricing"
+    }
+  },
+  "units": {
+    "claude_total_tokens": "Somme des entrées, écritures cache, lectures cache et sorties ; contextes répétés compris, pas des tokens uniques.",
+    "total_usd": "Valorisation au tarif API standard Claude + Jev, contrôles de connexion Jev inclus ; pas une facture ni une mesure de quota d’abonnement.",
+    "verified_seconds": "Session Claude puis contrôles automatiques externes ; préparation des copies et relecture humaine/assistée exclues."
+  },
+  "review": "Astra dans la session principale ; non indépendante et non aveugle. Critères figés avant chaque lot.",
+  "limitations": [
+    "Une session par variante, variabilité non estimée.",
+    "Résultats du prototype initial et du format compact séparés.",
+    "Tâches connues du banc, pas de validation générale."
+  ],
+  "trials": [
+    {
+      "id": "pioudex-diag-gain-xp.all.fr.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "all",
+      "accepted_by_astra": true,
+      "review_note": "Même diff minimal : Bareme.multiplicateur, rang 4 rétabli à ×5. Tests inchangés. Réponse correcte sur la cause. Les traces confirment les 1067 tests passés ; les cinq contrôles externes passent aussi. Relecture Astra, non indépendante et non aveugle.",
+      "checks": [
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "celebration",
+          "kind": "command",
+          "role": "success",
+          "seconds": 4.3
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "progression",
+          "kind": "command",
+          "role": "success",
+          "seconds": 1.9
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "non-regression",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 5.9
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "analyze",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 9.9
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "format",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 0.7
+        }
+      ],
+      "claude_tokens": {
+        "input": 32,
+        "write_5m": 0,
+        "write_1h": 40800,
+        "read": 717311,
+        "output": 3701
+      },
+      "claude_total_tokens": 761844,
+      "claude_calls": 16,
+      "claude_usd": 0.34373620000000005,
+      "jev_usd": 0.0008312640000000001,
+      "jev_input_tokens": 19792,
+      "jev_output_tokens": 1144,
+      "session_seconds": 112.8,
+      "external_check_seconds": 22.7,
+      "context": [
+        {
+          "files_indexed": 240,
+          "ms": 3921,
+          "backend": "jev",
+          "requests": 8,
+          "cache": false,
+          "errors": 0,
+          "ts": 1790699779.800129,
+          "event": "prepared"
+        },
+        {
+          "event": "delivered",
+          "chars": 7605,
+          "ts": 1790699787.983374
+        }
+      ],
+      "tools": {
+        "Bash": 4,
+        "Read": 5,
+        "Grep": 5,
+        "Edit": 1
+      },
+      "total_usd": 0.34456746400000005,
+      "verified_seconds": 135.5
+    },
+    {
+      "id": "pioudex-diag-gain-xp.control.fr.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "control",
+      "accepted_by_astra": true,
+      "review_note": "Même diff minimal : Bareme.multiplicateur, rang 4 rétabli à ×5. Tests inchangés. Réponse correcte sur la cause. Les traces confirment les 1067 tests passés ; les cinq contrôles externes passent aussi. Relecture Astra, non indépendante et non aveugle.",
+      "checks": [
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "celebration",
+          "kind": "command",
+          "role": "success",
+          "seconds": 3.8
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "progression",
+          "kind": "command",
+          "role": "success",
+          "seconds": 2.0
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "non-regression",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 5.9
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "analyze",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 13.6
+        },
+        {
+          "ok": true,
+          "exit": 0,
+          "expect": 0,
+          "id": "format",
+          "kind": "command",
+          "role": "regression",
+          "seconds": 0.8
+        }
+      ],
+      "claude_tokens": {
+        "input": 26,
+        "write_5m": 0,
+        "write_1h": 34967,
+        "read": 536261,
+        "output": 3467
+      },
+      "claude_total_tokens": 574721,
+      "claude_calls": 13,
+      "claude_usd": 0.2818422,
+      "jev_usd": 0,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "session_seconds": 141.0,
+      "external_check_seconds": 26.099999999999998,
+      "context": [],
+      "tools": {
+        "Bash": 4,
+        "Read": 5,
+        "Grep": 2,
+        "Edit": 1
+      },
+      "total_usd": 0.2818422,
+      "verified_seconds": 167.1
+    }
+  ],
+  "inputs_sha256": {
+    "results/pioudex/pioudex-diag-gain-xp.all.fr.r1/meta.json": "0de9ef32286f6074e33162503844d1280ae8d97c34694cd6307a6eb7b8fa9361",
+    "results/pioudex/pioudex-diag-gain-xp.all.fr.r1/transcript.jsonl": "84e0aa0cac882329f6d2bc89c7788adb0047a24261a0d9693251dfdb10272a86",
+    "results/pioudex/pioudex-diag-gain-xp.all.fr.r1/dartlens_logs.jsonl": "7f7aaf3c0c145fde9b7e69754ade65fb958e3f2feb23becc81edc7cc2e37ae9e",
+    "results/pioudex/pioudex-diag-gain-xp.all.fr.r1/diff.patch": "fbebfa02bf06cfdfe42606f1c2f2e1e152887d857f4f17066ba5aa48e4bf20c6",
+    "results/pioudex/pioudex-diag-gain-xp.all.fr.r1/checks.json": "b60a410e9b229dfba199c86638e5d91d9fc87e7c36dfe558369b4e6978e5a4c1",
+    "results/pioudex/pioudex-diag-gain-xp.control.fr.r1/meta.json": "3ef4e39152de9b276812698c6aa17396e738eb4be848c4989b4d02616c88905f",
+    "results/pioudex/pioudex-diag-gain-xp.control.fr.r1/transcript.jsonl": "39e0efe14a2496becfcbf2b55fea951cdf97b89bda810d7371734a484f08b3c2",
+    "results/pioudex/pioudex-diag-gain-xp.control.fr.r1/dartlens_logs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/pioudex/pioudex-diag-gain-xp.control.fr.r1/diff.patch": "fbebfa02bf06cfdfe42606f1c2f2e1e152887d857f4f17066ba5aa48e4bf20c6",
+    "results/pioudex/pioudex-diag-gain-xp.control.fr.r1/checks.json": "6983ddfc78e8c46163a6616809cc591d57151cec82b571170a1cb4c7fc25e70d",
+    "plan.json": "2c6e3b23c758bae3509a1727a1dc264d0c78b3b871726e8b5f2b2ac7bf8a8f68",
+    "reviews.json": "918b47962d1423da6a418bcd4a193fbf2deb0945a74b8b8c3165e35a4a8e163d",
+    "budget.json": "058ce6c9b98958ba3509672ff22da77cc44b8008740126f91e7c6e324a8ef281",
+    "jev-usage.jsonl": "710bbc931349f07a69984e828697b2c63324e7266e20bf1237d68063b77772a7"
+  },
+  "total_usd": 0.6264096640000001,
+  "chart_tasks": [
+    "pioudex-diag-gain-xp"
+  ],
+  "chart_labels": [
+    "Pioudex\nCorriger un calcul"
+  ],
+  "chart_name": "context-results",
+  "chart_title": "Même correctif. Plus vite, mais plus cher.",
+  "chart_scope": "1 tâche · 1 session par variante · contexte compact · 29 septembre 2026",
+  "chart_verdict": "Même correction et 1 067 tests passés dans les deux variantes.",
+  "chart_limit": "Le gain général et l’économie restent à démontrer. Essais précédents incomplets dans le rapport."
+}

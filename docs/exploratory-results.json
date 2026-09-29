@@ -1,0 +1,248 @@
+{
+  "date": "2026-09-29",
+  "campaign": "exploratory-5usd-2026-09-29",
+  "scope": "Deux tâches personnelles, deux variantes, une session par tâche et variante ; version locale corrigée après v0.2.",
+  "model": "claude-sonnet-5",
+  "effort": "medium",
+  "plugin_snapshot": "1581a817ffe4b4a2",
+  "budget_usd": 5,
+  "pricing": {
+    "claude_rates_per_million": {
+      "input": 2,
+      "write_5m": 2.5,
+      "write_1h": 4,
+      "read": 0.2,
+      "output": 10
+    },
+    "jev_input_per_million": 0.042,
+    "jev_output_per_million": 0,
+    "verified": "2026-09-29",
+    "sources": {
+      "jev": "https://docs.typesafe.ai/models",
+      "claude": "https://platform.claude.com/docs/en/about-claude/pricing"
+    }
+  },
+  "units": {
+    "claude_total_tokens": "Somme des entrées, écritures cache, lectures cache et sorties ; contextes répétés compris, pas des tokens uniques.",
+    "total_usd": "Valorisation au tarif API standard Claude + Jev, contrôles de connexion Jev inclus ; pas une facture ni une mesure de quota d’abonnement.",
+    "verified_seconds": "Session Claude puis contrôles automatiques externes ; préparation des copies et relecture humaine/assistée exclues."
+  },
+  "review": "Astra dans la session principale ; non indépendante et non aveugle. Critères et demandes figés avant les essais. Réserves de précision sur Gambade.",
+  "limitations": [
+    "Une seule répétition, aucune estimation de variabilité.",
+    "Aucun appel à lens ni refus de grande lecture : mécanisme de sélection non exercé.",
+    "Commande Python refusée par permissions sur Gambade avec plugin ; erreur de regex sur Pioudex sans plugin.",
+    "La relecture ne prouve pas la non-infériorité.",
+    "Tâches déjà présentes dans le banc ; aucun projet inédit."
+  ],
+  "inputs_sha256": {
+    "plan.json": "e98a739d8453b217a5e6f91938c992d394e953468e4fae06f75dca816e29c41d",
+    "jev-usage.jsonl": "ec4f7e7b4e9d6168bb109dc98e1814bd38705fbaef2f34e9fb7df4e0600961e6",
+    "budget.json": "d869fdf9418d830d8bca0ae3e97c257608821ef7a0853720d74d36b761dafdb9",
+    "reviews/reviews.json": "169e085254d414c1fdaf424333105054d424e13504a729806f118ce9baebf3d1",
+    "gambade-score.json": "5daac0c33dacc1c84f331d67906703b0a04a021991d84d222abfc226f9192c24",
+    "pioudex-score.json": "a37dbb2fdea05eb22e68649f112ad77c372d336ff3e52cdc3bd0a271b139c0d4"
+  },
+  "trials": [
+    {
+      "id": "gambade-loc-chaleur.control.fr.r1",
+      "task": "gambade-loc-chaleur",
+      "variant": "control",
+      "accepted_by_astra": true,
+      "review_note": "Seuil 30 °C exact (35−5), HeatAdvice correctement localisé, source JSON fci-253 et PDSA exactes ; aucune modification. Le passage sur les consommateurs rassemble ceux du drapeau heatSensitive et ceux du niveau : raccourci de formulation, sans modifier la réponse demandée. Relecture Astra, non indépendante aveugle.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 18,
+        "write_5m": 0,
+        "write_1h": 26143,
+        "read": 362887,
+        "output": 1862
+      },
+      "claude_total_tokens": 390910,
+      "claude_calls": 9,
+      "claude_usd": 0.1958054,
+      "jev_usd": 0,
+      "total_usd": 0.1958054,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "jev_calls_including_preflight": 0,
+      "jev_runtime_calls": 0,
+      "session_seconds": 68.5,
+      "external_checks_seconds": 0,
+      "verified_seconds": 68.5,
+      "lens_calls": 0,
+      "large_read_refusals": 0,
+      "permission_denials": 0,
+      "evidence_sha256": {
+        "meta.json": "d65a57b61ea25dc05e6be3c2cceed90b1dd8fbb273a4ca3d674d6e04b6abe3e7",
+        "transcript.jsonl": "04f20f60ec342f3159970b41cdb4926202a59bfad4e5654920a0a0b04e3d3c38",
+        "diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "dartlens_logs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "gambade-loc-chaleur.all.fr.r1",
+      "task": "gambade-loc-chaleur",
+      "variant": "all",
+      "accepted_by_astra": true,
+      "review_note": "Seuil 30 °C exact, fonction et mapping BreedProfile.heatSensitive identifiés, source JSON fci-253 et PDSA exactes ; aucune modification. Le raccordement par assistant_weather_tool.dart est confirmé par la relecture du code, mais pas explicité dans la réponse. Réponse acceptée sur les questions demandées ; ne pas présenter cette relecture comme preuve de non-infériorité. Relecture Astra, non indépendante aveugle.",
+      "checks": [],
+      "claude_tokens": {
+        "input": 22,
+        "write_5m": 0,
+        "write_1h": 28502,
+        "read": 467081,
+        "output": 2548
+      },
+      "claude_total_tokens": 498153,
+      "claude_calls": 11,
+      "claude_usd": 0.2329482,
+      "jev_usd": 0.000141792,
+      "total_usd": 0.233089992,
+      "jev_input_tokens": 3376,
+      "jev_output_tokens": 205,
+      "jev_calls_including_preflight": 2,
+      "jev_runtime_calls": 1,
+      "session_seconds": 88.7,
+      "external_checks_seconds": 0,
+      "verified_seconds": 88.7,
+      "lens_calls": 0,
+      "large_read_refusals": 0,
+      "permission_denials": 1,
+      "evidence_sha256": {
+        "meta.json": "dd2060d90b5f7d0a5b041f183e8e8bcf856031715767796355b8cac2b9225405",
+        "transcript.jsonl": "5dad1ac55299bec0534bc42d2377408e3af76cf001c344d63524c52af32b4969",
+        "diff.patch": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "dartlens_logs.jsonl": "1202281f445952ff26efc639c6f1f2e15cb65b9f2f9cb1b409492aa90ae01799"
+      }
+    },
+    {
+      "id": "pioudex-diag-gain-xp.control.fr.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "control",
+      "accepted_by_astra": true,
+      "review_note": "Cause exacte, correctif minimal identique : Bareme.multiplicateur rang 4 rétabli à ×5. Aucun test modifié. Les traces confirment les 1 067 tests annoncés ; les cinq contrôles externes (succès, non-régression, analyse, format) passent. Relecture Astra dans la session principale, non indépendante aveugle.",
+      "checks": [
+        {
+          "id": "celebration",
+          "ok": true,
+          "seconds": 4.0
+        },
+        {
+          "id": "progression",
+          "ok": true,
+          "seconds": 1.7
+        },
+        {
+          "id": "non-regression",
+          "ok": true,
+          "seconds": 6.6
+        },
+        {
+          "id": "analyze",
+          "ok": true,
+          "seconds": 6.2
+        },
+        {
+          "id": "format",
+          "ok": true,
+          "seconds": 0.7
+        }
+      ],
+      "claude_tokens": {
+        "input": 54,
+        "write_5m": 0,
+        "write_1h": 55137,
+        "read": 1315135,
+        "output": 8067
+      },
+      "claude_total_tokens": 1378393,
+      "claude_calls": 27,
+      "claude_usd": 0.564353,
+      "jev_usd": 0,
+      "total_usd": 0.564353,
+      "jev_input_tokens": 0,
+      "jev_output_tokens": 0,
+      "jev_calls_including_preflight": 0,
+      "jev_runtime_calls": 0,
+      "session_seconds": 198.1,
+      "external_checks_seconds": 19.2,
+      "verified_seconds": 217.3,
+      "lens_calls": 0,
+      "large_read_refusals": 0,
+      "permission_denials": 0,
+      "evidence_sha256": {
+        "meta.json": "053a31cf029ff0478ed44cc01e3952711c2f2f4c904343748d4db9ed6a4db495",
+        "transcript.jsonl": "cf0a3cfd5eb2f513214f29f6f621ab191606b19ed7262b1ebde8bc5115dcf847",
+        "diff.patch": "fbebfa02bf06cfdfe42606f1c2f2e1e152887d857f4f17066ba5aa48e4bf20c6",
+        "checks.json": "8f28c89efb6aa1f14e5f419398c48fc8020a470e5264d5675f309251dd856796",
+        "dartlens_logs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "pioudex-diag-gain-xp.all.fr.r1",
+      "task": "pioudex-diag-gain-xp",
+      "variant": "all",
+      "accepted_by_astra": true,
+      "review_note": "Cause exacte, correctif minimal identique : Bareme.multiplicateur rang 4 rétabli à ×5. Aucun test modifié. Les traces confirment les 1 067 tests annoncés ; les cinq contrôles externes (succès, non-régression, analyse, format) passent. Relecture Astra dans la session principale, non indépendante aveugle.",
+      "checks": [
+        {
+          "id": "celebration",
+          "ok": true,
+          "seconds": 5.1
+        },
+        {
+          "id": "progression",
+          "ok": true,
+          "seconds": 2.4
+        },
+        {
+          "id": "non-regression",
+          "ok": true,
+          "seconds": 6.0
+        },
+        {
+          "id": "analyze",
+          "ok": true,
+          "seconds": 12.3
+        },
+        {
+          "id": "format",
+          "ok": true,
+          "seconds": 0.8
+        }
+      ],
+      "claude_tokens": {
+        "input": 30,
+        "write_5m": 0,
+        "write_1h": 37840,
+        "read": 621559,
+        "output": 3611
+      },
+      "claude_total_tokens": 663040,
+      "claude_calls": 15,
+      "claude_usd": 0.3118418,
+      "jev_usd": 0.000199542,
+      "total_usd": 0.312041342,
+      "jev_input_tokens": 4751,
+      "jev_output_tokens": 284,
+      "jev_calls_including_preflight": 3,
+      "jev_runtime_calls": 2,
+      "session_seconds": 197.5,
+      "external_checks_seconds": 26.6,
+      "verified_seconds": 224.1,
+      "lens_calls": 0,
+      "large_read_refusals": 0,
+      "permission_denials": 0,
+      "evidence_sha256": {
+        "meta.json": "a0f9117f0597d4e7311fc265e2df7b2160a5b72058e59c18c60bd4b733490211",
+        "transcript.jsonl": "a7bca1fcc3f1dcb0bfd45a5040cc169bbdfa0370d8d108bb028460dcb0fa224a",
+        "diff.patch": "fbebfa02bf06cfdfe42606f1c2f2e1e152887d857f4f17066ba5aa48e4bf20c6",
+        "checks.json": "8e707e6610ca2200475c2fdcc176054bae24c24995fa139da62e3a408aa8c042",
+        "dartlens_logs.jsonl": "e7a3a32397c7f44111461395d16b2d2567a474c30cd265e4048595684d6d15c3"
+      }
+    }
+  ]
+}

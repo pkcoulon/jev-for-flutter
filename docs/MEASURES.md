@@ -1,6 +1,12 @@
 # Mesures de dartlens
 
+> Historique : la version 0.3 utilise désormais la lecture native ciblée et garde le contexte automatique en option. Voir [les dernières mesures](READ-RESULTS.md) et [l’architecture actuelle](ARCHITECTURE.md).
+
 Le détail derrière les chiffres du README. Toutes les mesures avec Jev utilisent le modèle `jev-1.13.0` et la clé officielle, sur le code de 3 projets Flutter perso. Les sessions du projet pro n'apparaissent qu'en totaux anonymes.
+
+**Dernier lot, après les correctifs locaux de la v0.2 :** quatre sessions réelles sur deux tâches, pour **1,31 $ Claude et Jev compris** sur 5 $ autorisés. Gambade coûte 0,1958 $ sans plugin contre 0,2331 $ avec ; Pioudex 0,5644 $ contre 0,3120 $. Aucun appel à `lens` : ce lot ne démontre pas le bénéfice de la sélection. [Résultats, tokens, durées et réserves de qualité](EXPERIMENT-5USD.md). Les campagnes ci-dessous sont conservées séparément ; leurs conditions diffèrent.
+
+Le tarif de **Jev 1.13** a été confirmé le 29 septembre 2026 : 0,042 $ par million de tokens d'entrée, sortie gratuite. [Documentation TypeSafe](https://docs.typesafe.ai/models). Les anciens calculs utilisaient déjà cette valeur, mais citaient le modèle précédent ; cette incertitude de tarif est levée, pas celles sur la qualité ou l'économie globale.
 
 Trois niveaux, qui ne disent pas la même chose :
 
@@ -44,9 +50,11 @@ Ce sont des estimations du besoin, pas des économies. Elles supposent environ 2
 
 ## Composants, avec Jev
 
+Mesures du 28 septembre, avant la version 0.2. Le moteur de recherche a changé depuis : les 20/20 ci-dessous ne valident pas le moteur actuel. Le rejeu hors ligne du calcul `lens`, le 29 septembre, retrouve les mêmes 66/72 cas complets avec Jev et 53/72 en local, sans écart entre les lignes annoncées et les sorties archivées.
+
 | Aide | Résultat | Portée |
 |---|---|---|
-| `lens` | Passages attendus tous présents dans 66 cas sur 72 (91,7 %), contre 73,6 % par mots-clés (BM25). En médiane, 10,1 % des lignes du fichier montrées ; 12,9 % des caractères d'une lecture complète, indications et omissions comprises. Jamais moins bon que les mots-clés. Aucun passage montré pour les 8 questions pièges. Environ 0,45 s. | 36 questions sur 12 fichiers, en français et en anglais : les deux versions d'une question ne sont pas deux cas indépendants. Des passages présents ne garantissent pas que Claude réponde juste. Ce n'est pas une économie sur une tâche. |
+| `lens` | Passages attendus tous présents dans 66 cas sur 72 (91,7 %), contre 73,6 % par mots-clés (BM25). En médiane, 10,1 % des lignes du fichier montrées ; 12,9 % des caractères d'une lecture complète, indications et omissions comprises. Aucun passage montré pour les 8 questions pièges. Environ 0,45 s. | 36 questions sur 12 fichiers, en français et en anglais : les deux versions d'une question ne sont pas deux cas indépendants. Des passages présents ne garantissent pas que Claude réponde juste. Ce n'est pas une économie sur une tâche. |
 | `lens find` | Le bon fichier en premier pour les 20 descriptions (intervalle de confiance à 95 % : 83–100 %) ; 19 sur 20 en ne gardant que les résultats jugés sûrs. Par mots-clés : 35 %, et 5 % sur les descriptions sans aucun mot du code ; grep : 18 %. Environ 1,6 s. | Descriptions écrites en lisant le code. Sur 6 descriptions vagues : 3 réussites. Sur 8 pièges proches, 2 fausses réponses. Un grep naïf ne représente pas toute la façon de chercher d'un agent. |
 | Garde | 26 écarts repérés sur 30, 4 manqués ; aucune alerte sur 30 exemples conformes. Mêmes réponses sur 3 passages. Environ 0,3 s de Jev, en arrière-plan. | Règles et exemples écrits par le même agent, surtout synthétiques. Chaque exemple teste sa règle ; une vraie modification en déclenche plusieurs. |
 | Mémoire | 20 fiches proposées sur 40 demandes, dont 15 utiles ; il en fallait 58. Au moins une bonne fiche pour 14 des 34 demandes qui en avaient besoin. Dans le top 3 : 60 %, contre 47 % par mots-clés. Skills : 4 bons choix sur 6, aucune fausse suggestion. Environ 0,4 s par demande. | Le seuil n'explique pas tout : le catalogue et la description des fiches comptent aussi. |
@@ -78,7 +86,7 @@ Ce sont des estimations du besoin, pas des économies. Elles supposent environ 2
 | `convention-olive` (convention) | échec, 1,14 $ | échec, 0,33 $ | échec, 0,62 $ |
 | `memoire-vibrations` (mémoire) | échec, 3,35 $ | échec, 3,97 $ | échec, 2,67 $ (coupé à 25 min) |
 | **Total Claude** | **1 sur 4, 6,23 $** | **2 sur 4, 6,16 $** | **2 sur 4, 5,12 $** |
-| Jev, tokens (tarif publié pour `jev-1.12`) | 0 | 32 197 (≈ 0,001 $) | 125 808 (≈ 0,005 $) |
+| Jev, tokens d'entrée (tarif `jev-1.13.0` confirmé le 29/09) | 0 | 32 197 (≈ 0,001 $) | 125 808 (≈ 0,005 $) |
 
 ### Ce que Claude a reçu
 
@@ -107,8 +115,8 @@ Parcours observés après les arrêts :
 
 - Le total baisse de 18 % avec l'arrêt, échecs compris. Tâche par tâche, le rapport au témoin va de 0,54 à 1,52, avec une médiane de 0,74.
 - Sur les 2 tâches réussies par les deux variantes du plugin (localisation et diagnostic), le coût est presque le même : 1,86 $ avec la note, 1,83 $ avec l'arrêt. Environ 97 % de l'écart total vient des tâches échouées.
-- Le diagnostic, seule tâche réussie partout, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt.
-- **Conclusion** : l'arrêt divise par trois le code reçu, mais une économie sur un même travail terminé n'est pas démontrée.
+- Le diagnostic, seule tâche acceptée dans les trois variantes, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt, soit environ **52 % de plus**, hors Jev. C'est un seul cas : ni un gain ni une dégradation générale ne sont établis.
+- **Conclusion** : dans cette campagne, la variante avec arrêt réduit le code reçu de 67 %. Une économie sur un même travail terminé et une qualité équivalente ne sont pas démontrées. La garde et la mémoire étant aussi actives, la campagne n'isole pas le seul effet de l'arrêt.
 
 ### Ce que le calcul des lectures permet d'estimer
 
@@ -219,7 +227,7 @@ Obs5 r2 ne livre qu'un message d'attente avant `error_max_budget_usd`. Son rappo
 
 Les durées ci-dessus sont descriptives. Les anciennes durées d'adoption, contaminées par les attentes de permission, ne doivent pas servir à annoncer un gain de vitesse. Aucun bénéfice à qualité égale n'est établi par ces trois essais.
 
-Le réglage `--max-budget-usd 0.30` n'a pas empêché obs5 r2 d'atteindre 0,3355 $. La [documentation du CLI](https://code.claude.com/docs/en/cli-reference) inclut les sous-agents de la session dans ce budget ; les appels Jev et les workflows de relecture lancés séparément n'y sont pas compris. Ce réglage ne doit pas être présenté comme une garantie de dépense totale maximale. Les coûts Jev restent des estimations tant que le tarif du modèle utilisé n'est pas confirmé.
+Le réglage `--max-budget-usd 0.30` n'a pas empêché obs5 r2 d'atteindre 0,3355 $. La [documentation du CLI](https://code.claude.com/docs/en/cli-reference) inclut les sous-agents de la session dans ce budget ; les appels Jev et les workflows de relecture lancés séparément n'y sont pas compris. Ce réglage ne doit pas être présenté comme une garantie de dépense totale maximale. Le tarif Jev 1.13 est désormais confirmé, comme indiqué en tête de ce document ; les usages incomplets d'une ancienne session restent une limite distincte.
 
 La prochaine correction doit traiter l'arrêt de l'exploration alors que des branches du parcours restent à vérifier. Une nouvelle liste de fichiers ou une consigne supplémentaire ne suffisent pas à en démontrer la résolution. Exploiter d'abord les traces archivées ; tout nouvel appel réel reste soumis à un lot et un budget autorisés.
 
@@ -230,7 +238,7 @@ La prochaine correction doit traiter l'arrêt de l'exploration alors que des bra
   - Sans plugin et avec la note : le nouveau panneau pousse la carte « À propos » hors de l'écran de test.
   - Avec l'arrêt : une clé de traduction sans utilisateur, et un fichier généré pas à jour.
   - Le relecteur ne voyait pas les tests : son « aucune régression » ne vaut pas pour eux.
-- **Olive**, refusée dans les trois variantes. C'est un vrai manque de l'agent, le même partout, et le plugin n'y joue aucun rôle.
+- **Olive**, refusée dans les trois variantes. L'échec existe dans les trois variantes ; cela ne permet pas d'isoler le rôle causal du plugin.
   - Les critères automatiques passaient déjà sans aucune modification.
   - Aucune variante ne vérifie ce que la nouvelle couleur touche. Le texte crème est à 4,55:1, juste au-dessus du seuil. Le motif en filigrane tombe vers 1,34:1, sous le minimum du design system.
   - La grille avait été écrite avant la campagne.
@@ -251,7 +259,9 @@ La prochaine correction doit traiter l'arrêt de l'exploration alors que des bra
 
 ### Suite
 
-1. Refaire, avec le banc isolé, quelques tâches que Claude sait réussir et assez différentes, dont une où il faut vraiment lire tout un fichier. Plusieurs essais par tâche.
+L'audit hors ligne a ensuite été complété par [quatre sessions réelles sous budget de 5 $](EXPERIMENT-5USD.md), désormais terminées. Version, configurations, demandes et critères ont été figés avant exécution ; voir [le plan de validation](VALIDATION.md). Le gain global reste inconclusif.
+
+1. Une future comparaison devra couvrir d'autres tâches, dont une où il faut vraiment lire tout un fichier, et plusieurs répétitions. Ce n'est pas une nouvelle campagne autorisée : le lot actuel est terminé.
 2. Pour les prochaines versions des tâches, sans ré-noter celle-ci :
    - olive : préciser que « vérifier » veut dire « en rendre compte », et dire si la bande de barre d'état fait partie du travail ;
    - vibrations : revoir le budget de tours.
@@ -260,3 +270,25 @@ La prochaine correction doit traiter l'arrêt de l'exploration alors que des bra
 
 - Besoin : `python3 docs/need_data.py …` puis `python3 docs/charts.py …`, et `docs/lens_opportunity.py`.
 - Banc : `bench/PROTOCOL.md`, puis `bench/run.py` et `bench/score.py`.
+
+## Graphiques du README : sources et reproduction
+
+Les graphiques sont construits par `docs/readme_charts.py` avec Matplotlib, à partir de [douze lignes de mesures exportées](readme-results.json). Ce fichier contient aussi les catégories de tokens Claude, les tarifs et les empreintes des deux exports sources. Aucun code de projet, réponse privée ou clé n'est inclus. Les traces détaillées restent dans les archives privées du banc : les données publiques permettent de refaire le graphique, pas de réauditer seules toutes les réponses.
+
+Le premier panneau additionne le code Dart reçu via Read, lens et shell, numéros de ligne compris, **échecs inclus**. Le second compare uniquement le diagnostic accepté dans les trois variantes. Les périmètres sont différents et explicités sur le graphique. La simple suggestion et la lecture ciblée gardent toutes deux les autres composants actifs. Les tarifs sont ceux enregistrés dans l'export ; la valorisation API n'est pas une facture d'abonnement.
+
+Recalcul depuis les archives existantes, sans appel modèle :
+
+```bash
+python3 -B bench/adoption.py ~/.cache/dartlens-bench/results/adoption-2026-09-29 --json /tmp/dartlens-adoption.json
+python3 -B bench/score.py ~/.cache/dartlens-bench/results/adoption-2026-09-29 --reviews ~/.cache/dartlens-bench/reviews/adoption-2026-09-29/reviews.json --key ~/.cache/dartlens-bench/keys/adoption-2026-09-29.json --json /tmp/dartlens-scores.json
+python3 docs/readme_charts.py --adoption /tmp/dartlens-adoption.json --scores /tmp/dartlens-scores.json
+```
+
+Pour reproduire uniquement les SVG depuis les données livrées :
+
+```bash
+uv run --with matplotlib==3.9.4 python docs/readme_charts.py
+```
+
+Les variantes claire et sombre utilisent les mêmes données. Ce travail hors ligne ne transforme pas une campagne ancienne en validation de la version 0.2.
