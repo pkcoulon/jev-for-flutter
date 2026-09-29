@@ -22,7 +22,10 @@ def main():
     parser.add_argument("--build", action="store_true", help="(re)compiler le binaire et afficher le coût")
     args = parser.parse_args()
     root = project_root()
+    allow_build = not os.environ.get("DARTLENS_OUTLINE_NO_BUILD")
     if args.build:
+        if not allow_build:
+            parser.error("compilation désactivée par DARTLENS_OUTLINE_NO_BUILD")
         started = time.monotonic()
         exe, note = outline.binary(root, force=True)
         print("%s (%.1f s)%s" % (exe or "échec", time.monotonic() - started, " : " + note if note else ""))
@@ -34,10 +37,10 @@ def main():
         parser.print_usage(sys.stderr)
         return 2
     if not args.approx:
-        exe, note = outline.binary(root)
+        exe, note = outline.binary(root, build=allow_build)
         if exe:
             os.execv(exe, [exe] + (["--json"] if args.json else []) + args.files)
-    data, approx, note = outline.outline(args.files, root, approx=args.approx)
+    data, approx, note = outline.outline(args.files, root, approx=args.approx, build=allow_build)
     if approx and not args.approx and note:
         sys.stderr.write("dart-outline : repli regex (%s)\n" % note)
     if args.json:

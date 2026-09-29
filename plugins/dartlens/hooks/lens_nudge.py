@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
+import fcntl
 import hashlib
 import json
 import os
+import shlex
 import sys
 import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib"))
 try:
-    from dartlens import catalog, config, hookio, jev, paths, policy
+    from dartlens import catalog, config, hookio, jev, narrow, paths, policy
 except Exception:
     sys.exit(0)
 
 MAX_BYTES = 4 * 1024 * 1024
-MODES = ("hint", "refuse_once", "start", "off")
+MODES = ("narrow", "hint", "refuse_once", "start", "off")
 
-START = ("dartlens est actif dans ce projet. Pour comprendre un comportement dans un gros fichier Dart, "
-         "utilise `lens \"ta question précise\" FICHIER` : tu reçois les passages concernés et la liste de ce qui est omis. "
-         "Pour retrouver du code dont tu ignores le nom : `lens find \"ce que fait le code\" lib`. "
-         "Pour un symbole connu, cherche son nom. Avant une modification, lis la zone concernée avec Read.")
+START = ("Jev for Flutter : les grandes lectures Dart peuvent être ciblées sur ta question, avec une indication des lignes omises. "
+         "Un second Read ou un offset explicite reste libre. Pour trouver un comportement sans connaître son nom, "
+         "utilise `jev-flutter find \"description\" dossier` ; pour un symbole connu, Grep. "
+         "Vérifie les branches et conversions nécessaires avant de conclure.")
 
-FIND_CODE = (" L'outil `mcp__plugin_dartlens_dartlens__find_code` fait la même recherche que `lens find` ; "
+FIND_CODE = (" L'outil MCP `find_code` prépare le même contexte que `lens context` ; "
              "ses résultats sont des pistes : suis le parcours complet et vérifie chaque partie avant de conclure.")
 
 HINT = ("dartlens : %(name)s fait %(lines)d lignes. Pour une question précise sur un fichier de cette taille, "
@@ -47,7 +49,7 @@ def settings(cwd):
     cfg = config.load(root)
     allowed, _ = policy.jev_allowed(root, cfg, "lens")
     mode = os.environ.get("DARTLENS_LENS_NUDGE") or cfg["lens"].get("nudge")
-    return root, cfg, allowed, mode if mode in MODES else "hint"
+    return root, cfg, allowed, mode if mode in MODES else "narrow"
 
 
 def count_lines(path):
@@ -62,19 +64,26 @@ def claim(session_id, key, limit):
     # One marker per file: only the first of two parallel Reads wins, and a lost state never means refusing again.
     directory = hookio.state_file("nudge", session_id)
     directory.mkdir(parents=True, exist_ok=True)
-    if len(os.listdir(directory)) >= limit:
-        return False
-    try:
-        os.close(os.open(str(directory / key), os.O_CREAT | os.O_EXCL | os.O_WRONLY))
-    except FileExistsError:
-        return False
+    with open(directory.parent / (directory.name + ".lock"), "a") as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        if len(os.listdir(directory)) >= limit:
+            return False
+        try:
+            os.close(os.open(str(directory / key), os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+        except FileExistsError:
+            return False
     return True
 
 
 def start(payload):
     cwd = payload.get("cwd") or os.getcwd()
-    if policy.path_refused(cwd):
+    if policy.refusal(catalog.root_of(cwd)):
         return None
+    env_file = os.environ.get("CLAUDE_ENV_FILE")
+    if env_file:
+        directory = str(Path(__file__).resolve().parents[1] / "bin")
+        with open(env_file, "a") as handle:
+            handle.write("export PATH=%s:\"$PATH\"\n" % shlex.quote(directory))
     _, _, allowed, mode = settings(cwd)
     if not allowed or mode == "off":
         return None
@@ -94,6 +103,8 @@ def read(payload):
     if policy.path_refused(cwd) or policy.path_refused(path):
         return None
     root, cfg, allowed, mode = settings(cwd)
+    if allowed and mode == "narrow":
+        return narrow.read(payload, Path(root).resolve(), cfg)
     if not allowed or mode not in ("hint", "refuse_once"):
         return None
     file = Path(path).resolve()
@@ -110,7 +121,7 @@ def read(payload):
         log(dict(record, event="read_again" if refuse else "quiet"))
         return None
     rel = os.path.relpath(file, cwd)
-    words = {"name": file.name, "lines": lines, "rel": rel}
+    words = {"name": file.name, "lines": lines, "rel": shlex.quote(rel)}
     log(dict(record, event="refuse" if refuse else "hint"))
     if refuse:
         return hookio.permission("deny", REFUSE % words)
@@ -118,4 +129,4 @@ def read(payload):
 
 
 if __name__ == "__main__":
-    hookio.run({"start": start, "read": read}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda payload: None), deadline=3.0)
+    hookio.run({"start": start, "read": read}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda payload: None), deadline=4.0)

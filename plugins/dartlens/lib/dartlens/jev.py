@@ -10,7 +10,8 @@ from pathlib import Path
 
 DEFAULT_URL = "https://api.typesafe.ai"
 KEY_ENV = ("TYPESAFE_API_KEY", "TYPE_SAFE_AI_KEY", "TYPESAFE_AI_API_KEY")
-KEY_FILE = Path.home() / ".config" / "dartlens" / "typesafe.key"
+KEY_FILES = tuple(Path.home() / ".config" / name / "typesafe.key" for name in ("jev-for-flutter", "dartlens"))
+KEY_FILE = next((path for path in KEY_FILES if path.is_file()), KEY_FILES[0])
 STATE_DIR = Path(os.environ.get("DARTLENS_STATE_DIR") or Path.home() / ".cache" / "dartlens")
 # Jev accepts 32k tokens for state + longest question; stay well under with a conservative estimate.
 STATE_TOKEN_BUDGET = 24000
@@ -42,10 +43,14 @@ def api_key():
         value = os.environ.get(name, "").strip()
         if value:
             return value
-    try:
-        return KEY_FILE.read_text().strip() or None
-    except OSError:
-        return None
+    for path in KEY_FILES:
+        try:
+            value = path.read_text().strip()
+        except OSError:
+            continue
+        if value:
+            return value
+    return None
 
 
 def base_url():
@@ -174,6 +179,7 @@ class Client:
                 _log("usage.jsonl", {
                     "ts": time.time(), "tool": self.tool, "questions": len(questions),
                     "input_tokens": (result.get("usage") or {}).get("input_tokens"),
+                    "output_tokens": (result.get("usage") or {}).get("output_tokens"),
                     "ms": int((now - started) * 1000), "model": result.get("model"),
                     "total_ms": int((now - began) * 1000), "attempts": attempt + 1,
                 })

@@ -20,8 +20,11 @@ DEFAULTS = {
     ],
     "generated_dir_markers": [".openapi-generator"],
     "jev": {"enabled": False, "model": "jev-1.13.0", "hook_timeout_s": 1.5, "cli_timeout_s": 20},
-    "lens": {"threshold": 0.5, "max_files": 20, "nudge": "refuse_once", "nudge_min_lines": 300, "nudge_max": 3},
+    "lens": {"threshold": 0.5, "max_files": 20, "nudge": "narrow", "nudge_min_lines": 300, "nudge_max": 3},
+    "read": {"min_lines": 400, "max_bytes": 64000, "max_calls": 24, "timeout_s": 3,
+             "confidence": 0.6, "focused": 0.85},
     "find": {"extensions": [".dart"], "include_tests": False, "top": 5, "min": 0.6, "mcp": False},
+    "context": {"enabled": False, "max_chars": 8000, "max_requests": 8, "max_input_tokens": 24000, "timeout_s": 8},
     "guard": {"enabled": True, "rules_file": ".claude/dartlens/rules.json", "threshold": 0.85},
     "router": {
         "enabled": True,
@@ -34,7 +37,7 @@ DEFAULTS = {
     "ticket_regex": r"\b[A-Z][A-Z0-9]+-\d+\b",
 }
 
-CONFIG_FILES = (".claude/dartlens.json", ".dartlens.json")
+CONFIG_FILES = (".claude/jev-for-flutter.json", ".jev-for-flutter.json", ".claude/dartlens.json", ".dartlens.json")
 
 
 def _expected(default, key, value):

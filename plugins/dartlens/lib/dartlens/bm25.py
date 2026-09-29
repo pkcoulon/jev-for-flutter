@@ -47,7 +47,7 @@ class BM25:
         return math.log(1 + (n - df + 0.5) / (df + 0.5))
 
     def scores(self, query):
-        terms = set(tokens(query) if isinstance(query, str) else query)
+        terms = sorted(set(tokens(query) if isinstance(query, str) else query))
         out = []
         for doc, length in zip(self.docs, self.lengths):
             total = 0.0

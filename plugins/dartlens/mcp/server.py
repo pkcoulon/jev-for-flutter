@@ -17,7 +17,7 @@ TOOL = {
         "Find Dart/Flutter code by what it does when the file or symbol name is unknown. "
         "Use before broad file exploration for questions such as where a behavior is implemented. "
         "Describe one behavior, preferably in English; use Grep for a known symbol or literal. "
-        "Returns ranked files, symbols and line numbers, with uncertainty and exclusions shown. "
+        "Returns source excerpts with symbols and line numbers, related declarations and an explicit list still to read. "
         "Results are starting points, not a complete flow or proof of absence. "
         "Read the code and follow calls and data conversions to cover each part of the user's question before answering. "
         "Uses Jev (TypeSafe) only in enabled projects, otherwise reports local keyword matching."
@@ -30,7 +30,7 @@ TOOL = {
             "path": {"type": "string", "default": ".",
                      "description": "File or directory relative to the current project; narrow it if known."},
             "limit": {"type": "integer", "minimum": 1, "maximum": 10,
-                      "description": "Number of results; the project setting (5 by default) applies otherwise."},
+                      "description": "Maximum number of entry files before following related declarations; 6 by default."},
             "include_tests": {"type": "boolean", "default": False},
         },
         "required": ["query"],
@@ -84,7 +84,7 @@ async def find_code(root, arguments):
     if any(part.startswith(".") for part in target.relative_to(root).parts) \
             or target.is_file() and target.suffix != ".dart":
         return result("Search is restricted to Dart code inside the current project.", True)
-    command = [sys.executable, "-B", str(PLUGIN / "bin" / "lens"), "find", "--project-only"]
+    command = [sys.executable, "-B", str(PLUGIN / "bin" / "lens"), "context"]
     if limit:
         command += ["--top", str(limit)]
     if tests:
@@ -108,8 +108,8 @@ async def find_code(root, arguments):
         text = "dartlens search failed. Continue with Grep, Glob and Read."
         if stderr:
             text += "\n" + stderr.decode("utf-8", "replace")[-1000:]
-    if len(text) > 16000:
-        text = text[:16000] + "\n-- output truncated; narrow the search path."
+    if len(text) > 24000:
+        return result("dartlens exceeded its context limit. Narrow the search path or use Grep and Read.", True)
     return result(text or "No search result returned. Continue with Grep or Glob.", process.returncode != 0)
 
 

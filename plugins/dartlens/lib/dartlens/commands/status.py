@@ -6,12 +6,11 @@ import os
 import time
 from pathlib import Path
 
-from .. import config, hookio, jev, memory, policy, project
+from .. import config, context, hookio, jev, memory, policy, project
 from .log import error_kind, is_number, name, read_records
 
-# TypeSafe rate shown in its cookbooks (jev-1.12, 2026-09); not confirmed for the pinned model.
 PRICE_PER_MTOK = 0.042
-PRICE_NOTE = "0,042 $/MTok d'entrée, sortie gratuite (tarif des cookbooks TypeSafe, jev-1.12, 2026-09 ; non confirmé pour %s)"
+PRICE_NOTE = "0,042 $/MTok d'entrée, sortie gratuite (Jev 1.13, docs.typesafe.ai/models, vérifié le 29/09/2026 ; modèle utilisé : %s)"
 WINDOWS = (("24 h", 86400), ("7 j", 7 * 86400))
 BREAKERS = {"breaker.json": "garde", "breaker-router.json": "routeur"}
 MAX_PROBLEMS = 3
@@ -43,13 +42,14 @@ def key_line():
     for var in jev.KEY_ENV:
         if os.environ.get(var, "").strip():
             return "présente (variable %s)" % var
-    try:
-        if jev.KEY_FILE.read_text().strip():
-            mode = jev.KEY_FILE.stat().st_mode & 0o777
-            loose = " ; droits %o, chmod 600 conseillé" % mode if mode & 0o077 else ""
-            return "présente (fichier %s%s)" % (memory.display(jev.KEY_FILE), loose)
-    except OSError:
-        pass
+    for path in jev.KEY_FILES:
+        try:
+            if path.read_text().strip():
+                mode = path.stat().st_mode & 0o777
+                loose = " ; droits %o, chmod 600 conseillé" % mode if mode & 0o077 else ""
+                return "présente (fichier %s%s)" % (memory.display(path), loose)
+        except OSError:
+            pass
     return "absente (%s ou %s)" % (", ".join(jev.KEY_ENV), memory.display(jev.KEY_FILE))
 
 
@@ -104,8 +104,14 @@ def rules_line(root, settings):
 
 def settings_lines(settings):
     guard, router, lens, find = settings["guard"], settings["router"], settings["lens"], settings["find"]
+    limits = context.bounds(settings)
     onoff = {True: "oui", False: "non"}
     return [
+        "Lecture Dart : %s ; dès %s lignes, jusqu'à %s octets ; plages explicites conservées" % (
+            lens.get("nudge"), max(400, settings["read"]["min_lines"]), min(64000, settings["read"]["max_bytes"])),
+        "Contexte en parallèle : %s ; %s caractères max, %s requêtes Jev max, délai %s s" % (
+            "activé" if settings["context"]["enabled"] else "désactivé", limits["max_chars"],
+            limits["max_requests"], limits["timeout_s"]),
         "Garde : %s, seuil %s" % ("activée" if guard.get("enabled") else "désactivée", guard.get("threshold")),
         "Routeur : %s ; mémoire %s (seuil %s, %s fiches max) ; skills %s (confiance %s)" % (
             "activé" if router.get("enabled") else "désactivé", onoff[bool(router.get("memory"))],
@@ -210,7 +216,7 @@ def main(argv):
     pinned = jev.model_name(settings)
     model = "%s (%s)" % (pinned, "surchargé par DARTLENS_JEV_MODEL" if os.environ.get("DARTLENS_JEV_MODEL") else "config")
     lines = [
-        "dartlens · %s%s" % (memory.display(root), "" if root == start else " (racine trouvée depuis %s)" % memory.display(start)),
+        "Jev for Flutter · %s%s" % (memory.display(root), "" if root == start else " (racine trouvée depuis %s)" % memory.display(start)),
         "Config : %s" % config_line(root, problems),
         "Jev pour ce projet : %s" % ("activé" if settings["jev"].get("enabled") else "non activé (jev.enabled)"),
         "Envoi à Jev : %s" % ("autorisé" if allowed else "refusé : " + reason),

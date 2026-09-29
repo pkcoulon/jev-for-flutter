@@ -1,7 +1,7 @@
 {
-  "name": "dartlens",
-  "version": "0.2.0",
-  "description": "Aide Claude Code à trouver le code utile dans un projet Dart ou Flutter. Quand Jev (TypeSafe) est activé pour un projet, les passages nécessaires lui sont envoyés pour choisir ce que Claude lit, signaler une convention probablement enfreinte et rappeler une fiche mémoire utile. Sans activation, rien ne quitte la machine.",
+  "name": "jev-for-flutter",
+  "version": "0.3.0",
+  "description": "Jev finds the Dart/Flutter code you need and narrows large reads before they enter Claude’s context.",
   "author": {
     "name": "Pierrick Coulon"
   },
@@ -12,5 +12,7 @@
     "jev",
     "context",
     "hooks"
-  ]
+  ],
+  "homepage": "https://github.com/pkcoulon/dartlens",
+  "repository": "https://github.com/pkcoulon/dartlens"
 }

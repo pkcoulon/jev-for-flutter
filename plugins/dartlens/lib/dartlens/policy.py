@@ -12,7 +12,8 @@ SECRET_FILES = [
 ]
 SECRET_RE = re.compile(
     r"glpat-[A-Za-z0-9_.-]{10,}|figd_[A-Za-z0-9_-]{10,}|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}"
-    r"|xox[abp]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----"
+    r"|xox[abp]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}"
+    r"|-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|\Z)"
     r"|sk_(?:live|test)_[A-Za-z0-9]{16,}|sb_secret_[A-Za-z0-9_-]{16,}|(?i:bearer)\s+[A-Za-z0-9._~+/-]{20,}"
     r"|(?i:(?:api[_-]?key|secret|token|password|(?<![a-z0-9])pat|service[_-]?role)['\"]?\s*[:=]\s*['\"][^'\"\s]{12,}['\"])"
     r"|(?<![A-Za-z0-9_])eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}|(?<=://)[^/\s:@]+:[^/\s@]+(?=@)"
@@ -111,10 +112,13 @@ def sendable(path, root, extra_roots=()):
     resolved = Path(os.path.realpath(path))
     allowed = [Path(os.path.realpath(r)) for r in (root, *extra_roots)]
     base = next((r for r in allowed if resolved == r or r in resolved.parents), None)
-    if base is None or path_refused(resolved):
+    if base is None or path_refused(resolved) or refusal(resolved if resolved.is_dir() else resolved.parent):
         return False
     return not paths.matches(os.path.relpath(resolved, base).casefold(), [p.casefold() for p in SECRET_FILES])
 
 
 def redact(text):
-    return SECRET_RE.sub("[REDACTED]", text)
+    def replace(match):
+        return "\n".join(("[REDACTED]" if len(line) >= 10 else "*" * len(line)).ljust(len(line))
+                         for line in match.group().split("\n"))
+    return SECRET_RE.sub(replace, text)

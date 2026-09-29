@@ -20,7 +20,8 @@ USAGE = """lens : ne montre que les passages utiles à une question précise (ju
 
   lens [--threshold T] [--all] [--local] [--json] "QUESTION" CHEMIN [CHEMIN...]
   lens [--threshold T] [--all] [--local] [--timeout S] "QUESTION" -- COMMANDE ARGS...
-  lens find "DESCRIPTION" [DOSSIER...] [--top N] [--tests] [--local]
+  lens find "DESCRIPTION" [DOSSIER...] [--top N] [--max-files N] [--tests] [--local]
+  lens context "QUESTION" [DOSSIER...] [--local] [--json]
   lens which [-q] [--min P] [--max N] "QUESTION OUI/NON" CHEMIN|DOSSIER...
 
 Affichage intégral sans Jev : fichier de 150 lignes et 15 000 caractères au plus, sortie de 80 lignes
@@ -243,15 +244,22 @@ def span(block):
     return "%d-%d" % (block["start"], block["end"])
 
 
-def block_items(blocks, base, field_name):
+def block_items(blocks, base, field_name, source=None):
     limit = jev.STATE_TOKEN_BUDGET - jev.estimate_tokens(base) - 400
     items = []
+    redacted = chunks.split_lines(policy.redact(source)) if source is not None else None
     for block in blocks:
-        text, cut = fit(policy.redact(block["text"]), limit)
+        text = policy.redact(block["text"])
+        if redacted is not None:
+            text = "\n".join(redacted[block["start"] - 1:block["end"]])
+            if block.get("cols"):
+                text = text[block["cols"][0] - 1:block["cols"][1]]
+        label = policy.redact(block["label"]) if text == block["text"] else "passage partiellement masqué"
+        text, cut = fit(text, limit)
         block["truncated"] = cut
         lines = "%d-%d" % (block["start"], block["end"]) if not block.get("cols") else "%d (chars %d-%d)" % (
             block["start"], block["cols"][0], block["cols"][1])
-        items.append((block["id"], {"lines": lines, "label": policy.redact(block["label"]), field_name: text}))
+        items.append((block["id"], {"lines": lines, "label": label, field_name: text}))
     return items
 
 
@@ -542,7 +550,7 @@ def focus_files(args):
             header = next((b for b in info["blocks"] if b["kind"] == "directives"), None)
             if header:
                 base["imports"] = fit(policy.redact(header["text"]), 600)[0]
-            items = block_items(info["askable"], base, "code")
+            items = block_items(info["askable"], base, "code", info["text"])
             requests += pack(base, "blocks", items, lambda key: block_question(key, "code or text"), index)
     answers, errors = ask_all(run.client, requests) if requests else ({}, [])
     run.errors += errors
@@ -835,7 +843,7 @@ def focus_command(args):
     if allowed and askable:
         shown_command = shlex.join(argv).replace(str(run.root) + "/", "").replace(str(Path.home()), "~")
         base = {"question": policy.redact(args.question), "command": policy.redact(shown_command)}
-        requests = pack(base, "blocks", block_items(askable, base, "text"), lambda key: block_question(key, "output lines"), 0)
+        requests = pack(base, "blocks", block_items(askable, base, "text", text), lambda key: block_question(key, "output lines"), 0)
         answers, errors = ask_all(run.client, requests)
         scores = {b["id"]: noul_p(answers.get((0, b["id"]))) for b in askable}
     judged = [v for v in scores.values() if v is not None]
@@ -1004,11 +1012,15 @@ def find_main(argv):
     parser.add_argument("description")
     parser.add_argument("dirs", nargs="*")
     parser.add_argument("--top", type=int)
+    parser.add_argument("--max-files", type=int, default=FIND_JEV_FILES,
+                        help="plafond explicite du criblage Jev ; aucun fichier présélectionné par mots-clés")
     parser.add_argument("--tests", action="store_true")
     parser.add_argument("--local", action="store_true")
     parser.add_argument("--project-only", action="store_true", help="rester dans les chemins autorisés du projet, même en local")
     parser.add_argument("--min", type=float)
     args = parser.parse_args(argv)
+    if args.max_files < 1 or args.max_files > MAX_FIND_FILES:
+        parser.error("--max-files doit être compris entre 1 et %d" % MAX_FIND_FILES)
     run = Run("find", args.local)
     settings = run.cfg["find"]
     top = args.top or int(settings.get("top") or 5)
@@ -1017,9 +1029,13 @@ def find_main(argv):
     files, stats = collect(run, targets, settings.get("extensions") or [".dart"],
                            args.tests or settings.get("include_tests"), project_only=args.project_only)
     notes = [] if run.allowed else ["(mode local : %s)" % run.reason]
-    if len(files) > MAX_FIND_FILES:
-        notes.append("-- %d fichiers : seuls les %d premiers sont criblés ; restreins le dossier" % (len(files), MAX_FIND_FILES))
-        files = files[:MAX_FIND_FILES]
+    cap = args.max_files if run.allowed else MAX_FIND_FILES
+    if len(files) > cap:
+        print("-- %d fichiers dépassent le plafond de %d : rien n'est envoyé ni présélectionné. "
+              "Restreins le dossier ou passe --max-files %d (une requête Jev par fichier, puis vérification)." %
+              (len(files), cap, len(files)))
+        run.log(backend="none", files=len(files), capped=cap)
+        return 2
     if not files:
         print("\n".join(notes + ["-- aucun fichier à cribler", footer(run, stats, 0)]))
         run.log(backend="none", files=0)
@@ -1034,18 +1050,13 @@ def find_main(argv):
     if approx_files:
         notes.append("-- outline approx (repli regex) pour %d fichiers" % len(approx_files))
     candidates = files
-    if run.allowed and len(files) > FIND_JEV_FILES:
-        keep = sorted(i for i, _ in bm25.rank(args.description, find_documents(run, files, structures, texts))[:FIND_JEV_FILES])
-        notes.append("-- %d fichiers : seuls les %d plus proches par mots-clés sont soumis à Jev ; restreins le dossier pour élargir"
-                     % (len(files), FIND_JEV_FILES))
-        candidates = [files[i] for i in keep]
     lines, backend = find_jev(run, args.description, candidates, structures, texts, top, minimum) if run.allowed else (None, "local")
     if lines is None and run.allowed:
         run.failed = True
         notes.append("(mode local : Jev en erreur — %s)" % ("; ".join(sorted(set(run.errors))) or "aucune réponse exploitable"))
     if lines is None:
         lines, backend = find_local(run, args.description, files, structures, texts, top), "local"
-    print("\n".join(notes + lines + [footer(run, stats, len(files) if backend == "local" else len(candidates))]))
+    print("\n".join(notes + lines + [footer(run, stats, len(files) if backend == "local" else run.record["screened_files"])]))
     run.log(backend=backend, files=len(files), errors=len(run.errors))
     return 0
 
@@ -1085,12 +1096,13 @@ def find_jev(run, description, files, structures, texts, top, minimum):
         "path": run.rel(path), "skeleton": policy.redact(skeleton(run.rel(path), structures.get(str(path)), texts[path], SECRETS))}},
         {"match": find_question("skeleton")}, None, fid) for fid, path in fids.items()]
     answers, errors = ask_all(run.client, requests[:FIND_PROBE])
-    if any(v is not None for v in answers.values()) and requests[FIND_PROBE:]:
+    if any(noul_p(v) is not None for v in answers.values()) and requests[FIND_PROBE:]:
         more, more_errors = ask_all(run.client, requests[FIND_PROBE:])
         answers.update(more)
         errors += more_errors
     run.errors += errors
     screen = {fid: noul_p(answers.get((fid, "match"))) for fid in fids}
+    run.record["screened_files"] = sum(v is not None for v in screen.values())
     if all(v is None for v in screen.values()):
         return None, "local"
     ranked = sorted((fid for fid in fids if screen[fid] is not None), key=lambda f: screen[f], reverse=True)
@@ -1135,11 +1147,10 @@ def find_jev(run, description, files, structures, texts, top, minimum):
         if len(blocks) == 1:
             r["block"] = blocks[0]
             continue
-        state = {"goal": goal, "file": run.rel(path), "blocks": {
-            b["id"]: {"lines": span(b), "label": policy.redact(b["label"]), "code": policy.redact(b["text"])}
-            for b in blocks}}
+        state = {"goal": goal, "file": run.rel(path)}
+        state["blocks"] = dict(block_items(blocks, state, "code", texts[path]))
         questions = {"where": jev.choice({"question": "Which block of `blocks` best locates the part of `goal` implemented in this file?"},
-                                         {b["id"]: policy.redact(b["label"]) for b in blocks})}
+                                         {key: value["label"] for key, value in state["blocks"].items()})}
         if jev.estimate_tokens(state) + jev.estimate_tokens(questions) > jev.STATE_TOKEN_BUDGET:
             continue
         locations.append((state, questions, None, fid))
@@ -1228,7 +1239,7 @@ def which_main(argv):
             rows.append({"path": path, "p": None, "reason": "vide"})
             continue
         base = {"question": question, "file": run.rel(path)}
-        items = block_items(blocks, base, "code")
+        items = block_items(blocks, base, "code", text)
         reserve = 300 + min(len(items), jev.MAX_OPTIONS) * 20
         parts = []
         for chunk in pack(base, "blocks", items, None, None, reserve=reserve):
@@ -1288,6 +1299,9 @@ def which_main(argv):
 
 
 def main(argv):
+    if argv and argv[0] == "context":
+        from dartlens import context
+        return context.main(argv[1:])
     if argv and argv[0] == "find":
         return find_main(argv[1:])
     if argv and argv[0] == "which":
