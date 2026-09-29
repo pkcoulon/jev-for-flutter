@@ -1,46 +1,46 @@
-# Un contexte préparé pendant le travail de Claude
+# Preparing context while Claude works
 
-> Historique : la version 0.3 utilise désormais la lecture native ciblée et garde le contexte automatique en option. Voir [les dernières mesures](READ-RESULTS.md) et [l’architecture actuelle](ARCHITECTURE.md).
+> Historical design. Version 0.3 uses native focused reads and keeps automatic context optional. See the [current measurements](PUBLIC-PROJECTS.md) and [architecture](ARCHITECTURE.md).
 
-29 septembre 2026 — implémentation locale par Codex, non publiée. Les mesures de la v0.2 ne sont pas des mesures de cette refonte.
+September 29, 2026: local implementation by Codex, unpublished at the time. Version 0.2 measurements do not measure this redesign.
 
-## Le problème corrigé
+## Problem addressed
 
-Les essais précédents montraient deux défauts : Claude pouvait ignorer l'outil de recherche, et les résultats pouvaient l'arrêter trop tôt sur les écrans sans vérifier le service. Réduire le nombre de caractères ou le coût d'une réponse incomplète ne répond pas à la promesse.
+Earlier trials showed that Claude could ignore the search tool, or stop at screens without inspecting the service layer. Reducing text or the cost of an incomplete answer does not meet the product objective.
 
-La nouvelle architecture prépare le contexte automatiquement, en parallèle de Claude, et ajoute des références locales aux résultats de recherche. Elle ne demande plus au modèle de découvrir `find_code` ni de subir un refus pour commencer. Les déclarations trop longues restent à lire avec un chemin et des lignes, au lieu de disparaître derrière un classement.
+This design prepares context automatically, alongside Claude, and adds local references to search results. It does not require discovering `find_code` or encountering a refusal first. Oversized declarations retain their file and line references rather than disappearing from the ranking.
 
-## Réalisé
+## Implementation
 
-- Moteur commun à `lens context`, au hook automatique et au MCP facultatif.
-- Index local des déclarations et références, mis à jour par empreinte ; aucun build ni embedding.
-- Classement Jev par fichier, jusqu'à quatre requêtes simultanées par demande, huit au total, sans reprise.
-- Contexte remis une seule fois au parent ou au sous-agent, sans attendre dans le hook de collecte.
-- Annulation des requêtes encore en attente, délai du worker, repli local et rejet des sources obsolètes.
-- Lecture libre par défaut ; l'ancien refus reste une option explicite. Conventions et mémoire conservées, routeur rendu asynchrone.
+- Shared engine for `lens context`, the automatic hook and optional MCP tool.
+- Local declaration/reference index updated by fingerprint, without builds or embeddings.
+- Per-file Jev ranking, at most four concurrent requests per prompt and eight total, without retries.
+- One delivery to the parent or subagent, without waiting in the collection hook.
+- Cancellation of queued requests, worker deadlines, local fallback and stale-source rejection.
+- Unrestricted reading by default, with the old refusal available explicitly. Conventions and memory retained; router made asynchronous.
 
-## Vérification hors ligne
+## Offline checks
 
-Le script temporaire et ses données sont conservés dans `~/.cache/dartlens-bench/context-redesign-2026-09-29/`. Cette vérification locale utilise un faux serveur, sans clé réelle ni build ; elle ne mesure pas la pertinence du modèle Jev. Les [sessions réelles suivantes](CONTEXT-RESULTS.md) sont comptées séparément, dans l'enveloppe de 5 $ autorisée.
+The temporary script and data remain in `~/.cache/dartlens-bench/context-redesign-2026-09-29/`. Checks use a fake server, without real keys or builds; they do not measure Jev's semantic relevance. [Later real sessions](CONTEXT-RESULTS.md) are accounted separately within the authorized $5 budget.
 
-**41 contrôles réussis** sur les limites, la concurrence, le cache, les modifications des sources, les exclusions, les liens symboliques, les secrets PEM, le repli, les hooks, l'annulation, le remplacement d'une demande, la remise au sous-agent et le MCP. Les requêtes de deux demandes successives peuvent se chevaucher le temps que les appels déjà partis terminent ; le plafond de quatre s'applique à chacune.
+**41 checks pass**, covering limits, concurrency, cache, source changes, exclusions, symlinks, PEM secrets, fallback, hooks, cancellation, superseded requests, subagent delivery and MCP. Already-sent requests from successive prompts can overlap; the four-request concurrency cap applies per prompt.
 
-Sur la copie Pioudex épinglée par la tâche historique, la recherche **locale**, sans Jev, fait apparaître dans sa carte :
+On the pinned Pioudex copy, **local search without Jev** includes these declarations in its map:
 
-| Partie du parcours | Source visible dans la carte |
+| Part of the flow | Visible source |
 |---|---|
-| Interprétation de la réponse | `ConfidenceTier`, `Identification.fromJson` |
-| Écoute et décision d'affichage | `ListenSession._verdict` |
-| Photo et décision d'affichage | `PhotoSession` |
-| Traitement embarqué | `EmbeddedBirdIdentifier` |
-| Repli serveur | `RepliBirdIdentifier` |
+| Response interpretation | `ConfidenceTier`, `Identification.fromJson` |
+| Listening and display decision | `ListenSession._verdict` |
+| Photo and display decision | `PhotoSession` |
+| Embedded processing | `EmbeddedBirdIdentifier` |
+| Server fallback | `RepliBirdIdentifier` |
 
-Le contexte tient désormais dans **8 000 octets UTF-8**. Le corps long du traitement embarqué est indiqué par sa plage, sans être recopié intégralement. Retrouver ce symbole corrige un défaut de visibilité ; cela ne démontre pas encore que Claude le lira et raisonnera correctement. Les scores archivés de huit requêtes Jev Pioudex ont aussi été rejoués hors ligne pour vérifier ce format compact.
+Context now fits within **8,000 UTF-8 bytes**. The long embedded-processing body is referenced by range rather than copied in full. Finding that symbol fixes visibility, not necessarily Claude's reading or reasoning. Archived scores from eight Pioudex Jev requests were replayed offline to check the compact format.
 
-## Ce qui reste à mesurer
+## Remaining measurement questions
 
-Le gain visé vient des recherches évitées et du travail effectué en parallèle. Ajouter un contexte inutile pourrait au contraire augmenter les tokens. Les premiers essais réels confirment la remise du contexte au parent et au sous-agent, mais leurs réponses sont incomplètes. Le [bilan réel](CONTEXT-RESULTS.md) distingue ce défaut de qualité du problème de transport corrigé ensuite.
+The intended gain comes from avoided searches and parallel work. Irrelevant extra context could instead increase tokens. Initial real sessions confirm delivery to parent and subagent, but their answers remain incomplete. The [real results](CONTEXT-RESULTS.md) separate answer-quality failures from the subsequently fixed transport issue.
 
-Chaque comparaison garde le même prompt et contrôle les branches complètes avant de comparer les tokens, le coût Claude + Jev et le temps jusqu'aux vérifications terminées. Les anciens cas Pioudex fournissent un contrôle de régression ; ils ne constituent pas une validation générale sur des projets inconnus.
+Comparisons preserve prompts and check complete branches before comparing tokens, combined Claude + Jev cost and time through verification. Historical Pioudex cases are regression checks, not general validation on unknown projects.
 
-[Architecture et limites](ARCHITECTURE.md) · [Utilisation](USAGE.md) · [Données antérieures](EXPERIMENT-5USD.md)
+[Architecture and limits](ARCHITECTURE.md) · [Usage](USAGE.md) · [Earlier data](EXPERIMENT-5USD.md)

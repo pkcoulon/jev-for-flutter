@@ -1,31 +1,31 @@
-# Préparer la lecture pendant que Claude raisonne
+# Preparing reads while Claude reasons
 
-La version 0.3.1 commence l'analyse Jev en arrière-plan lorsque la demande nomme un seul fichier Dart admissible. Claude peut alors réutiliser la sélection au moment de lire. Les questions envoyées à Jev, les seuils et les tailles de fenêtre sont inchangés.
+Version 0.3.1 starts Jev analysis in the background when a prompt names one eligible Dart file. Claude can reuse the selection when it reads. Jev questions, thresholds and window sizes are unchanged.
 
-## Vérification réelle du 29 septembre 2026
+## Real checks on September 29, 2026
 
-Les trois fichiers du [lot de lectures 0.3.0](READ-RESULTS.md) ont été essayés une fois dans chaque mode, avec de vrais appels Jev : analyse au moment de lire, puis analyse déjà préparée. L'ordre est inversé pour le deuxième fichier.
+The three files from the [0.3.0 read campaign](READ-RESULTS.md) were each tested once in both modes using real Jev: analysis at read time, then an already-prepared selection. The order was reversed for the second file.
 
-| Fichier | Analyse au moment de lire | Sélection déjà préparée | Même passage fourni |
+| File | Analysis at read time | Selection already prepared | Same passage |
 |---|---:|---:|---|
-| Notifications | 545 ms | 92 ms | oui |
-| Caches de synchronisation | 522 ms | 118 ms | oui |
-| Identification audio | 551 ms | 130 ms | oui |
-| **Moyenne** | **539 ms** | **114 ms** | **3/3** |
+| Notifications | 545 ms | 92 ms | Yes |
+| Sync caches | 522 ms | 118 ms | Yes |
+| Audio identification | 551 ms | 130 ms | Yes |
+| **Mean** | **539 ms** | **114 ms** | **3/3** |
 
-Le tableau mesure l'exécution du hook de lecture, démarrage Python compris. **L'attente à cet endroit baisse de 79 % sur ces trois cas.** Les préparations ont elles-mêmes pris 455 à 533 ms, hors de cette durée : le travail est avancé, pas supprimé. Si Claude lit trop tôt, il attend ce qui reste de la même requête ; aucun doublon ne part. Sans chemin explicite, ce mécanisme ne s'applique pas.
+This table measures the read hook, including Python startup. **Waiting at this point falls by 79% across these three cases.** Preparation itself took 455–533 ms, outside that duration: work happens earlier rather than disappearing. If Claude reads too early, it waits for the remainder of the same request, with no duplicate call. This does not apply without an explicit path.
 
-Une session Claude Sonnet 5 supplémentaire a vérifié le fonctionnement complet sur la question audio : sélection prête environ trois secondes avant le Read, réutilisation confirmée, une seule lecture, méthode attendue présente. Le moteur a pris 33 ms dans le hook de lecture. La réponse couvre les quatre critères existants, après vérification du code par Astra, sans relecteur indépendant. Cette session a duré 9,053 s selon Claude et coûté 0,047921 $ pour Claude.
+An additional Claude Sonnet 5 session checked the complete integration on the audio question: selection ready about three seconds before Read, confirmed reuse, a single read, and the expected method present. The engine took 33 ms within the read hook. The answer covers all four existing criteria after Astra's source review, without an independent reviewer. Claude reported 9.053 seconds and $0.047921.
 
-Ce lot ne compare pas deux réponses complètes avec et sans préparation. **Il ne démontre donc ni une réponse globalement 79 % plus rapide, ni une nouvelle économie de tokens ou de coût.** Les pourcentages du README restent ceux du lot 0.3.0, identifié comme tel. Une préparation non utilisée peut ajouter une requête Jev.
+This campaign does not compare complete answers with and without preparation. **It establishes neither 79% faster overall answers nor additional token or cost savings.** At publication, the README percentages still came from the separately identified 0.3.0 campaign. Unused preparation can add a Jev request.
 
-## Vérifications et budget
+## Checks and budget
 
-- Les requêtes de sélection des trois cas sont identiques à celles archivées pour 0.3.0 ; seules les réponses probabilistes peuvent varier. Les trois fenêtres obtenues sont identiques dans les deux modes.
-- 27 contrôles supplémentaires avec serveur HTTP simulé : lectures concurrentes, déduplication, expiration, source/question/modèle changés, activation retirée, budget partagé, erreur, liens externes, résultat trop large et récupération du fichier entier.
-- Les 69 contrôles existants des lectures et du contexte facultatif passent aussi. Aucun build ni simulateur.
-- La validation réelle ajoute huit appels Jev et une session Claude : **0,05110 $**, dont 0,00317 $ pour Jev. Budget cumulé : **3,48515 $ sur 5 $**.
+- Selection requests match those archived for 0.3.0; probabilistic responses may vary. All three resulting windows match across modes.
+- 27 additional checks with a simulated HTTP server: concurrent reads, deduplication, expiration, changed source/question/model, withdrawn activation, shared budget, errors, external links, overly broad results and full-file recovery.
+- All 69 existing read and optional-context checks pass. No builds or simulators.
+- Real validation adds eight Jev calls and one Claude session: **$0.05110**, including $0.00317 Jev. Historical cumulative budget at this stage: **$3.48515 of $5**.
 
-Le plan, le plugin figé et les traces sont conservés dans le cache privé `~/.cache/dartlens-bench/read-prefetch-2026-09-29/`. [Données, réponses et critères](prefetch-results.json). Le moteur publié est identique à la copie testée.
+The plan, frozen plugin and traces remain in the private `~/.cache/dartlens-bench/read-prefetch-2026-09-29/` archive. [Data, answers and criteria](prefetch-results.json). The published engine matches the tested snapshot.
 
-[Architecture](ARCHITECTURE.md) · [Installation et réglages](USAGE.md) · [Retour au README](../README.md)
+[Architecture](ARCHITECTURE.md) · [Installation and settings](USAGE.md) · [README](../README.md)

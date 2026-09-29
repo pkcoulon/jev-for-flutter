@@ -2,48 +2,46 @@
 
 # Jev for Flutter
 
-**Le bon code Dart, sans remplir le contexte de Claude.**
+**Find the right Dart code. Keep Claude's context focused.**
 
-Un plugin Claude Code pour les développeurs Flutter, propulsé par [Jev](https://typesafe.ai).
+A Claude Code plugin powered by [Jev](https://typesafe.ai).
 
-[Installer](#installation) · [Benchmarks](docs/PUBLIC-PROJECTS.md) · [Guide](docs/USAGE.md) · [MIT](LICENSE)
+[Install](#installation) · [Benchmarks](docs/PUBLIC-PROJECTS.md) · [Guide](docs/USAGE.md) · [MIT](LICENSE)
 
 </div>
 
-Claude peut charger un fichier entier alors que votre demande ne concerne qu'une partie de son code. **Jev for Flutter repère les passages utiles avant leur lecture par Claude.** Le fichier complet reste accessible.
+Jev selects relevant passages from large Dart files before Claude reads them. Full files remain accessible.
 
-- **Lectures automatiques** : le plugin intervient sur les gros fichiers Dart, pendant votre travail habituel avec Claude.
-- **Recherche par description** : Jev examine les fichiers par groupes, puis vérifie le code des meilleurs candidats.
-- **Préparation en parallèle** : si votre demande indique un fichier, Jev commence son analyse pendant que Claude réfléchit.
+- **Automatic focused reads** during your usual Claude workflow.
+- **Search by description**, with batched file screening and source verification.
+- **Parallel preparation** while Claude reasons, when your prompt names a file.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/public-read-results-dark.svg">
-  <img alt="Trois questions ciblées sur Flutter Form App, LocalSend et AppFlowy : −23 % de tokens Claude, −53 % de coût Claude et Jev, +7 % de temps. Réponses acceptées : 3 sur 3 avec Jev, 2 sur 3 sans." src="docs/img/public-read-results-light.svg" width="960">
+  <img alt="Three targeted questions on Flutter Form App, LocalSend and AppFlowy: 23% fewer Claude tokens, 53% lower Claude plus Jev cost, 7% longer runtime. Accepted answers: 3/3 with Jev, 2/3 without." src="docs/img/public-read-results-light.svg" width="960">
 </picture>
 
-**Mesures 0.3.2 sur trois projets publics**, du petit exemple Flutter à AppFlowy. Une session par variante, questions sur des fichiers connus, revue selon une grille fixée avant les essais. Le gain vient des gros fichiers ; le petit fichier n'en bénéficie pas. Ces mesures ne prouvent pas une économie sur un développement complet. [Protocole, résultats et limites](docs/PUBLIC-PROJECTS.md).
+Three known-file questions, one run per variant. Large files account for the savings; the small file shows no benefit. **These results do not establish savings on completed development tasks.** [Method, results and limitations](docs/PUBLIC-PROJECTS.md).
 
-La recherche groupée réduit aussi le temps de recherche de **74 % sur LocalSend et 82 % sur AppFlowy**, par rapport aux requêtes individuelles. Les douze recherches testées satisfont la même grille dans les deux variantes.
+Batched search also took **74% less time on LocalSend and 82% less on AppFlowy** than individual requests. All 12 search cases passed the same rubric in both variants.
 
 ## Installation
 
-Claude Code, Python 3.9+ et une [clé TypeSafe](https://typesafe.ai) ; macOS ou Linux. Le dépôt est actuellement privé : votre compte GitHub doit y avoir accès.
+Requires Claude Code, Python 3.9+, macOS or Linux, and a [TypeSafe API key](https://typesafe.ai).
 
 ```bash
 claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
-export TYPESAFE_API_KEY="votre-cle-typesafe"
+export TYPESAFE_API_KEY="your-typesafe-key"
 ```
 
-Ouvrez une nouvelle session Claude Code dans votre projet Flutter, puis activez Jev :
+Start a new Claude Code session in your Flutter project, then enable Jev:
 
 ```text
 ! jev-flutter init --enable-jev
 ! jev-flutter doctor
 ```
 
-L'activation conserve vos réglages et autorise l'envoi de la question et du code concerné à TypeSafe. `doctor` vérifie la configuration sans appel payant. Demandez ensuite votre travail à Claude normalement.
+Enable it separately in each project. This allows the plugin to send relevant code and questions to TypeSafe. `doctor` checks your local setup without paid calls. Then work with Claude as usual.
 
-**Plugin libre sous MIT.** Claude et TypeSafe sont des services distincts ; le mode `--local` ne fait aucun appel Jev. [Première installation, dépannage et désinstallation](docs/FIRST-RUN.md) · [Commandes et réglages](docs/USAGE.md).
-
-Inspiré du [plugin Jev de Boris Le Méec](https://github.com/BorisLeMeec/jev), adapté à Dart/Flutter. [Comparaison du code et des benchmarks](docs/JEV-COMPARISON.md) · [MIT](LICENSE).
+**MIT licensed.** Claude and TypeSafe usage are billed separately. [Setup, troubleshooting and uninstalling](docs/FIRST-RUN.md).

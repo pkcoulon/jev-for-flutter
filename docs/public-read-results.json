@@ -6,7 +6,7 @@
     "commit": null,
     "dirty": true
   },
-  "chart_title": "Trois lectures ciblées",
+  "chart_title": "Three focused reads",
   "chart_scope": "Flutter Form App · LocalSend · AppFlowy",
   "scope": "Known-file questions, isolated copy of the target source, not finished development tasks. Same prompts, public sources and tools. Default plugin settings, empty project memory/rules. Reviewer Astra, not blind or independent. No paid retries.",
   "protocol": {

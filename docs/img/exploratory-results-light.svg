@@ -45,7 +45,7 @@ L 229.809176 141.12
      </g>
      <g id="line2d_2"/>
      <g id="text_1">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="229.809176" y="303.358125" transform="rotate(-0 229.809176 303.358125)">−50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="229.809176" y="303.358125" transform="rotate(-0 229.809176 303.358125)">−50%</text>
      </g>
     </g>
     <g id="xtick_2">
@@ -56,7 +56,7 @@ L 287.250353 141.12
      </g>
      <g id="line2d_4"/>
      <g id="text_2">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="287.250353" y="303.358125" transform="rotate(-0 287.250353 303.358125)">0 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="287.250353" y="303.358125" transform="rotate(-0 287.250353 303.358125)">0%</text>
      </g>
     </g>
     <g id="xtick_3">
@@ -67,11 +67,11 @@ L 344.691529 141.12
      </g>
      <g id="line2d_6"/>
      <g id="text_3">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="344.691529" y="303.358125" transform="rotate(-0 344.691529 303.358125)">+50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="344.691529" y="303.358125" transform="rotate(-0 344.691529 303.358125)">+50%</text>
      </g>
     </g>
     <g id="text_4">
-     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="270.018" y="326.212031" transform="rotate(-0 270.018 326.212031)">cache compris</text>
+     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="270.018" y="326.212031" transform="rotate(-0 270.018 326.212031)">including cache</text>
     </g>
    </g>
    <g id="matplotlib.axis_2">
@@ -79,14 +79,14 @@ L 344.691529 141.12
      <g id="line2d_7"/>
      <g id="text_5">
       <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(102.053625 175.152187)">Gambade</text>
-      <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(53.112375 188.589562)">Expliquer un seuil</text>
+      <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(44.9505 188.589562)">Explain a threshold</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_8"/>
      <g id="text_6">
       <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(113.22675 245.712187)">Pioudex</text>
-      <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(54.061125 259.149563)">Corriger un calcul</text>
+      <text style="fill: #142033; font: 12px 'DejaVu Sans'" transform="translate(63.75675 259.149563)">Fix a calculation</text>
      </g>
     </g>
    </g>
@@ -104,7 +104,7 @@ z
 " clip-path="url(#pbb0e00a999)" style="fill: #ad5928; opacity: 0.88"/>
    </g>
    <g id="text_7">
-    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="322.213869" y="179.987187" transform="rotate(-0 322.213869 179.987187)">+27 %</text>
+    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="322.213869" y="179.987187" transform="rotate(-0 322.213869 179.987187)">+27%</text>
    </g>
    <g id="patch_4">
     <path d="M 287.250353 236.0232
@@ -115,10 +115,10 @@ z
 " clip-path="url(#pbb0e00a999)" style="fill: #087f75; opacity: 0.88"/>
    </g>
    <g id="text_8">
-    <text style="fill: #087f75; font: 700 13px 'DejaVu Sans'; text-anchor: end" x="224.182689" y="250.547187" transform="rotate(-0 224.182689 250.547187)">−52 %</text>
+    <text style="fill: #087f75; font: 700 13px 'DejaVu Sans'; text-anchor: end" x="224.182689" y="250.547187" transform="rotate(-0 224.182689 250.547187)">−52%</text>
    </g>
    <g id="text_9">
-    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="172.368" y="122.12" transform="rotate(-0 172.368 122.12)">Tokens Claude</text>
+    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="172.368" y="122.12" transform="rotate(-0 172.368 122.12)">Claude tokens</text>
    </g>
   </g>
   <g id="axes_2">
@@ -139,7 +139,7 @@ L 483.699176 141.12
      </g>
      <g id="line2d_11"/>
      <g id="text_10">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="483.699176" y="303.358125" transform="rotate(-0 483.699176 303.358125)">−50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="483.699176" y="303.358125" transform="rotate(-0 483.699176 303.358125)">−50%</text>
      </g>
     </g>
     <g id="xtick_5">
@@ -150,7 +150,7 @@ L 541.140353 141.12
      </g>
      <g id="line2d_13"/>
      <g id="text_11">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="541.140353" y="303.358125" transform="rotate(-0 541.140353 303.358125)">0 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="541.140353" y="303.358125" transform="rotate(-0 541.140353 303.358125)">0%</text>
      </g>
     </g>
     <g id="xtick_6">
@@ -161,11 +161,11 @@ L 598.581529 141.12
      </g>
      <g id="line2d_15"/>
      <g id="text_12">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="598.581529" y="303.358125" transform="rotate(-0 598.581529 303.358125)">+50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="598.581529" y="303.358125" transform="rotate(-0 598.581529 303.358125)">+50%</text>
      </g>
     </g>
     <g id="text_13">
-     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="523.908" y="326.212031" transform="rotate(-0 523.908 326.212031)">au tarif API</text>
+     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="523.908" y="326.212031" transform="rotate(-0 523.908 326.212031)">API-equivalent</text>
     </g>
    </g>
    <g id="matplotlib.axis_4">
@@ -190,7 +190,7 @@ z
 " clip-path="url(#p2d29b51097)" style="fill: #ad5928; opacity: 0.88"/>
    </g>
    <g id="text_14">
-    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="566.462327" y="179.987187" transform="rotate(-0 566.462327 179.987187)">+19 %</text>
+    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="566.462327" y="179.987187" transform="rotate(-0 566.462327 179.987187)">+19%</text>
    </g>
    <g id="patch_7">
     <path d="M 541.140353 236.0232
@@ -201,10 +201,10 @@ z
 " clip-path="url(#p2d29b51097)" style="fill: #087f75; opacity: 0.88"/>
    </g>
    <g id="text_15">
-    <text style="fill: #087f75; font: 700 13px 'DejaVu Sans'; text-anchor: end" x="486.332134" y="250.547187" transform="rotate(-0 486.332134 250.547187)">−45 %</text>
+    <text style="fill: #087f75; font: 700 13px 'DejaVu Sans'; text-anchor: end" x="486.332134" y="250.547187" transform="rotate(-0 486.332134 250.547187)">−45%</text>
    </g>
    <g id="text_16">
-    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="426.258" y="122.12" transform="rotate(-0 426.258 122.12)">Coût Claude + Jev</text>
+    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="426.258" y="122.12" transform="rotate(-0 426.258 122.12)">Claude + Jev cost</text>
    </g>
   </g>
   <g id="axes_3">
@@ -225,7 +225,7 @@ L 737.589176 141.12
      </g>
      <g id="line2d_20"/>
      <g id="text_17">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="737.589176" y="303.358125" transform="rotate(-0 737.589176 303.358125)">−50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="737.589176" y="303.358125" transform="rotate(-0 737.589176 303.358125)">−50%</text>
      </g>
     </g>
     <g id="xtick_8">
@@ -236,7 +236,7 @@ L 795.030353 141.12
      </g>
      <g id="line2d_22"/>
      <g id="text_18">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="795.030353" y="303.358125" transform="rotate(-0 795.030353 303.358125)">0 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="795.030353" y="303.358125" transform="rotate(-0 795.030353 303.358125)">0%</text>
      </g>
     </g>
     <g id="xtick_9">
@@ -247,11 +247,11 @@ L 852.471529 141.12
      </g>
      <g id="line2d_24"/>
      <g id="text_19">
-      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="852.471529" y="303.358125" transform="rotate(-0 852.471529 303.358125)">+50 %</text>
+      <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: middle" x="852.471529" y="303.358125" transform="rotate(-0 852.471529 303.358125)">+50%</text>
      </g>
     </g>
     <g id="text_20">
-     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="777.798" y="326.652031" transform="rotate(-0 777.798 326.652031)">vérifications comprises</text>
+     <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: middle" x="777.798" y="326.212031" transform="rotate(-0 777.798 326.212031)">including verification</text>
     </g>
    </g>
    <g id="matplotlib.axis_6">
@@ -276,7 +276,7 @@ z
 " clip-path="url(#p8cdefb52c9)" style="fill: #ad5928; opacity: 0.88"/>
    </g>
    <g id="text_21">
-    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="832.354539" y="179.987187" transform="rotate(-0 832.354539 179.987187)">+29 %</text>
+    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="832.354539" y="179.987187" transform="rotate(-0 832.354539 179.987187)">+29%</text>
    </g>
    <g id="patch_10">
     <path d="M 795.030353 236.0232
@@ -287,38 +287,38 @@ z
 " clip-path="url(#p8cdefb52c9)" style="fill: #ad5928; opacity: 0.88"/>
    </g>
    <g id="text_22">
-    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="802.071853" y="250.547187" transform="rotate(-0 802.071853 250.547187)">+3 %</text>
+    <text style="fill: #ad5928; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="802.071853" y="250.547187" transform="rotate(-0 802.071853 250.547187)">+3%</text>
    </g>
    <g id="text_23">
-    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="680.148" y="122.12" transform="rotate(-0 680.148 122.12)">Temps total</text>
+    <text style="fill: #142033; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="680.148" y="122.12" transform="rotate(-0 680.148 122.12)">Total time</text>
    </g>
   </g>
   <g id="text_24">
-   <text style="fill: #142033; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="31.752" y="34.272" transform="rotate(-0 31.752 34.272)">Tokens, coût, temps : les écarts mesurés.</text>
+   <text style="fill: #142033; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="31.752" y="34.272" transform="rotate(-0 31.752 34.272)">Tokens, cost, time: measured differences.</text>
   </g>
   <g id="text_25">
-   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="60.48" transform="rotate(-0 31.752 60.48)">Avec dartlens, par rapport à la même tâche sans plugin · 0 % = identique</text>
+   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="60.48" transform="rotate(-0 31.752 60.48)">With the plugin vs. the same task without it · 0% = unchanged</text>
   </g>
   <g id="text_26">
    <text style="fill: #087f75; font: 700 19px 'DejaVu Sans'; text-anchor: start" x="31.752" y="88.704" transform="rotate(-0 31.752 88.704)">━</text>
   </g>
   <g id="text_27">
-   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="60.7824" y="86.688" transform="rotate(-0 60.7824 86.688)">Baisse</text>
+   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="60.7824" y="86.688" transform="rotate(-0 60.7824 86.688)">Decrease</text>
   </g>
   <g id="text_28">
    <text style="fill: #ad5928; font: 700 19px 'DejaVu Sans'; text-anchor: start" x="154.224" y="88.704" transform="rotate(-0 154.224 88.704)">━</text>
   </g>
   <g id="text_29">
-   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="183.2544" y="86.688" transform="rotate(-0 183.2544 86.688)">Hausse</text>
+   <text style="fill: #58677e; font: 12px 'DejaVu Sans'; text-anchor: start" x="183.2544" y="86.688" transform="rotate(-0 183.2544 86.688)">Increase</text>
   </g>
   <g id="text_30">
-   <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="342.72" transform="rotate(-0 31.752 342.72)">Deux tâches · une session par variante · avant la refonte en parallèle · 29 septembre 2026</text>
+   <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="342.72" transform="rotate(-0 31.752 342.72)">Two tasks · one run per variant · before parallel context · September 29, 2026</text>
   </g>
   <g id="text_31">
-   <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="366.912" transform="rotate(-0 31.752 366.912)">Aucun appel à lens : ces écarts ne prouvent pas le bénéfice de la sélection.</text>
+   <text style="fill: #142033; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="366.912" transform="rotate(-0 31.752 366.912)">No lens calls: these differences do not establish a selection benefit.</text>
   </g>
   <g id="text_32">
-   <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="387.072" transform="rotate(-0 31.752 387.072)">L’économie à qualité égale reste à démontrer. Données brutes et réserves dans le rapport.</text>
+   <text style="fill: #58677e; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="387.072" transform="rotate(-0 31.752 387.072)">Savings at equal quality remain unproven. See the report for data and limitations.</text>
   </g>
  </g>
  <defs>

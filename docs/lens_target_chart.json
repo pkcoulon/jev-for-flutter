@@ -3,16 +3,16 @@
   "kind": "grouped",
   "unit": "%",
   "groups": [
-   "recherches longues",
-   "code Dart lu en entier",
-   "sorties sauvegardées relues",
-   "autres sorties longues",
-   "docs .md lues en entier",
-   "tests / analyse / build"
+   "Long search results",
+   "Full Dart reads",
+   "Saved outputs reread",
+   "Other long outputs",
+   "Full Markdown reads",
+   "Tests / analysis / builds"
   ],
   "series": [
    {
-    "label": "projet pro (le plus utilisé) : 13,9 % au total",
+    "label": "Work project: 13.9% total",
     "values": [
      3.85,
      2.44,
@@ -23,7 +23,7 @@
     ]
    },
    {
-    "label": "projets perso : 10,3 % au total",
+    "label": "Personal projects: 10.3% total",
     "values": [
      2.36,
      3.58,
@@ -34,8 +34,8 @@
     ]
    }
   ],
-  "title": "Ce que lens peut viser dans des sessions réelles",
-  "subtitle": "Part du contexte relu occupée par des sorties que lens sait cibler (fichiers ≥ 150 lignes, sorties ≥ 80 lignes)",
+  "title": "Potential lens targets in real sessions",
+  "subtitle": "Repeated-context share from eligible reads (files ≥150 lines, outputs ≥80 lines)",
   "label_groups": [
    0,
    1

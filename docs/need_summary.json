@@ -12,15 +12,15 @@
  "unpriced_models": [],
  "rows": [
   {
-   "label": "Bash · lire des fichiers",
+   "label": "Bash · file reads",
    "value": 9.911401021522577
   },
   {
-   "label": "Read (fichiers)",
+   "label": "Read · files",
    "value": 6.232931704454391
   },
   {
-   "label": "Bash · chercher / lister",
+   "label": "Bash · search / list",
    "value": 4.936644352802866
   },
   {
@@ -36,27 +36,27 @@
    "value": 2.2418989896241235
   },
   {
-   "label": "Bash · tests / analyse",
+   "label": "Bash · tests / analysis",
    "value": 1.2811708112658209
   },
   {
-   "label": "Bash · autres",
+   "label": "Bash · other",
    "value": 0.8754238382028453
   },
   {
-   "label": "Autres outils",
+   "label": "Other tools",
    "value": 0.7557009508191073
   },
   {
-   "label": "pages web",
+   "label": "Web pages",
    "value": 0.09813951141299498
   },
   {
-   "label": "résultats de sous-agents",
+   "label": "Subagent results",
    "value": 0.02370937268996435
   },
   {
-   "label": "skills chargés",
+   "label": "Loaded skills",
    "value": 0.0013616997838376374
   },
   {

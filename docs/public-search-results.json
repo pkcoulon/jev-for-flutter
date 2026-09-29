@@ -849,7 +849,7 @@
             "hookEventName": "PreToolUse",
             "additionalContext": "Jev for Flutter: Read narrowed to lines 43-106 of 851. This is a selected region, not the whole file. Follow other calls/branches needed for the answer. Repeat Read for the whole file, or set an explicit offset/limit for another region. Source on disk is unchanged.",
             "updatedInput": {
-              "file_path": "/Users/pierrick_coulon/.cache/dartlens-bench/flutter-public-2026-09-29/sources/localsend/app/lib/provider/network/send_provider.dart",
+              "file_path": "sources/localsend/app/lib/provider/network/send_provider.dart",
               "offset": 43,
               "limit": 64
             }
@@ -878,7 +878,7 @@
             "hookEventName": "PreToolUse",
             "additionalContext": "Jev for Flutter: Read narrowed to lines 770-833 of 1667. This is a selected region, not the whole file. Follow other calls/branches needed for the answer. Repeat Read for the whole file, or set an explicit offset/limit for another region. Source on disk is unchanged.",
             "updatedInput": {
-              "file_path": "/Users/pierrick_coulon/.cache/dartlens-bench/flutter-public-2026-09-29/sources/appflowy/frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
+              "file_path": "sources/appflowy/frontend/appflowy_flutter/lib/shared/popup_menu/appflowy_popup_menu.dart",
               "offset": 770,
               "limit": 64
             }
@@ -1194,5 +1194,8 @@
       }
     ],
     "source_unchanged": true
-  }
+  },
+  "publication_notes": [
+    "Absolute local source paths are represented relative to the campaign archive; source content and measured values are unchanged."
+  ]
 }

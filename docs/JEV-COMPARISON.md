@@ -1,51 +1,53 @@
-# Ce que fait Jev, et ce que nous reprenons
+# Upstream Jev: code and benchmark comparison
 
-Audit du 29 septembre 2026 de **tous les fichiers source Go, tests, scripts de mesure et manifestes** de [BorisLeMeec/jev, commit e81c1d0](https://github.com/BorisLeMeec/jev/tree/e81c1d006b8b23a616486610f311039088521d0c). Lecture statique ; aucun build ni nouvel essai de son plugin. Les images de présentation ne servent pas de preuve.
+September 29, 2026 review of **all Go source files, tests, benchmark scripts and manifests** at [BorisLeMeec/jev, commit e81c1d0](https://github.com/BorisLeMeec/jev/tree/e81c1d006b8b23a616486610f311039088521d0c). Static inspection only; no build or new trial of that plugin. Promotional images are not evidence.
 
-## Pourquoi ses résultats sont meilleurs
+## Why its results differ
 
-Son moteur remplace une partie du travail de lecture et de recherche. Notre essai de contexte en arrière-plan ajoutait parfois une deuxième exploration : sur le dernier correctif, Claude utilisait 16 appels contre 13 sans plugin. Il faut éviter ces appels ou leur contenu, pas simplement faire travailler Jev davantage.
+The upstream engine replaces some reading and search work. Our background-context experiment sometimes added a second exploration: on the latest fix, Claude made 16 calls versus 13 without the plugin. Useful savings require avoiding calls or content, rather than simply increasing Jev activity.
 
-| Mesure annoncée par Boris | Ce qui est comparé | Portée |
+| Reported upstream measure | Comparison | Scope |
 |---|---|---|
-| −30 % de tokens d'entrée | 7 paires de recherches ; consigne « Jev d'abord » contre recherche sans Jev | Localisation, sans modification ni tests ; une exécution par variante |
-| −38 % de tokens d'entrée | 3 paires d'audits de 12–18 fichiers | Une omission avec Jev ; qualité non identique |
-| −41 % de tokens d'entrée | 3 paires de lectures de fichiers Hugo entiers contre plages ciblées | Cas favorable à une réduction de lecture, pas un développement complet |
-| 118× « leverage » | Volume examiné hors conversation / volume renvoyé | Pas une économie mesurée sur Claude |
+| −30% input tokens | Seven search pairs; a “Jev first” instruction versus search without Jev | Localization only, no edits or tests; one run per variant |
+| −38% input tokens | Three audit pairs covering 12–18 files | One omission with Jev; unequal quality |
+| −41% input tokens | Three pairs of full Hugo file reads versus focused ranges | Favorable read-reduction case, not completed development |
+| 118× “leverage” | Volume examined outside the conversation / volume returned | Not measured Claude savings |
 
-Sources : [recherche](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/TOKENS.md), [audit](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/TOKENS_ASK.md), [lecture](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/hook/RESULTS_HOOK.md), [calcul du ratio](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/usage/report.go).
+Sources: [search](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/TOKENS.md), [audit](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/TOKENS_ASK.md), [reads](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/hook/RESULTS_HOOK.md), [ratio calculation](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/usage/report.go).
 
-Ces résultats constituent un signal intéressant. Ils ne démontrent pas une économie universelle de 30–41 %, ni une baisse équivalente en dollars. Le script additionne entrées nouvelles, écritures et lectures de cache sans pondérer leurs tarifs ; la sortie Claude et la facture Jev ne font pas partie de ce pourcentage. Les tailles de résultats d'outils sont estimées en caractères divisés par quatre. [Code du compteur](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/agentstats.py).
+These are useful signals, not universal 30–41% savings or equivalent dollar reductions. The script adds fresh input, cache writes and cache reads without weighting their prices. Claude output and Jev cost are outside the percentage. Tool-result token sizes are estimated as characters divided by four. [Counter implementation](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/agentstats.py).
 
-Le temps est plus nuancé : pour `find`, le rapport médian avec/sans est **1,03**, soit +3 %. La moyenne favorable vient surtout d'un cas d'absence de fonctionnalité. Le README dit lui-même que le gain porte sur les tokens, pas généralement sur le temps. [Mesure du temps](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/TIMING.md).
+Timing is mixed: the median with/without ratio for `find` is **1.03**, or +3%. A favorable mean is largely driven by one absent-feature case. The upstream README itself distinguishes token savings from general speed gains. [Timing report](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/TIMING.md).
 
-## Architecture comparée
+## Architecture comparison at version 0.3
 
-| Composant | Boris | Jev for Flutter 0.3 |
+| Component | Upstream | Jev for Flutter 0.3 |
 |---|---|---|
-| Recherche | Chaque fichier est jugé séparément ; 8 requêtes simultanées ; vérification des leaders sur le contenu ; localisation finale | Même principe disponible dans `jev-flutter find`. Plus de filtre lexical avant Jev : au-delà du plafond, demander un dossier ou `--max-files` |
-| Grande lecture | Un choix de plage sur le fichier entier ; modification de `Read.offset/limit` | Nouvelle lecture native ciblée, sans refus ni appel volontaire à lens ; question de périmètre en plus, source masquée et politique par projet |
-| Incertitude | Lecture inchangée si erreur, faible confiance ou fichier >80 Ko | Lecture inchangée si erreur, demande large, faible confiance, fichier >64 Ko ou modifié pendant le jugement |
-| Plusieurs fichiers | Requêtes parallèles, une par fichier | Recherche parallèle conservée ; le contexte automatique est désormais une option |
-| Conventions | Classification des modifications ; activation volontaire et règles explicites | Garde existante conservée, sans alerte quand aucune règle ne s'applique |
-| Mémoire | Aucun composant équivalent dans ce dépôt | Routeur existant conservé ; ne constitue pas une preuve d'économie |
+| Search | One judgment per file; eight concurrent requests; source verification of leaders; final localization | Same principle in `jev-flutter find`, without lexical prefiltering; exceeding the cap requires a narrower folder or `--max-files` |
+| Large reads | Select a range from the entire file; update `Read.offset/limit` | Native focused reads, without refusal or voluntary lens call; additional scope question, masked source and per-project policy |
+| Uncertainty | Original read on errors, low confidence or files above 80 KB | Original read on errors, broad requests, low confidence, files above 64 KB or changed source |
+| Multiple files | Parallel requests, one per file | Parallel search retained; automatic context is optional |
+| Conventions | Change classification, explicit opt-in and rules | Existing guard retained; no warning when no rule applies |
+| Memory | No equivalent component in that repository | Existing router retained; not evidence of savings |
 
-Sources : [find.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/find.go), [hook.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/hook.go), [locate.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/locate.go), [lint.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/lint.go). L'adaptation conserve l'attribution MIT dans [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+Version 0.3.2 additionally [batches file outlines](PUBLIC-PROJECTS.md), retaining a separate score per file.
 
-## Limites repérées dans le code public
+Sources: [find.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/find.go), [hook.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/hook.go), [locate.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/locate.go), [lint.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/lint.go). MIT attribution is preserved in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
-- Les transcripts, les associations tâche/session et les jeux de questions privés ne sont pas publiés. Les sommes des tableaux sont recalculables, leur qualité finale ne peut pas être revue de manière indépendante depuis ce dépôt seul. Des cas de localisation sur Hugo/Prometheus sont publics ; leurs dépôts ne sont pas épinglés par le script de lecture.
-- Le score des réponses `find` vérifie le rappel des chemins attendus, mais ne pénalise pas les chemins supplémentaires sur les cas positifs. Ce n'est pas une revue de toute l'explication. [report.py](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/report.py).
-- Le compteur ne déduplique pas les messages portant le même identifiant de réponse API. C'est un risque si le format de transcript répète l'usage sur plusieurs fragments ; sans les traces d'origine, on ne peut pas affirmer que ses chiffres sont effectivement doublés.
-- `verifyTop` coupe à 90 000 octets mais marque quand même le fichier « verified ». Le criblage peut aussi perdre des fichiers sur erreur et afficher le nombre initial comme « scanned ». Notre lecture automatique ne découpe pas un fichier trop grand en jugements indépendants.
-- Le `scan` de coût conserve un calcul par lots de 25 fichiers alors que `find` envoie une requête par fichier. Il sous-estime le nombre d'appels et omet les passes suivantes. [scan.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/scan.go).
-- Le hook place sa note au niveau supérieur de la réponse JSON. Le schéma Claude Code actuel attend `hookSpecificOutput.additionalContext` pour `PreToolUse` : notre adaptation utilise ce champ et en vérifie la livraison réelle. [Schéma officiel](https://code.claude.com/docs/en/hooks#pretooluse-decision-control).
-- Le hook installé vise `bin/jev`, absent des fichiers suivis ; aucun hook d'installation ne le construit. Une installation fraîche depuis les seules commandes marketplace suppose donc une étape de build/copie non couverte par ces commandes. Notre distribution utilise Python, sans binaire à compiler.
+## Limits visible in the public code
 
-Ces limites cadrent la comparaison ; elles n'annulent pas le mécanisme intéressant de délégation des lectures.
+- Transcripts, task/session mappings and private question sets are unpublished. Table totals can be recalculated, but final quality cannot be independently reviewed from the repository alone. Some Hugo/Prometheus localization cases are public; the read script does not pin their revisions.
+- `find` answer scoring checks expected-path recall without penalizing extra paths on positive cases. It does not review the complete explanation. [report.py](https://github.com/BorisLeMeec/jev/blob/e81c1d0/bench/tokenecon/report.py).
+- The counter does not deduplicate repeated API response IDs. This creates a risk if transcript fragments repeat usage; without original traces, actual double counting cannot be established.
+- `verifyTop` truncates at 90,000 bytes while still marking the file verified. Screening can lose files on errors while reporting the original count as scanned. Our automatic read does not split an oversized file into independent judgments.
+- Cost estimation in `scan` assumes batches of 25 files while `find` sends one request per file. It underestimates requests and omits later passes. [scan.go](https://github.com/BorisLeMeec/jev/blob/e81c1d0/internal/run/scan.go).
+- The hook puts its note at the top level of the response JSON. The Claude Code contract expects `hookSpecificOutput.additionalContext` for `PreToolUse`; our adaptation uses it and checks actual delivery. [Official schema](https://code.claude.com/docs/en/hooks#pretooluse-decision-control).
+- The installed hook references `bin/jev`, absent from tracked files, with no installation hook to build it. Fresh installation through marketplace commands alone therefore assumes an additional build/copy step. This distribution uses Python, with no required binary build.
 
-## Pourquoi la facture TypeSafe reste petite
+These limits qualify the comparison; they do not invalidate delegated reading.
 
-La capture de Pierrick affiche **19 089 427 tokens, 2 538 requêtes et 0,7699 $** pour sept jours, tous trafics confondus. Elle établit une activité Jev importante, pas un manque d'utilisation. Elle ne mesure ni les appels Claude évités, ni les résultats de notre seul dernier lot.
+## Why TypeSafe spending stays small
 
-Jev 1.13 facture **0,042 $ par million de tokens d'entrée**, sortie gratuite. Lire un million de tokens côté Jev coûte donc environ quatre centimes. Le bon indicateur produit reste le coût **Claude + Jev d'une réponse correcte**, avec les catégories de cache et le temps observé. [Tarif TypeSafe](https://docs.typesafe.ai/models).
+The account screenshot used during the review showed **19,089,427 tokens, 2,538 requests and $0.7699** over seven days across all traffic. It indicates substantial Jev activity, but does not measure avoided Claude calls or isolate our latest campaign.
+
+Jev 1.13 charges **$0.042 per million input tokens**, with free output. The relevant product measure remains **combined Claude + Jev cost for a correct answer**, including cache categories and observed time. [TypeSafe pricing](https://docs.typesafe.ai/models).

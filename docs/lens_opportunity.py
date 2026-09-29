@@ -38,10 +38,10 @@ def result_text(content):
 def file_kind(path):
     path = (path or "").strip("'\"")
     if path.endswith(".dart"):
-        return "lecture de code Dart entier (≥ 150 lignes)"
+        return "Full Dart read (≥150 lines)"
     if path.endswith(".md"):
-        return "lecture de docs .md entières (≥ 150 lignes)"
-    return "relecture de sorties sauvegardées, autres fichiers (≥ 150 lignes)"
+        return "Full Markdown read (≥150 lines)"
+    return "Saved output or other file reread (≥150 lines)"
 
 
 def classify(name, tool_input, text, tool_result_meta):
@@ -61,15 +61,15 @@ def classify(name, tool_input, text, tool_result_meta):
         if piped and re.search(r"\|\s*(head|tail|sed)\b", segment):
             return None, None
         if piped and re.search(r"\|\s*(grep|rg)\b", segment):
-            return "recherche ≥ 80 lignes", None
+            return "Search output (≥80 lines)", None
         targets = [w for w in segment.split()[1:] if not w.startswith("-") and w != "|"]
         return file_kind(targets[-1] if targets else ""), (targets[-1] if targets else None)
     if head in SEARCHERS and lines >= OUTPUT_MIN_LINES:
-        return "recherche ≥ 80 lignes", None
+        return "Search output (≥80 lines)", None
     if (head in BUILDERS or "test" in head) and lines >= OUTPUT_MIN_LINES:
-        return "tests / analyse / build ≥ 80 lignes", None
+        return "Tests / analysis / builds (≥80 lines)", None
     if lines >= OUTPUT_MIN_LINES and head not in ("sed", "head", "tail", "awk"):
-        return "autre sortie ≥ 80 lignes", None
+        return "Other output (≥80 lines)", None
     return None, None
 
 
@@ -168,17 +168,17 @@ def main(out_path, *args):
     names = list(result)
     order = sorted({k for r in result.values() for k in r["categories"]},
                    key=lambda k: -sum(r["categories"].get(k, {}).get("share_of_context_pct", 0) for r in result.values()))
-    labels = {"recherche ≥ 80 lignes": "recherches longues", "lecture de code Dart entier (≥ 150 lignes)": "code Dart lu en entier",
-              "relecture de sorties sauvegardées, autres fichiers (≥ 150 lignes)": "sorties sauvegardées relues",
-              "autre sortie ≥ 80 lignes": "autres sorties longues", "lecture de docs .md entières (≥ 150 lignes)": "docs .md lues en entier",
-              "tests / analyse / build ≥ 80 lignes": "tests / analyse / build"}
-    legend = {"pro": "projet pro (le plus utilisé)", "perso": "projets perso"}
+    labels = {"Search output (≥80 lines)": "Long search results", "Full Dart read (≥150 lines)": "Full Dart reads",
+              "Saved output or other file reread (≥150 lines)": "Saved outputs reread",
+              "Other output (≥80 lines)": "Other long outputs", "Full Markdown read (≥150 lines)": "Full Markdown reads",
+              "Tests / analysis / builds (≥80 lines)": "Tests / analysis / builds"}
+    legend = {"pro": "Work project (most used)", "perso": "Personal projects"}
     spec = {"lens-target": {
         "kind": "grouped", "unit": "%", "groups": [labels.get(k, k) for k in order],
-        "series": [{"label": "%s : %s %% au total" % (legend.get(n, n), ("%.1f" % result[n]["addressable_share_pct"]).replace(".", ",")),
+        "series": [{"label": "%s: %s%% total" % (legend.get(n, n), ("%.1f" % result[n]["addressable_share_pct"])),
                     "values": [result[n]["categories"].get(k, {}).get("share_of_context_pct", 0) for k in order]} for n in names],
-        "title": "Ce que lens peut viser dans des sessions réelles",
-        "subtitle": "Part du contexte relu occupée par des sorties que lens sait cibler (fichiers ≥ 150 lignes, sorties ≥ 80 lignes)",
+        "title": "Potential lens targets in real sessions",
+        "subtitle": "Repeated-context share from eligible reads (files ≥150 lines, outputs ≥80 lines)",
         "label_groups": [0, 1],
     }}
     Path(out_path).with_name("lens_target_chart.json").write_text(json.dumps(spec, ensure_ascii=False, indent=1))

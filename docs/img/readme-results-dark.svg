@@ -71,26 +71,26 @@ L 490.06675 116.64
      </g>
     </g>
     <g id="text_4">
-     <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: middle" x="340.978712" y="336.956031" transform="rotate(-0 340.978712 336.956031)">caractères, échecs compris</text>
+     <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: middle" x="340.978712" y="336.516031" transform="rotate(-0 340.978712 336.516031)">characters, including failures</text>
     </g>
    </g>
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_7"/>
      <g id="text_5">
-      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="152.585256" transform="rotate(-0 148.76 152.585256)">Sans dartlens</text>
+      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="152.585256" transform="rotate(-0 148.76 152.585256)">Without plugin</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_8"/>
      <g id="text_6">
-      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="209.651063" transform="rotate(-0 148.76 209.651063)">Simple suggestion</text>
+      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="209.651063" transform="rotate(-0 148.76 209.651063)">Suggestion only</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_9"/>
      <g id="text_7">
-      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="266.716869" transform="rotate(-0 148.76 266.716869)">Lecture ciblée</text>
+      <text style="fill: #edf2fa; font: 12px 'DejaVu Sans'; text-anchor: end" x="148.76" y="266.716869" transform="rotate(-0 148.76 266.716869)">Focused read</text>
      </g>
     </g>
    </g>
@@ -128,7 +128,7 @@ z
     <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="268.871786" y="265.469056" transform="rotate(-0 268.871786 265.469056)">157 178</text>
    </g>
    <g id="text_11">
-    <text style="fill: #edf2fa; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="158.76" y="98.64" transform="rotate(-0 158.76 98.64)">Code Dart reçu · les 4 tâches</text>
+    <text style="fill: #edf2fa; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="158.76" y="98.64" transform="rotate(-0 158.76 98.64)">Dart code received · all 4 tasks</text>
    </g>
   </g>
   <g id="axes_2">
@@ -149,7 +149,7 @@ L 623.417717 116.64
      </g>
      <g id="line2d_11"/>
      <g id="text_12">
-      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="623.417717" y="312.662125" transform="rotate(-0 623.417717 312.662125)">0 $</text>
+      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="623.417717" y="312.662125" transform="rotate(-0 623.417717 312.662125)">$0</text>
      </g>
     </g>
     <g id="xtick_5">
@@ -160,7 +160,7 @@ L 710.188532 116.64
      </g>
      <g id="line2d_13"/>
      <g id="text_13">
-      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="710.188532" y="312.662125" transform="rotate(-0 710.188532 312.662125)">0,5 $</text>
+      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="710.188532" y="312.662125" transform="rotate(-0 710.188532 312.662125)">$0.5</text>
      </g>
     </g>
     <g id="xtick_6">
@@ -171,11 +171,11 @@ L 796.959348 116.64
      </g>
      <g id="line2d_15"/>
      <g id="text_14">
-      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="796.959348" y="312.662125" transform="rotate(-0 796.959348 312.662125)">1 $</text>
+      <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: middle" x="796.959348" y="312.662125" transform="rotate(-0 796.959348 312.662125)">$1</text>
      </g>
     </g>
     <g id="text_15">
-     <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: middle" x="744.896858" y="336.516031" transform="rotate(-0 744.896858 336.516031)">Claude au tarif API, hors Jev · 1 essai</text>
+     <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: middle" x="744.896858" y="336.516031" transform="rotate(-0 744.896858 336.516031)">Claude API cost, excluding Jev · 1 run</text>
     </g>
    </g>
    <g id="matplotlib.axis_4">
@@ -214,29 +214,29 @@ z
 " clip-path="url(#pd0975560a6)" style="fill: #14b8a6"/>
    </g>
    <g id="text_16">
-    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="762.979896" y="151.337444" transform="rotate(-0 762.979896 151.337444)">0,77 $</text>
+    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="762.979896" y="151.337444" transform="rotate(-0 762.979896 151.337444)">$0.77</text>
    </g>
    <g id="text_17">
-    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="813.341678" y="208.40325" transform="rotate(-0 813.341678 208.40325)">1,06 $</text>
+    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="813.341678" y="208.40325" transform="rotate(-0 813.341678 208.40325)">$1.06</text>
    </g>
    <g id="text_18">
-    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="831.927986" y="265.469056" transform="rotate(-0 831.927986 265.469056)">1,17 $</text>
+    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="831.927986" y="265.469056" transform="rotate(-0 831.927986 265.469056)">$1.17</text>
    </g>
    <g id="text_19">
-    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="623.417717" y="98.64" transform="rotate(-0 623.417717 98.64)">Coût · la seule tâche acceptée partout</text>
+    <text style="fill: #edf2fa; font: 700 12px 'DejaVu Sans'; text-anchor: start" x="623.417717" y="98.64" transform="rotate(-0 623.417717 98.64)">Cost · the only task accepted in every arm</text>
    </g>
   </g>
   <g id="text_20">
-   <text style="fill: #edf2fa; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="31.752" y="34.992" transform="rotate(-0 31.752 34.992)">Moins de code reçu. L’économie reste à prouver.</text>
+   <text style="fill: #edf2fa; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="31.752" y="34.992" transform="rotate(-0 31.752 34.992)">Less code received. Savings still unproven.</text>
   </g>
   <g id="text_21">
-   <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="60.264" transform="rotate(-0 31.752 60.264)">Essais sur un projet Flutter · 29 septembre 2026 · résultats exploratoires</text>
+   <text style="fill: #a3b0c4; font: 12px 'DejaVu Sans'; text-anchor: start" x="31.752" y="60.264" transform="rotate(-0 31.752 60.264)">One Flutter project · September 29, 2026 · exploratory results</text>
   </g>
   <g id="text_22">
-   <text style="fill: #14b8a6; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="31.752" y="351.864" transform="rotate(-0 31.752 351.864)">−67 % de code reçu avec la lecture ciblée.</text>
+   <text style="fill: #14b8a6; font: 700 13px 'DejaVu Sans'; text-anchor: start" x="31.752" y="351.864" transform="rotate(-0 31.752 351.864)">67% less code received with focused reads.</text>
   </g>
   <g id="text_23">
-   <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="370.5264" transform="rotate(-0 31.752 370.5264)">Avant v0.2 · 1 essai par tâche et par variante · qualité équivalente et gain global non démontrés.</text>
+   <text style="fill: #a3b0c4; font: 11px 'DejaVu Sans'; text-anchor: start" x="31.752" y="370.5264" transform="rotate(-0 31.752 370.5264)">Before v0.2 · 1 run per task and variant · equal quality and overall savings unproven.</text>
   </g>
  </g>
  <defs>

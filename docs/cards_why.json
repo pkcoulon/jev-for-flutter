@@ -1,12 +1,12 @@
 {
  "why": {
-  "section": "pourquoi · mesuré sur nos sessions réelles",
-  "title": "Claude relit tout, à chaque échange.",
-  "title_tail": "Ce qu'un outil ajoute y reste.",
-  "subtitle": "Ce que Claude Code renvoie au modèle à chaque échange, en tokens, sur une vraie session Flutter.",
+  "section": "Context use · measured in real sessions",
+  "title": "Context is supplied on every exchange.",
+  "title_tail": "Tool results remain in later context.",
+  "subtitle": "Context tokens supplied per exchange in a real Flutter session.",
   "hero": {
    "value": "×17",
-   "label": "relectures d'une sortie d'outil"
+   "label": "median reuses of a tool result"
   },
   "blocks": [
    {
@@ -17,10 +17,10 @@
      1000,
      560
     ],
-    "x_label": "échange n°",
+    "x_label": "Exchange",
     "series": [
      {
-      "label": "ce que Claude relit à chaque échange",
+      "label": "Context tokens per exchange",
       "values": [
        62463,
        70125,
@@ -156,13 +156,13 @@
        652533
       ],
       "emphasis": true,
-      "end_label": "en fin de session"
+      "end_label": "At session end"
      }
     ],
     "notes": [
      {
       "index": 45,
-      "label": "+63 k en une seule recherche (grep, find)\nrelus ensuite à chaque échange",
+      "label": "+63k from one search (grep, find)\nreused in each later exchange",
       "dx": -16,
       "dy": -52
      }
@@ -176,29 +176,29 @@
      448,
      330
     ],
-    "title": "ce qui est relu, par origine",
+    "title": "Repeated context by source",
     "max": 40,
     "rows": [
      {
-      "label": "sorties d'outils",
+      "label": "Tool outputs",
       "value": 31.9,
-      "text": "31,9 %",
+      "text": "31.9%",
       "emphasis": true
      },
      {
-      "label": "fichiers lus",
+      "label": "File reads",
       "value": 16.144332725976966,
-      "text": "16,1 %"
+      "text": "16.1%"
      },
      {
-      "label": "recherches",
+      "label": "Searches",
       "value": 4.936644352802866,
-      "text": "4,9 %"
+      "text": "4.9%"
      },
      {
-      "label": "tests, analyse",
+      "label": "Tests, analysis",
       "value": 1.2811708112658209,
-      "text": "1,3 %"
+      "text": "1.3%"
      }
     ]
    },
@@ -213,18 +213,18 @@
     "tiles": [
      {
       "value": "250k",
-      "label": "tokens relus par\néchange, en moyenne"
+      "label": "Mean context tokens\nper exchange"
      },
      {
       "value": "47 %",
-      "label": "du coût vient des\néchanges > 400k"
+      "label": "of cost comes from\nexchanges above 400k"
      }
     ]
    }
   ],
   "footer": [
-   "49 sessions · 15 835 échanges · 4 projets Flutter, dont 1 pro anonymisé",
-   "des estimations du besoin, pas des économies mesurées · coût au tarif API du 2026-09-28"
+   "49 sessions · 15,835 exchanges · 4 Flutter projects, including 1 anonymized work project",
+   "Opportunity estimates, not measured savings · API prices as of 2026-09-28"
   ]
  }
 }

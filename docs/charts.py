@@ -23,7 +23,7 @@ def fmt(value, unit=""):
     if unit == "k":
         return "%s k" % format(round(value / 1000), ",").replace(",", " ")
     if unit == "%":
-        return (("%.0f\u202f%%" if value >= 10 or value == 0 else "%.1f\u202f%%") % value).replace(".", ",")
+        return (("%.0f\u202f%%" if value >= 10 or value == 0 else "%.1f\u202f%%") % value)
     return format(round(value), ",").replace(",", " ")
 
 

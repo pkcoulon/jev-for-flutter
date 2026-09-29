@@ -1,12 +1,12 @@
 {
  "lens": {
-  "section": "lens · mesuré avec Jev (jev-1.13.0)",
-  "title": "Claude voit les passages concernés.",
-  "title_tail": "Pas tout le fichier.",
-  "subtitle": "Jev compare chaque morceau du fichier à la question de Claude et ne garde que les morceaux concernés, en une demi-seconde.",
+  "section": "Historical lens results · jev-1.13.0",
+  "title": "Claude receives selected passages.",
+  "title_tail": "Full reads remain available.",
+  "subtitle": "Jev scores file chunks against the question. Historical component measurements follow.",
   "hero": {
    "value": "10 %",
-   "label": "du fichier montré, en général"
+   "label": "median file share shown"
   },
   "blocks": [
    {
@@ -40,7 +40,7 @@
      ],
      [
       [
-       "== carte_screen.dart (1501 lignes) · 3/40 blocs · 103 lignes",
+       "== carte_screen.dart (1501 lines) · 3/40 blocks · 103 lines",
        "secondary"
       ]
      ],
@@ -76,19 +76,19 @@
      ],
      [
       [
-       "   …le code des 3 blocs, numéroté comme cat -n…",
+       "   …source from 3 blocks, with line numbers…",
        "muted"
       ]
      ],
      [
       [
-       "-- omis (1398 lignes) : 37 blocs, listés avec leurs lignes",
+       "-- omitted: 1398 lines in 37 blocks, listed by range",
        "muted"
       ]
      ],
      [
       [
-       "-- lire un bloc omis : sed -n '378,436p' … ou lens --all",
+       "-- read an omitted block: sed -n '378,436p' … or lens --all",
        "muted"
       ]
      ],
@@ -100,13 +100,13 @@
      ],
      [
       [
-       "Rien n'est caché en silence : chaque plage omise est listée,",
+       "Omitted ranges are listed explicitly.",
        "secondary"
       ]
      ],
      [
       [
-       "et Claude peut la lire d'une commande.",
+       "Claude can retrieve them with another command.",
        "secondary"
       ]
      ]
@@ -120,7 +120,7 @@
      548,
      268
     ],
-    "title": "passages attendus présents",
+    "title": "Expected passages included",
     "max": 100,
     "rows": [
      {
@@ -130,12 +130,12 @@
       "emphasis": true
      },
      {
-      "label": "mots-clés",
+      "label": "Keywords",
       "value": 73.6,
       "text": "74 %"
      },
      {
-      "label": "tout lire",
+      "label": "Full read",
       "value": 100,
       "text": "100 %"
      }
@@ -149,7 +149,7 @@
      548,
      268
     ],
-    "title": "part du fichier montrée",
+    "title": "File share shown",
     "max": 100,
     "rows": [
      {
@@ -159,12 +159,12 @@
       "emphasis": true
      },
      {
-      "label": "mots-clés",
+      "label": "Keywords",
       "value": 26.7,
       "text": "27 %"
      },
      {
-      "label": "tout lire",
+      "label": "Full read",
       "value": 100,
       "text": "100 %"
      }
@@ -172,18 +172,18 @@
    }
   ],
   "footer": [
-   "36 questions sur 12 fichiers de 270 à 872 lignes · 3 projets Flutter perso · en français et en anglais",
-   "passages attendus choisis en lisant le code · mesure la sélection, pas une économie sur une tâche complète"
+   "36 questions · 12 files of 270–872 lines · 3 personal Flutter projects · French and English",
+   "Expected passages selected from source · measures retrieval, not complete-task savings"
   ]
  },
  "find": {
-  "section": "lens find · mesuré avec Jev (jev-1.13.0)",
-  "title": "Décris ce que fait le code.",
-  "title_tail": "Pas son nom.",
-  "subtitle": "Jev passe en revue tous les fichiers du projet, puis vérifie les meilleurs. Rien n'est lu dans la conversation.",
+  "section": "Historical find results · jev-1.13.0",
+  "title": "Describe what the code does.",
+  "title_tail": "Search without knowing its name.",
+  "subtitle": "Jev screens files and checks leading candidates outside the conversation.",
   "hero": {
    "value": "20/20",
-   "label": "le bon fichier en premier"
+   "label": "Expected file ranked first"
   },
   "blocks": [
    {
@@ -239,7 +239,7 @@
      ],
      [
       [
-       "-- 301 fichiers criblés · 13 requêtes · 3.0 s",
+       "-- 301 files screened · 13 requests · 3.0 s",
        "muted"
       ]
      ],
@@ -251,19 +251,19 @@
      ],
      [
       [
-       "poop, pooch, tummy : 0 fichier sur 302.",
+       "poop, pooch, tummy: 0 of 302 files.",
        "secondary"
       ]
      ],
      [
       [
-       "Le code dit « selles », « stool », « digestion » :",
+       "Source uses “selles”, “stool” and “digestion”:",
        "secondary"
       ]
      ],
      [
       [
-       "c'est la carte « Selles & digestion » du débrief.",
+       "the debrief card is called “Selles & digestion”.",
        "secondary"
       ]
      ]
@@ -277,7 +277,7 @@
      548,
      330
     ],
-    "title": "bon fichier en premier",
+    "title": "Expected file ranked first",
     "max": 100,
     "rows": [
      {
@@ -287,7 +287,7 @@
       "emphasis": true
      },
      {
-      "label": "mots-clés",
+      "label": "Keywords",
       "value": 35,
       "text": "35 %"
      },
@@ -298,8 +298,8 @@
      }
     ],
     "notes": [
-     "sans aucun mot du code : mots-clés 5 %",
-     "descriptions vagues : Jev 3 sur 6 seulement"
+     "No shared code words: keywords 5%",
+     "Vague descriptions: Jev only 3/6"
     ]
    },
    {
@@ -312,29 +312,29 @@
     ],
     "tiles": [
      {
-      "value": "1,6 s",
-      "label": "par recherche,\n~300 fichiers"
+      "value": "1.6 s",
+      "label": "Per search,\n~300 files"
      },
      {
       "value": "19/20",
-      "label": "en ne gardant que\nles résultats sûrs"
+      "label": "Keeping only\nconfident results"
      }
     ]
    }
   ],
   "footer": [
-   "20 descriptions, dont 10 sans aucun mot du code · 3 projets Flutter perso · en français et en anglais",
-   "descriptions écrites en lisant le code : c'est un plafond, pas l'usage courant"
+   "20 descriptions, 10 without shared code words · 3 personal Flutter projects · French and English",
+   "Descriptions written from source · favorable cases, not representative usage"
   ]
  },
  "guard": {
-  "section": "garde des conventions · mesuré avec Jev (jev-1.13.0)",
-  "title": "Tes conventions, vérifiées à chaque modification.",
-  "title_tail": "Sans bloquer.",
-  "subtitle": "Les règles deviennent des questions oui/non ; Jev les vérifie en arrière-plan et ne prévient Claude qu'en cas de doute.",
+  "section": "Historical convention-guard results · jev-1.13.0",
+  "title": "Check conventions after edits.",
+  "title_tail": "Claude continues working.",
+  "subtitle": "Jev checks yes/no rules in the background and reports likely violations.",
   "hero": {
    "value": "26/30",
-   "label": "écarts repérés, sans fausse alerte"
+   "label": "Violations found; no false alerts"
   },
   "blocks": [
    {
@@ -358,7 +358,7 @@
      ],
      [
       [
-       "  …Claude continue ; la garde juge en 2,5 s…",
+       "  …Claude continues; guard judgment takes 2.5 s…",
        "muted"
       ]
      ],
@@ -370,7 +370,7 @@
      ],
      [
       [
-       "dartlens · conventions à vérifier dans",
+       "Historical guard · check conventions in",
        "primary"
       ]
      ],
@@ -386,19 +386,19 @@
        "accent"
       ],
       [
-       "Aucune confiance",
+       "Do not display confidence",
        "primary"
       ]
      ],
      [
       [
-       "  affichée (D2, D41) : le palier décide en interne,",
+       "  (D2, D41): the tier decides internally;",
        "primary"
       ]
      ],
      [
       [
-       "  l'écran ne montre que l'espèce. ",
+       "  the screen shows only the species. ",
        "primary"
       ],
       [
@@ -408,7 +408,7 @@
      ],
      [
       [
-       "Corrige si c'est avéré, sinon ignore.",
+       "Fix if confirmed; otherwise ignore.",
        "secondary"
       ]
      ],
@@ -420,7 +420,7 @@
      ],
      [
       [
-       "Règles tirées des docs du projet par /dartlens:rules.",
+       "Rules generated from project documentation.",
        "secondary"
       ]
      ]
@@ -434,26 +434,26 @@
      548,
      330
     ],
-    "title": "sur 60 exemples de test",
+    "title": "Across 60 test examples",
     "max": 100,
     "rows": [
      {
-      "label": "écarts vus",
+      "label": "Violations found",
       "value": 86.7,
       "text": "26/30",
       "emphasis": true
      },
      {
-      "label": "sans alerte",
+      "label": "No warning",
       "value": 100,
       "text": "30/30",
       "emphasis": true
      }
     ],
     "notes": [
-     "26 écarts repérés sur 30, 4 manqués",
-     "aucune alerte sur les 30 exemples conformes",
-     "mêmes réponses sur 3 passages"
+     "26 of 30 violations found; 4 missed",
+     "No warnings on 30 compliant examples",
+     "Same judgments across 3 passes"
     ]
    },
    {
@@ -466,19 +466,19 @@
     ],
     "tiles": [
      {
-      "value": "0,3 s",
-      "label": "de Jev par modification,\nen arrière-plan"
+      "value": "0.3 s",
+      "label": "Jev time per edit,\nin the background"
      },
      {
-      "value": "jamais",
-      "label": "de blocage :\nClaude continue"
+      "value": "None",
+      "label": "Blocking waits:\nClaude continues"
      }
     ]
    }
   ],
   "footer": [
-   "60 exemples sur 2 projets Flutter perso · règles et exemples écrits par le même agent : un plafond",
-   "fausses alertes en usage réel, avec plusieurs règles à la fois : encore à mesurer"
+   "60 examples · 2 personal Flutter projects · rules and examples written by the same agent",
+   "Real-use false warnings across multiple rules remain unmeasured"
   ]
  }
 }

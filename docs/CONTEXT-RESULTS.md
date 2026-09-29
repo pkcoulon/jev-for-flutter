@@ -1,65 +1,65 @@
-# Essais de la refonte en parallèle — 29 septembre 2026
+# Parallel context trials — September 29, 2026
 
-> Historique : la version 0.3 utilise désormais la lecture native ciblée et garde le contexte automatique en option. Voir [les dernières mesures](READ-RESULTS.md) et [l’architecture actuelle](ARCHITECTURE.md).
+> Historical results. Version 0.3 uses native focused reads and keeps automatic context optional. See the [current measurements](PUBLIC-PROJECTS.md) and [architecture](ARCHITECTURE.md).
 
-Les mesures distinguent deux états du plugin. Les quatre premières sessions ont révélé un problème de transmission du contexte ; le format a ensuite été corrigé. Tous les essais restent dans le bilan.
+Two plugin versions are measured separately. The first four sessions exposed a context-delivery problem; the format was then fixed. All runs remain included.
 
-## Première version : deux recherches d'information
+## Initial version: two information searches
 
-Une session par tâche et par variante, Sonnet 5, effort moyen, mêmes prompts et mêmes critères au sein de chaque paire. Projets personnels épinglés ; aucun dépôt client. Les relectures ci-dessous sont faites par Astra dans la session principale, **ni indépendantes ni aveugles**.
+One session per task and variant, Sonnet 5, medium effort, identical prompts and criteria within each pair. Pinned personal projects, no customer repositories. Astra reviewed in the main session, **neither independently nor blind**.
 
-| Mesure | Pioudex sans / avec | Gambade sans / avec |
+| Measure | Pioudex without / with | Gambade without / with |
 |---|---:|---:|
-| Tokens Claude, cache compris | 440 317 / 358 347 | 436 731 / 449 198 |
-| Coût Claude + Jev | 0,3796 / 0,2964 $ | 0,2109 / 0,2194 $ |
-| Durée | 119,1 / 74,6 s | 32,4 / 42,3 s |
-| Écart de tokens | −19 % | +3 % |
-| Écart de coût | −22 % | +4 % |
-| Écart de temps | −37 % | +31 % |
+| Claude tokens, including cache | 440,317 / 358,347 | 436,731 / 449,198 |
+| Claude + Jev cost | $0.3796 / $0.2964 | $0.2109 / $0.2194 |
+| Runtime | 119.1 / 74.6 s | 32.4 / 42.3 s |
+| Token change | −19% | +3% |
+| Cost change | −22% | +4% |
+| Time change | −37% | +31% |
 
-**Qualité : aucune réponse ne couvre tous les critères fixés avant ce lot.** Sur Pioudex, le plugin omet le moteur embarqué ; le témoin le cite mais omet `ConfidenceTier.parse` et n'explique pas la construction sans JSON. Sur Gambade, les deux réponses donnent le bon seuil et la bonne source, mais n'expliquent pas le raccordement à l'outil météo de l'assistant. Aucun fichier modifié dans ces quatre sessions. Les écarts favorables sur Pioudex ne constituent donc pas une économie sur un travail complet.
+**No answer covers every criterion fixed before this campaign.** On Pioudex, the plugin omits the embedded engine; the control mentions it but omits `ConfidenceTier.parse` and construction without JSON. On Gambade, both give the correct threshold and source but omit the assistant weather-tool connection. No files were modified. The favorable Pioudex differences therefore do not establish savings on complete work.
 
-Le mécanisme automatique s'est déclenché dans les deux sessions avec plugin : préparation par Jev en 2,7 s sur Pioudex et 5,4 s sur Gambade, puis remise au sous-agent dans le premier cas et au parent dans le second. Huit requêtes de classement par demande, toutes réussies. Il n'était pas nécessaire que Claude découvre le MCP.
+Automatic preparation ran in both plugin sessions: Jev finished in 2.7 seconds on Pioudex and 5.4 seconds on Gambade, with delivery to the subagent and parent respectively. Eight successful ranking requests per prompt. Claude did not need to discover the MCP tool.
 
-### Défaut observé et correction
+### Delivery problem and fix
 
-Le résultat de 11,4 Ko a été rangé dans un fichier par Claude Code, avec seulement les deux premiers Ko visibles dans la conversation du sous-agent. Les sources étaient donc moins accessibles que prévu. Le plugin limite maintenant la remise automatique à **8 000 octets, UTF-8 compris**, réserve une place aux limites de couverture et présente ensemble les implémentations possibles d'une même méthode.
+Claude Code placed the 11.4 KB result in a file, exposing only its first 2 KB in the subagent conversation. The plugin now caps automatic delivery at **8,000 bytes, including UTF-8 encoding**, reserves room for coverage limits, and groups possible implementations of the same method.
 
-Les 41 contrôles locaux passent. Le rejeu hors ligne des huit jugements Jev Pioudex, sur les mêmes blocs, produit un contexte compact contenant les conversions, les parcours écoute/photo, l'embarqué et le repli. Aucun appel Jev supplémentaire pour ce rejeu. Cette vérification de format ne certifie pas que le LLM couvrira tous ces éléments.
+All 41 local checks pass. Offline replay of the eight Pioudex judgments on the same blocks produces compact context containing conversions, listening/photo flows, embedded processing and fallback, without new Jev calls. This format check does not establish that the LLM will cover them all.
 
-## Format compact : une correction avec tests
+## Compact format: one fix with tests
 
-Après le défaut de transport observé, une dernière paire a évalué le format corrigé sur la tâche Pioudex de calcul d'XP. Il s'agit d'une autre tâche que les deux réponses incomplètes ci-dessus ; aucune de celles-ci n'a été relancée. Le plan a été figé avant les appels : témoin puis plugin, 0,85 $ maximum Claude chacun, Jev et réserve compris dans le solde des 5 $.
+After the delivery problem, one final pair evaluated the corrected format on Pioudex's XP calculation task. This differs from the two incomplete information tasks, which were not rerun. The plan was frozen before calls: control then plugin, each capped at $0.85 Claude, with Jev and reserve inside the remaining $5 budget.
 
-| Mesure | Sans plugin | Avec contexte compact | Écart |
+| Measure | Without plugin | Compact context | Change |
 |---|---:|---:|---:|
-| Tokens Claude, cache compris | 574 721 | 761 844 | +33 % |
-| Coût Claude + Jev | 0,2818 $ | 0,3446 $ | +22 % |
-| Session Claude | 141,0 s | 112,8 s | −20 % |
-| Contrôles externes | 26,1 s | 22,7 s | — |
-| Total jusqu'aux contrôles terminés | 167,1 s | 135,5 s | −19 % |
+| Claude tokens, including cache | 574,721 | 761,844 | +33% |
+| Claude + Jev cost | $0.2818 | $0.3446 | +22% |
+| Claude session | 141.0 s | 112.8 s | −20% |
+| External checks | 26.1 s | 22.7 s | — |
+| Total through completed checks | 167.1 s | 135.5 s | −19% |
 
-Les deux variantes apportent exactement la même modification d'une ligne : le multiplicateur du rang 4 revient de ×4 à ×5. Les tests sont inchangés. Les traces confirment les **1 067 tests passés dans chaque session**, et les cinq contrôles externes passent aussi : célébration, progression, non-régression, analyse et format. Les deux réponses sont acceptées pour cette tâche.
+Both variants make exactly the same one-line fix: restore the rank-4 multiplier from ×4 to ×5. Tests are unchanged. Traces confirm **1,067 passing tests in each session**; all five external checks also pass: celebration, progression, regression, analysis and formatting. Both answers are accepted for this task.
 
-Le hook transmet cette fois **7 677 octets directement dans la conversation**, sans externalisation en fichier. Le correctif de transport est donc aussi vérifié en session réelle. Cela ne garantit pas que toutes les réponses de localisation couvrent désormais leurs branches : les cas incomplets ne sont pas devenus des réussites par cette vérification.
+The hook delivers **7,677 bytes directly into the conversation**, without externalizing them. The transport fix is therefore checked in a real session. That does not turn the earlier incomplete localization answers into successes.
 
-Claude fait 16 appels avec le plugin contre 13 sans lui. La facture augmente essentiellement du côté Claude ; Jev représente 0,000831 $ sur cette paire, contrôle de connexion inclus. Le temps inférieur reste une observation unique : ordre des variantes, caches et latence peuvent contribuer à l'écart. Ne pas annoncer « 19 % plus rapide » comme performance générale.
+Claude makes 16 calls with the plugin versus 13 without it. The added cost is mostly Claude; Jev costs $0.000831 across this pair, including connectivity checks. The lower time is one observation; order, caching and latency may contribute. It is not a general “19% faster” claim.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/context-results-dark.svg">
-  <img alt="Même correctif : +33 % de tokens, +22 % de coût, −19 % de temps dans une paire de sessions." src="img/context-results-light.svg">
+  <img alt="Same fix: 33% more tokens, 22% higher cost and 19% less time in one pair of sessions." src="img/context-results-light.svg">
 </picture>
 
-**Décision produit :** le contexte automatique et le traitement en parallèle sont opérationnels. La promesse complète — qualité conservée, moins de tokens, moins cher et plus rapide — n'est pas validée. Le README présente l'aide à l'exploration, sans transformer un gain de temps isolé en promesse économique. Les essais montrent qu'ajouter du contexte peut aussi provoquer davantage de recherches ; la quantité préparée n'est pas à augmenter par défaut.
+**Product decision:** automatic context and parallel execution work, but the full objective—preserved quality, fewer tokens, lower cost and faster completion—is not established. Extra context can trigger extra exploration, so more context is not enabled by default. Automatic context is now optional.
 
-## Coût et traces
+## Cost and evidence
 
-Les quatre premières sessions consomment **1,1064 $**, puis la paire sur le format compact **0,6264 $**, au tarif API, Jev et contrôles de connexion inclus. Avec les **1,3053 $** du lot antérieur, le total est **3,0381 $, soit 3,04 $ sur 5 $**. Aucun plafond dépassé, aucune relance des réponses incomplètes, aucun relecteur payant supplémentaire. Le compteur prudent conserve le maximum du coût natif et du coût recalculé, avec une différence inférieure à un dix-millième de dollar.
+The first four sessions cost **$1.1064**, then the compact-format pair **$0.6264**, at API-equivalent prices including Jev and connectivity checks. Adding the earlier **$1.3053** yields **$3.0381, or $3.04 of $5** at this stage. No cap overrun, retry of incomplete answers or extra paid reviewer. Conservative accounting keeps the larger of native and recalculated costs; the difference is below $0.0001.
 
-Les journaux distinguent les tokens Claude d'entrée, écriture cache 5 min, écriture cache 1 h, lecture cache et sortie. Les tokens Jev et son coût sont additionnés séparément. Les durées incluent les outils utilisés par Claude ; aucune commande de test externe n'était requise pour ces deux recherches d'information. Préparation des copies et relecture sont exclues.
+Logs distinguish Claude fresh input, five-minute cache writes, one-hour cache writes, cache reads and output. Jev usage is separate. Durations include tools used by Claude; the information-search tasks required no external test commands. Copy preparation and review are excluded.
 
-Archives privées : `~/.cache/dartlens-bench/context-real-2026-09-29/` et `context-final-2026-09-29/` — plans, copies figées du plugin, requêtes et réponses Jev, traces Claude et sous-agents, diffs, usages et relecture. La clé n'est pas archivée. La première version et le format compact ont des empreintes distinctes.
+Private archives: `~/.cache/dartlens-bench/context-real-2026-09-29/` and `context-final-2026-09-29/`, containing plans, snapshots, Jev requests and responses, Claude/subagent traces, diffs, usage and reviews. Keys are not archived. The initial and compact versions have distinct fingerprints.
 
-Données exportées : [première version](context-initial-results.json), [format compact](context-final-results.json). Elles contiennent les usages par classe de cache, les durées, tarifs, réserves de relecture et empreintes des archives. Les SVG sont régénérables avec `uv run --with matplotlib==3.9.4 python docs/readme_charts.py`.
+Exported data: [initial version](context-initial-results.json), [compact format](context-final-results.json). They include cache classes, durations, prices, review reservations and evidence fingerprints. Regenerate charts with `uv run --with matplotlib==3.9.4 python docs/readme_charts.py`.
 
-[Architecture](ARCHITECTURE.md) · [Vérifications locales](CONTEXT-REDESIGN.md) · [Mesures avant refonte](EXPERIMENT-5USD.md)
+[Architecture](ARCHITECTURE.md) · [Local checks](CONTEXT-REDESIGN.md) · [Earlier measurements](EXPERIMENT-5USD.md)

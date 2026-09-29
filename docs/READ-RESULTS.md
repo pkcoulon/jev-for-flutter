@@ -1,67 +1,67 @@
-# Lectures ciblées : mesures de la version 0.3
+# Focused reads: version 0.3 measurements
 
-Ces chiffres concernent la version 0.3.0. La version 0.3.1 ajoute une [préparation en parallèle](PREFETCH-RESULTS.md) sans changer les questions de sélection ; ses effets sur une réponse complète ne sont pas mesurés par ce lot.
+These figures describe version 0.3.0. Version 0.3.1 adds [parallel preparation](PREFETCH-RESULTS.md) without changing the selection questions; this campaign does not measure that change's effect on complete answers.
 
-Le 29 septembre 2026, trois paires de sessions Claude Sonnet 5, effort moyen, évaluent le nouveau hook de lecture. **Le coût baisse sur ces trois cas, le temps augmente au total.** Les critères de réponse, prompts, sources et plafonds étaient fixés avant les appels ; aucun essai n'a été relancé.
+On September 29, 2026, three pairs of Claude Sonnet 5 sessions at medium effort evaluated the new read hook. **Cost falls across these three cases; total time increases.** Answer criteria, prompts, sources and spending caps were fixed before calls, with no retries.
 
-| Somme des trois sessions | Sans plugin | Jev for Flutter | Variation |
+| Total across three sessions | Without plugin | Jev for Flutter | Change |
 |---|---:|---:|---:|
-| Tokens Claude, entrées/cache/sorties | 102 780 | 76 974 | **−25 %** |
-| Coût Claude + Jev | 0,247752 $ | 0,145253 $ | **−41 %** |
-| Durée rapportée par Claude | 20,638 s | 24,786 s | **+20 %** |
-| Appels Read | 3 | 3 | aucun appel supplémentaire |
-| Réponses entièrement acceptées | 1/3 | 2/3 | échantillon trop petit pour un taux |
+| Claude tokens, input/cache/output | 102,780 | 76,974 | **−25%** |
+| Claude + Jev cost | $0.247752 | $0.145253 | **−41%** |
+| Claude-reported runtime | 20.638 s | 24.786 s | **+20%** |
+| Read calls | 3 | 3 | No extra calls |
+| Fully accepted answers | 1/3 | 2/3 | Too few cases to estimate a rate |
 
-Tous les essais, y compris les réponses imparfaites, entrent dans ces sommes. Le pourcentage de tokens concerne **Claude**. Jev a traité séparément 40 954 tokens d'entrée et 2 234 de sortie, pour 0,001720 $ compris dans le coût ci-dessus. En additionnant les tokens des deux modèles, le volume traité augmente : la délégation utilise davantage le petit modèle et moins Claude.
+Every run, including imperfect answers, is included. The token percentage covers **Claude**. Jev separately processed 40,954 input and 2,234 output tokens, costing $0.001720, already included above. The combined token volume increases: delegation uses more of the smaller model and less Claude.
 
-![Résultats des lectures ciblées](img/read-results-light.svg)
+![Focused read results](img/read-results-light.svg)
 
-## Périmètre exact
+## Exact scope
 
-Trois questions sur une fonction précise dans un fichier déjà connu : action d'une notification (Gambade), invalidation des caches de synchronisation (Pioudex), promotion d'un palier audio (Pioudex). Seul l'outil Read est disponible dans **les deux variantes**, pour isoler la lecture. Le prompt ne nomme pas Jev et n'impose pas une lecture entière ; les six sessions ont choisi un seul Read sans plage.
+Three questions about a specific function in a known file: notification actions in Gambade, sync-cache invalidation in Pioudex, and audio-tier promotion in Pioudex. Only Read is available in **both variants**, to isolate reading. The prompt neither names Jev nor requires a full read; all six sessions chose one Read without an explicit range.
 
-Le plugin complet est chargé avec ses valeurs par défaut. Les copies de projet n'ont ni mémoire ni règles locales. Le routeur a tout de même émis trois requêtes, incluses dans le coût. Chaque variante reçoit le même fichier extrait du même commit. Aucune source n'a été modifiée.
+The complete plugin uses default settings. Project copies have no memory or local rules. The router still made three requests, included in cost. Each variant receives the same file from the same commit. No source was modified.
 
-Sources : Gambade `fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c`, Pioudex `91036cc5a13a474a3743c56919b598919cd84500`. Identité du plugin et empreintes des fichiers dans [les données](read-results.json). Les détails de marque et d'aide ont été finalisés après le gel ; l'algorithme de sélection et ses valeurs par défaut sont ceux testés.
+Sources: Gambade `fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c`, Pioudex `91036cc5a13a474a3743c56919b598919cd84500`. Plugin identity and file hashes are in the [data](read-results.json). Branding and help were finalized after freezing the snapshot; the selection algorithm and defaults match the tested version.
 
-Ce lot ne teste ni une recherche libre sur tout un dépôt, ni un correctif terminé avec ses tests. Il vise le cas dans lequel le hook agit : une question localisée et une lecture complète évitable. Les précédents essais de développement restent dans [CONTEXT-RESULTS.md](CONTEXT-RESULTS.md), y compris leurs résultats défavorables.
+This does not evaluate open-ended repository search or a completed fix with tests. It targets the hook's intended situation: a localized question with an avoidable full read. Earlier development trials, including unfavorable results, remain in [CONTEXT-RESULTS.md](CONTEXT-RESULTS.md).
 
-## Qualité : contrôle des sources puis des réponses
+## Quality: source coverage and answers
 
-| Cas | Plage fournie par le plugin | Passage attendu présent | Réponse sans / avec |
+| Case | Plugin range | Expected passage present | Answer without / with |
 |---|---|---|---|
-| Notification | 16–165 sur 590 lignes | oui, méthode entière | refusée / acceptée |
-| Caches | 466–616 sur 755 lignes | oui, méthode entière | refusée / refusée |
-| Accords audio | 304–453 sur 453 lignes | oui, méthode entière | acceptée / acceptée |
+| Notification | 16–165 of 590 lines | Yes, complete method | Rejected / accepted |
+| Caches | 466–616 of 755 lines | Yes, complete method | Rejected / rejected |
+| Audio agreement | 304–453 of 453 lines | Yes, complete method | Accepted / accepted |
 
-La réponse notification sans plugin omet le traitement d'un payload vide, critère prévu. Sur les caches, les deux réponses inversent dans leur prose l'ordre de mise à jour de l'identité et du vidage des caches ; le code cité par la variante plugin est pourtant correct. Les deux réponses sur le palier audio couvrent garde `none`, nombre d'accords, échelle et plafond.
+The notification control omits empty-payload handling, a predeclared criterion. Both cache answers reverse the order of identity updates and cache clearing in their prose, although the plugin answer quotes the correct code. Both audio-tier answers cover the `none` guard, agreement count, scale and cap.
 
-La seule paire avec deux réponses entièrement acceptées est donc le palier audio : **−19 % de tokens Claude, −33 % de coût et −11 % de durée**, une exécution chacune. Ce sous-ensemble est identifié après relecture ; il n'est pas utilisé seul comme graphique principal.
+The audio tier is the only pair with two fully accepted answers: **−19% Claude tokens, −33% cost and −11% runtime**, one run each. This subset was identified after review and is not used alone as the main chart.
 
-Relecture par Astra dans cette session, ni indépendante ni aveugle. Aucun juge payant. Les passages présents ne garantissent pas une réponse correcte : ce sont deux contrôles distincts. La note des lignes omises a été retrouvée intégralement dans les trois transcripts Claude Code, sans fichier d'externalisation.
+Astra reviewed the answers in the same session, neither independently nor blind. No paid judge was used. Source presence does not guarantee answer correctness; these are separate checks. The omitted-line note was found in full in all three Claude transcripts, without externalized output.
 
-## Replis et vérifications
+## Fallbacks and checks
 
-- 28 contrôles hors ligne : arguments Read, récupération du fichier entier, concurrence, erreurs, source changée, exclusions, secrets, compatibilité et plafond de recherche.
-- 6 requêtes Jev réelles supplémentaires : revue complète, plusieurs comportements, parcours de synchronisation complet, comparaison audio/photo et deux comportements absents. **6/6 lectures laissées inchangées** ; coût 0,002812 $.
-- Temps du hook observé sur les trois lectures ciblées : 364, 400 et 412 ms. Ce n'est pas le temps de réponse de Claude.
+- 28 offline checks covering Read arguments, full-file recovery, concurrency, errors, changed source, exclusions, secrets, compatibility and search caps.
+- Six extra real Jev requests: whole-file review, multiple behaviors, complete sync flow, audio/photo comparison, and two absent behaviors. **6/6 reads stayed unchanged**, costing $0.002812.
+- Observed hook times for the three focused reads: 364, 400 and 412 ms. These are not Claude answer times.
 
-Les seuils n'ont pas été ajustés sur ces six contrôles. Ils réduisent le risque d'omission sans le supprimer. Aucun gain général de qualité ou de vitesse n'est établi.
+Thresholds were not tuned on those six checks. They reduce omission risk without eliminating it. No general quality or speed improvement is established.
 
-## Comptage, reproductibilité et budget
+## Accounting, reproduction and budget
 
-Le coût annoncé est celui retourné par Claude, contrôlé contre les usages API dédupliqués et les classes de cache, plus les entrées Jev à 0,042 $/million (sortie gratuite). Les durées utilisent `duration_ms` de Claude ; les temps de processus, moins précis à cause du suivi toutes les deux secondes, sont également conservés dans les données.
+Cost is Claude's reported value, checked against deduplicated usage and cache categories, plus Jev input at $0.042 per million tokens, with free output. Runtime uses Claude's `duration_ms`; less precise process timings, affected by two-second polling, are also retained.
 
-Ordre des variantes : sans/avec, avec/sans, sans/avec. Une répétition par cas, aucune estimation de variance, pas de réglage personnel ni de MCP connecté. Les variations de génération, du cache et de l'API restent des facteurs possibles. On mesure un cas favorable et limité, pas une garantie pour tous les utilisateurs.
+Variant order: without/with, with/without, without/with. One run per case, no variance estimate, personal settings or connected MCP tools. Generation, cache and API variation remain possible factors. This is a limited favorable case, not a guarantee for every user.
 
-Le nouveau lot a consommé **0,396 $**, contrôles Jev supplémentaires compris. Le total prudent de cette reprise atteint **3,4341 $ sur les 5 $ autorisés**. Aucun processus payant ne reste actif.
+This campaign cost **$0.396**, including extra Jev checks. The conservative historical total at this stage was **$3.4341 of the authorized $5**. No paid process remained active.
 
-Plan, sources figées, requêtes Jev et transcripts privés : `~/.cache/dartlens-bench/read-redesign-2026-09-29/`. Les réponses, usages et critères normalisés sont dans [read-results.json](read-results.json). Les anciens lots sont conservés séparément.
+Plan, pinned sources, Jev requests and private transcripts: `~/.cache/dartlens-bench/read-redesign-2026-09-29/`. Normalized answers, usage and criteria are in [read-results.json](read-results.json). Earlier campaigns are separate.
 
-Les graphiques sont recalculés depuis le JSON, sans pourcentages saisis à la main :
+Charts calculate percentages from JSON:
 
 ```bash
 uv run --python 3.13 --with matplotlib==3.9.4 python docs/readme_charts.py
 ```
 
-[Retour au README](../README.md) · [Pourquoi les chiffres de Boris diffèrent](JEV-COMPARISON.md)
+[README](../README.md) · [Upstream benchmark comparison](JEV-COMPARISON.md)

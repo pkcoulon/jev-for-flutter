@@ -139,36 +139,36 @@
   "notes": [
    {
     "index": 0,
-    "label": "62 k avant la 1re question : instructions, outils, mémoire",
+    "label": "62k before the first question: instructions, tools, memory",
     "dx": 12,
     "dy": 20
    },
    {
     "index": 45,
-    "label": "+63 k en une seule recherche (grep, find)\nrelus ensuite à chaque appel",
+    "label": "+63k from one search (grep, find)\nreused in each later call",
     "dx": -12,
     "dy": -26,
     "anchor": "end"
    }
   ],
-  "x_label": "appel API n°",
-  "title": "Le contexte ne fait que grossir, et il est relu à chaque appel",
-  "subtitle": "Tokens de contexte envoyés à chaque appel, une session réelle de 132 appels sur un projet Flutter"
+  "x_label": "API call",
+  "title": "Context grows and is supplied on every call",
+  "subtitle": "Context tokens per call in one real Flutter session with 132 calls"
  },
  "tool-residency": {
   "kind": "hbar",
   "unit": "%",
   "rows": [
    {
-    "label": "Bash · lire des fichiers",
+    "label": "Bash · file reads",
     "value": 9.911401021522577
    },
    {
-    "label": "Read (fichiers)",
+    "label": "Read · files",
     "value": 6.232931704454391
    },
    {
-    "label": "Bash · chercher / lister",
+    "label": "Bash · search / list",
     "value": 4.936644352802866
    },
    {
@@ -184,12 +184,12 @@
     "value": 2.2418989896241235
    },
    {
-    "label": "Bash · tests / analyse",
+    "label": "Bash · tests / analysis",
     "value": 1.2811708112658209
    }
   ],
-  "title": "Ce que les outils font entrer reste, et se relit",
-  "subtitle": "Part du contexte relu occupée par les résultats d'outils, par source (49 sessions, 4 projets Flutter)"
+  "title": "Tool results remain in later context",
+  "subtitle": "Tool-result share of repeated context by source · 49 sessions, 4 Flutter projects"
  },
  "cost-by-context": {
   "kind": "grouped",
@@ -205,7 +205,7 @@
   ],
   "series": [
    {
-    "label": "part des appels",
+    "label": "Share of calls",
     "values": [
      30.154720555730975,
      29.119040101041996,
@@ -214,7 +214,7 @@
     ]
    },
    {
-    "label": "part du coût (tarifs API)",
+    "label": "Share of API-equivalent cost",
     "values": [
      13.851914177588382,
      17.306064251631703,
@@ -223,7 +223,7 @@
     ]
    }
   ],
-  "title": "Les longs contextes font l'essentiel du coût",
-  "subtitle": "Appels et coût valorisé aux tarifs API du 2026-09-28, par taille de contexte"
+  "title": "Long contexts account for most cost",
+  "subtitle": "Calls and API-equivalent cost by context size · prices as of 2026-09-28"
  }
 }

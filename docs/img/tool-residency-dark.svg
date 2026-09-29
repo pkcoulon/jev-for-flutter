@@ -1,36 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="322" viewBox="0 0 760 322" font-family='system-ui, -apple-system, "Segoe UI", sans-serif'>
 <rect width="100%" height="100%" rx="10" fill="#1a1a19"/>
-<text x="28.0" y="34.0" fill="#ffffff" font-size="16" font-weight="600" text-anchor="start">Ce que les outils font entrer reste, et se relit</text>
-<text x="28.0" y="55.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="start">Part du contexte relu occupée par les résultats d'outils, par source (49 sessions, 4 projets Flutter)</text>
+<text x="28.0" y="34.0" fill="#ffffff" font-size="16" font-weight="600" text-anchor="start">Tool results remain in later context</text>
+<text x="28.0" y="55.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="start">Tool-result share of repeated context by source · 49 sessions, 4 Flutter projects</text>
 <line x1="328.0" x2="328.0" y1="72" y2="288" stroke="#383835" stroke-width="1"/>
 <text x="328.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">0 %</text>
 <line x1="414.0" x2="414.0" y1="72" y2="288" stroke="#2c2c2a" stroke-width="1"/>
-<text x="414.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">2,5 %</text>
+<text x="414.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">2.5 %</text>
 <line x1="500.0" x2="500.0" y1="72" y2="288" stroke="#2c2c2a" stroke-width="1"/>
-<text x="500.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">5,0 %</text>
+<text x="500.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">5.0 %</text>
 <line x1="586.0" x2="586.0" y1="72" y2="288" stroke="#2c2c2a" stroke-width="1"/>
-<text x="586.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">7,5 %</text>
+<text x="586.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">7.5 %</text>
 <line x1="672.0" x2="672.0" y1="72" y2="288" stroke="#2c2c2a" stroke-width="1"/>
 <text x="672.0" y="304.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle">10 %</text>
-<text x="318.0" y="97.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · lire des fichiers</text>
+<text x="318.0" y="97.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · file reads</text>
 <path d="M328.0,84.0 H665.0 Q669.0,84.0 669.0,88.0 V98.0 Q669.0,102.0 665.0,102.0 H328.0 Z" fill="#3987e5"/>
-<text x="677.0" y="97.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">9,9 %</text>
-<text x="318.0" y="127.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Read (fichiers)</text>
+<text x="677.0" y="97.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">9.9 %</text>
+<text x="318.0" y="127.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Read · files</text>
 <path d="M328.0,114.0 H538.4 Q542.4,114.0 542.4,118.0 V128.0 Q542.4,132.0 538.4,132.0 H328.0 Z" fill="#3987e5"/>
-<text x="550.4" y="127.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">6,2 %</text>
-<text x="318.0" y="157.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · chercher / lister</text>
+<text x="550.4" y="127.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">6.2 %</text>
+<text x="318.0" y="157.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · search / list</text>
 <path d="M328.0,144.0 H493.8 Q497.8,144.0 497.8,148.0 V158.0 Q497.8,162.0 493.8,162.0 H328.0 Z" fill="#3987e5"/>
-<text x="505.8" y="157.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">4,9 %</text>
+<text x="505.8" y="157.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">4.9 %</text>
 <text x="318.0" y="187.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · git / GitHub</text>
 <path d="M328.0,174.0 H429.2 Q433.2,174.0 433.2,178.0 V188.0 Q433.2,192.0 429.2,192.0 H328.0 Z" fill="#3987e5"/>
-<text x="441.2" y="187.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">3,1 %</text>
+<text x="441.2" y="187.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">3.1 %</text>
 <text x="318.0" y="217.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">MCP (Figma, Jira…)</text>
 <path d="M328.0,204.0 H407.8 Q411.8,204.0 411.8,208.0 V218.0 Q411.8,222.0 407.8,222.0 H328.0 Z" fill="#3987e5"/>
-<text x="419.8" y="217.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">2,4 %</text>
+<text x="419.8" y="217.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">2.4 %</text>
 <text x="318.0" y="247.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · scripts</text>
 <path d="M328.0,234.0 H401.1 Q405.1,234.0 405.1,238.0 V248.0 Q405.1,252.0 401.1,252.0 H328.0 Z" fill="#3987e5"/>
-<text x="413.1" y="247.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">2,2 %</text>
-<text x="318.0" y="277.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · tests / analyse</text>
+<text x="413.1" y="247.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">2.2 %</text>
+<text x="318.0" y="277.0" fill="#c3c2b7" font-size="12" font-weight="400" text-anchor="end">Bash · tests / analysis</text>
 <path d="M328.0,264.0 H368.1 Q372.1,264.0 372.1,268.0 V278.0 Q372.1,282.0 368.1,282.0 H328.0 Z" fill="#3987e5"/>
-<text x="380.1" y="277.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">1,3 %</text>
+<text x="380.1" y="277.0" fill="#ffffff" font-size="12" font-weight="400" text-anchor="start">1.3 %</text>
 </svg>

@@ -1,37 +1,37 @@
-# Installer et utiliser Jev for Flutter
+# Installing and using Jev for Flutter
 
-Ce document décrit la version 0.3.2. Le dépôt, le plugin et sa marketplace s'appellent `jev-for-flutter`.
+This guide describes version 0.3.3. The repository, plugin and marketplace are named `jev-for-flutter`.
 
 ## Installation
 
-Le dépôt fournit sa propre marketplace, nommée `jev-for-flutter`. Il ne s'agit pas de la marketplace officielle Anthropic. Tant que le dépôt est privé, votre environnement Git doit être authentifié avec un compte autorisé.
+This public repository provides its own marketplace. It is separate from Anthropic's official marketplace and requires no private GitHub access.
 
 ```bash
 claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
-Ces commandes installent le plugin pour votre utilisateur. Pour une installation limitée au projet courant, utilisez `claude plugin install jev-for-flutter@jev-for-flutter --scope local`. Voir les [instructions officielles Claude Code](https://code.claude.com/docs/en/discover-plugins).
+These commands install the plugin for your user. For the current project only, use `claude plugin install jev-for-flutter@jev-for-flutter --scope local`. See the [official Claude Code instructions](https://code.claude.com/docs/en/discover-plugins).
 
-Prérequis : Python 3.9 ou plus récent, macOS ou Linux. Windows natif n'est pas pris en charge. Pour analyser précisément la structure Dart, le plugin utilise le SDK du projet et `package:analyzer`. Sans analyseur disponible, il continue avec un plan approximatif, signalé dans les résultats.
+Requirements: Python 3.9+, macOS or Linux. Native Windows is unsupported. Precise Dart syntax outlines use the project's SDK and `package:analyzer`. If that parser is unavailable, the plugin continues with an approximate outline and labels it accordingly.
 
-## Clé et activation
+## Key and activation
 
-Créez une clé depuis la console TypeSafe. Enregistrez-la dans un fichier personnel, jamais dans le dépôt :
+Create a key in the TypeSafe console. Save it in a personal file, never in the repository:
 
 ```bash
 mkdir -p ~/.config/jev-for-flutter
 ```
 
-Avec votre éditeur, placez uniquement la clé dans `~/.config/jev-for-flutter/typesafe.key`, puis restreignez ses permissions :
+Use an editor to put only the key in `~/.config/jev-for-flutter/typesafe.key`, then restrict its permissions:
 
 ```bash
 chmod 600 ~/.config/jev-for-flutter/typesafe.key
 ```
 
-Vous pouvez aussi fournir `TYPESAFE_API_KEY` dans l'environnement du processus Claude Code. Le fichier évite de saisir la clé dans une commande enregistrée par le terminal.
+Alternatively, set `TYPESAFE_API_KEY` in Claude Code's environment. The file avoids entering a key in a command recorded by your shell history.
 
-Dans chaque projet autorisé, `jev-flutter init --enable-jev` crée la configuration en conservant les réglages existants. Vous pouvez aussi créer `.claude/jev-for-flutter.json`, ou ajouter la clé suivante à son contenu existant :
+In each authorized project, `jev-flutter init --enable-jev` creates the configuration while preserving existing settings. You can also create `.claude/jev-for-flutter.json`, or merge this setting into it:
 
 ```json
 {
@@ -39,23 +39,24 @@ Dans chaque projet autorisé, `jev-flutter init --enable-jev` crée la configura
 }
 ```
 
-Ne remplacez pas vos autres réglages. Priorité : `.claude/jev-for-flutter.json`, `.jev-for-flutter.json`, puis les deux anciens fichiers `.claude/dartlens.json` et `.dartlens.json`. Le premier présent est utilisé. La clé dans `~/.config/dartlens/typesafe.key` reste reconnue si aucune nouvelle clé n'est disponible. Ouvrez une **nouvelle session Claude Code**, puis lancez :
+Keep your other settings. Configuration precedence is `.claude/jev-for-flutter.json`, `.jev-for-flutter.json`, then the legacy `.claude/dartlens.json` and `.dartlens.json`. The first existing file is used. `~/.config/dartlens/typesafe.key` remains a fallback if no new key is available. Start a **new Claude Code session**, then run:
 
 ```text
+! jev-flutter doctor
 ! jev-flutter status
 ```
 
-Le hook de démarrage ajoute les exécutables du plugin au `PATH` des commandes de cette session via [`CLAUDE_ENV_FILE`](https://code.claude.com/docs/en/hooks#persist-environment-variables). Il ne modifie pas votre profil de terminal. Depuis un terminal extérieur à Claude, les commandes ne sont donc pas automatiquement disponibles.
+The startup hook adds plugin executables to that session's command `PATH` through [`CLAUDE_ENV_FILE`](https://code.claude.com/docs/en/hooks#persist-environment-variables). It does not change your shell profile, so commands are not automatically available outside Claude.
 
-Pour essayer les changements d'un clone local avant publication : `claude --plugin-dir /chemin/vers/jev-for-flutter/plugins/jev-for-flutter`, depuis votre projet. Évitez de charger en même temps la copie installée et la copie locale.
+To try a local checkout, run `claude --plugin-dir /path/to/jev-for-flutter/plugins/jev-for-flutter` from your project. Avoid loading both the installed and local copies.
 
-## Au quotidien
+## Everyday use
 
-Continuez à demander votre travail à Claude normalement. Une lecture complète d'un fichier Dart de 400 lignes ou plus peut être ciblée automatiquement sur la question. La note indique les lignes omises. Refaire le Read récupère le fichier entier ; un `offset` ou `limit` explicite est toujours respecté. Demande large, incertitude, fichier trop grand ou erreur : lecture inchangée.
+Ask Claude to work as usual. A full read of a Dart file with at least 400 lines can be narrowed to the question. A note identifies omitted lines. Repeating the Read retrieves the whole file; explicit `offset` or `limit` values are always respected. Broad requests, uncertainty, oversized files and errors leave the read unchanged.
 
-Si votre demande contient exactement un chemin de fichier Dart, Jev peut préparer cette sélection pendant que Claude raisonne. Aucun parcours du dépôt n'est lancé pour deviner le fichier. La lecture réutilise le résultat seulement si la question, le fichier et le modèle correspondent, pendant 90 secondes au plus. Une préparation en cours et la lecture partagent la même requête Jev. Celle-ci compte dans le plafond de 24 par session, même si Claude ne lit finalement pas le fichier. Pour désactiver l'anticipation : `"read": {"prefetch": false}`.
+If your prompt contains exactly one Dart file path, Jev can prepare this selection while Claude reasons. It does not search the repository to guess the file. The read reuses the result only when the question, file and model match, for at most 90 seconds. An in-progress preparation and the read share one Jev request. It counts toward the 24-request session cap even if Claude never reads the file. Disable preparation with `"read": {"prefetch": false}`.
 
-Les commandes disponibles dans le terminal de Claude :
+Commands available in Claude's shell:
 
 ```bash
 lens context "How is an empty response handled?" lib
@@ -68,41 +69,41 @@ lens --local "selected area" lib/map_screen.dart
 dart-outline lib/map_screen.dart
 ```
 
-`lens` peut aussi exécuter une commande et filtrer sa sortie : `lens "Why does the test fail?" -- flutter test test/example_test.dart`. La commande est réellement exécutée ; son code de sortie est conservé. La sortie complète reste disponible dans un fichier local privé pendant environ 24 heures, avec nettoyage lors des usages suivants.
+`lens` can also execute a command and filter its output: `lens "Why does the test fail?" -- flutter test test/example_test.dart`. The command really runs and its exit code is preserved. Complete output remains in a private local file for about 24 hours, cleaned up on subsequent uses.
 
-`lens find` donne des pistes, pas un parcours complet. Au-delà de 150 fichiers, rien n'est envoyé : précisez un dossier ou passez `--max-files N`. Tous les fichiers admissibles du périmètre sont alors soumis à Jev, sans présélection par mots-clés. Pour un symbole connu, la recherche textuelle reste appropriée.
+`lens find` provides leads, not a complete flow. Above 150 files it sends nothing: choose a narrower directory or pass `--max-files N`. All eligible files in that scope are screened by Jev, with no keyword-based preselection. Text search remains appropriate for a known symbol.
 
-Les plans sont jugés par groupes de huit fichiers pour réduire les allers-retours ; chaque fichier conserve son score. `"find": {"batch_files": 1}` revient aux requêtes individuelles. Le délai réseau global de recherche reste de 20 secondes ; pour un grand périmètre explicitement choisi, vous pouvez augmenter `"jev": {"cli_timeout_s": 120}`. Les fichiers sans jugement à l'expiration du délai sont signalés.
+Outlines are judged in groups of up to eight files to reduce requests; each file retains its own score. `"find": {"batch_files": 1}` restores individual requests. Search has a global 20-second network deadline. For an explicitly chosen large scope, increase it with, for example, `"jev": {"cli_timeout_s": 120}`. Files without judgments at the deadline are reported.
 
-Pour essayer la préparation de contexte en arrière-plan, désactivée par défaut après des résultats défavorables :
+To try background context preparation, disabled by default after unfavorable results:
 
 ```json
 { "context": { "enabled": true } }
 ```
 
-La préparation utilise au plus huit requêtes Jev par demande, quatre simultanément, sans reprise, avec une limite de 24 000 tokens d'entrée **estimés** au total. Le processus en arrière-plan s'arrête après huit secondes ; une panne ne bloque pas Claude. La remise automatique contient au plus 8 Ko de texte UTF-8. Les mêmes questions et sources réutilisent leurs scores pendant dix minutes. Les fichiers changés invalident un contexte déjà préparé.
+Preparation uses at most eight Jev requests per prompt, four concurrently, with no retries and a total cap of 24,000 **estimated** input tokens. The background process stops after eight seconds; an outage does not block Claude. Automatic delivery contains at most 8 KB of UTF-8 text. Identical questions and sources reuse scores for ten minutes. Changed files invalidate prepared context.
 
-Ces réglages peuvent être abaissés :
+You can lower these limits:
 
 ```json
 { "context": { "max_requests": 4, "max_input_tokens": 12000, "max_chars": 8000 } }
 ```
 
-`"lens": {"nudge": "off"}` désactive la sélection automatique. `"nudge": "hint"` affiche seulement une suggestion. `"nudge": "narrow"` sélectionne directement la plage, réglage par défaut. `"nudge": "refuse_once"` conserve l'ancien refus unique pour les projets qui le souhaitent ; un réglage existant n'est pas effacé par la mise à jour. L'outil MCP `find_code`, désormais équivalent à `lens context`, s'active séparément avec `"find": {"mcp": true}` puis une nouvelle session. Il reste désactivé par défaut ; la préparation automatique ne dépend pas de sa visibilité.
+`"lens": {"nudge": "off"}` disables automatic selection. `"nudge": "hint"` only suggests it. The default, `"nudge": "narrow"`, selects a range directly. `"nudge": "refuse_once"` keeps the old one-time refusal if desired; updates preserve explicit settings. The MCP tool `find_code`, now equivalent to `lens context`, is enabled separately with `"find": {"mcp": true}` and a new session. It remains off by default; automatic preparation does not depend on tool visibility.
 
-## Conventions et mémoire
+## Conventions and memory
 
-`/jev-for-flutter:rules` demande à Claude de préparer `.claude/jev-for-flutter/rules.json` depuis vos conventions. Relisez ces règles : la garde donne ensuite des avis probabilistes sur les modifications, elle ne remplace ni les lints ni les tests. Sans ce fichier, aucune règle n'est évaluée. Cette commande utilise la conversation Claude et peut faire des évaluations Jev ; ce n'est pas une étape gratuite de l'installation.
+`/jev-for-flutter:rules` asks Claude to prepare `.claude/jev-for-flutter/rules.json` from your conventions. Review these rules: the guard gives probabilistic feedback on edits, not a replacement for lints or tests. Without the file, no rules are evaluated. This command uses the Claude conversation and may run Jev evaluations; it is not a free setup step.
 
-Le routeur exploite en arrière-plan les descriptions des fiches de la mémoire Claude associée au projet et des skills découverts. Il suggère des liens ; il ne charge pas automatiquement toutes les fiches. Un dossier partagé arbitraire n'est pas raccordé par le simple fait d'exister. Le routage exact d'un identifiant de ticket peut fonctionner localement sans Jev.
+The router works in the background with descriptions of the project's Claude memory entries and discovered skills. It suggests links rather than loading every entry. An arbitrary shared directory is not connected merely because it exists. Exact ticket-ID routing can work locally without Jev.
 
-Pour couper ces aides séparément : `"guard": {"enabled": false}` et `"router": {"enabled": false}`.
+Disable these helpers independently with `"guard": {"enabled": false}` and `"router": {"enabled": false}`.
 
-## Confidentialité
+## Privacy
 
-L'activation de Jev autorise l'envoi à TypeSafe des éléments requis par chaque composant : extraits ou contenu de candidats, question, modifications et règles, descriptions de mémoire et de skills. Le masquage reconnaît certains formats, pas tout secret possible. N'activez le service que pour du code autorisé à quitter la machine.
+Enabling Jev allows the components to send relevant data to TypeSafe: excerpts or candidate contents, questions, edits and rules, and memory and skill descriptions. Masking recognizes some formats, not every possible secret. Enable the service only for code allowed to leave your machine.
 
-Dans `~/.config/jev-for-flutter/policy.json`, vous pouvez exclure des chemins et des remotes Git, même si un projet active Jev :
+In `~/.config/jev-for-flutter/policy.json`, exclude paths or Git remotes even when a project enables Jev:
 
 ```json
 {
@@ -111,21 +112,21 @@ Dans `~/.config/jev-for-flutter/policy.json`, vous pouvez exclure des chemins et
 }
 ```
 
-Ces listes sont personnelles : aucun dépôt client particulier n'est codé dans le plugin. Une politique illisible refuse l'envoi. Les chemins sont résolus avant vérification ; un lien symbolique ne doit pas contourner l'exclusion. Les remotes sont comparés par sous-chaîne.
+These lists are personal; no specific customer repository is hardcoded. An unreadable policy blocks transmission. Paths are resolved before checking, including symlinks. Remotes use substring matching.
 
-Sans activation, ou avec `JEV_FLUTTER_JEV_DISABLE=1` dans l'environnement de Claude, les recherches de `lens` restent locales et le précisent. Aucun contexte de code n'est préparé automatiquement. `JEV_FLUTTER_CONTEXT_DISABLE=1` désactive seulement les appels Jev et l'automatisation de `context`.
+Without activation, or with `JEV_FLUTTER_JEV_DISABLE=1` in Claude's environment, `lens` search stays local and says so. No code context is automatically prepared. `JEV_FLUTTER_CONTEXT_DISABLE=1` disables only Jev calls and automation for `context`.
 
-## Dépannage
+## Troubleshooting
 
-- **Commande introuvable** : ouvrez une nouvelle session après installation ; vérifiez que le plugin et ses hooks sont activés. Le correctif d'initialisation du `PATH` est nécessaire pour les sessions sans configuration personnelle.
-- **Plan approximatif** : le parseur Dart est indisponible. La CLI peut préparer le parseur en arrière-plan au premier usage ; `JEV_FLUTTER_OUTLINE_NO_BUILD=1` l'interdit. Le serveur MCP utilise toujours cette interdiction. Aucun code Flutter de l'application n'est compilé par cette préparation, mais le helper Dart et ses dépendances le sont.
-- **Jev indisponible** : `lens` annonce un classement local. Cela change la pertinence possible ; ce n'est pas la preuve qu'aucun autre passage n'existe.
-- **Contexte absent** : demande trop courte, commande slash, dépassement du délai, absence de correspondance, résultat devenu obsolète ou session déjà terminée. Consultez `context.jsonl` dans le dossier de cache indiqué par `jev-flutter status` ; `lens context --local "question" lib` permet un diagnostic sans Jev.
-- **Coût affiché** : les tokens Claude et Jev sont distincts. Les anciens journaux Jev n'enregistraient que l'entrée ; la facturation complète ne peut pas en être déduite. `jev-flutter status` reste un diagnostic, pas une facture.
+- **Command not found:** start a new session after installation and check that the plugin and hooks are enabled. The `PATH` startup hook is needed in sessions without personal shell configuration.
+- **Approximate outline:** the Dart parser is unavailable. The CLI may prepare it in the background on first use; `JEV_FLUTTER_OUTLINE_NO_BUILD=1` prevents this. The MCP server always sets that restriction. Preparation compiles the Dart helper and its dependencies, not your Flutter application.
+- **Jev unavailable:** `lens` reports a local ranking. Relevance may differ; this does not prove that no other relevant code exists.
+- **No context:** possible causes include a short request, slash command, deadline, no match, stale result or ended session. Inspect `context.jsonl` in the cache directory shown by `jev-flutter status`; `lens context --local "question" lib` diagnoses without Jev.
+- **Reported cost:** Claude and Jev tokens are separate. Older Jev logs recorded input only, so complete billing cannot be inferred from them. `jev-flutter status` is a diagnostic, not an invoice.
 
-## Migration depuis dartlens 0.2
+## Migrating from dartlens 0.2
 
-Dans la portée où l'ancienne version est installée (`user` par défaut), retirez-la avant d'installer le nouveau nom, pour ne pas exécuter deux fois les hooks :
+Remove the old version in its installation scope (`user` by default) before installing the new name, to avoid duplicate hooks:
 
 ```bash
 claude plugin uninstall dartlens@dartlens
@@ -134,11 +135,11 @@ claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
-Pour une installation locale au projet, ajoutez `--scope local` aux commandes du plugin. Les configurations, clés, règles et exclusions historiques restent compatibles ; rien n'est déplacé ou supprimé par le plugin. Les anciens chemins de cache restent utilisés lorsqu’ils existent déjà. Les deux politiques d’exclusion, ancienne et nouvelle, sont appliquées ensemble : aucune exclusion ne disparaît pendant la migration. Les anciens noms de variables d’environnement restent reconnus.
+For a project-local installation, add `--scope local` to plugin commands. Legacy configurations, keys, rules and exclusions remain supported; the plugin moves or deletes nothing. Existing legacy cache paths remain in use. Old and new exclusion policies both apply, so migration drops no exclusion. Legacy environment variables remain recognized.
 
-## Mise à jour depuis Jev for Flutter 0.3.0
+## Updating from Jev for Flutter 0.3.0
 
-Pour remplacer l'ancienne adresse de la marketplace enregistrée localement :
+To replace the old marketplace address saved locally:
 
 ```bash
 claude plugin marketplace remove jev-for-flutter
@@ -146,6 +147,6 @@ claude plugin marketplace add pkcoulon/jev-for-flutter
 claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
-Relancez ensuite Claude Code. Le retrait de la marketplace peut retirer les plugins qu'elle fournit ; la dernière commande les réinstalle sous le même nom. Vos réglages de projet et votre clé restent en place.
+Restart Claude Code. Removing a marketplace can remove its plugins; the final command reinstalls this one under the same name. Your project settings and key stay in place.
 
-[Retour au README](../README.md) · [Mesures](MEASURES.md) · [Architecture](ARCHITECTURE.md)
+[README](../README.md) · [Current benchmarks](PUBLIC-PROJECTS.md) · [Architecture](ARCHITECTURE.md)

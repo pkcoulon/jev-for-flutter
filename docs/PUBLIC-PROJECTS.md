@@ -1,85 +1,85 @@
-# Benchmarks sur trois projets Flutter publics
+# Benchmarks on three public Flutter projects
 
-Le regroupement des requêtes accélère la recherche, surtout sur les gros projets. Les lectures ciblées réduisent le coût Claude observé, mais ne rendent pas encore ses réponses plus rapides. **La campagne mesure la recherche et la compréhension du code, pas un développement complet.**
+Batching requests speeds up search, especially in large projects. Focused reads reduce observed Claude cost, but do not yet make its answers faster. **This campaign measures search and code comprehension, not completed development tasks.**
 
-## Projets et sources
+## Projects and sources
 
-| Projet | Périmètre examiné | Fichiers Dart examinés | Révision figée |
+| Project | Scope | Dart files screened | Pinned revision |
 |---|---|---:|---|
-| Flutter Form App | Exemple officiel, `form_app/lib` | 6 | [8a4cf1d](https://github.com/flutter/samples/tree/8a4cf1db16d52741f0e59e1bfe818723430c35bc/form_app) |
-| LocalSend | Application et deux packages Dart | 250 | [c5bbe36](https://github.com/localsend/localsend/tree/c5bbe3630bb50e0de8253502b41523c4a58825bb) |
-| AppFlowy | `appflowy_flutter/lib` et packages | 1 691 | [5cf3a36](https://github.com/AppFlowy-IO/AppFlowy/tree/5cf3a365dec0d59f64bad1ee4bb1050471a39b93/frontend/appflowy_flutter) |
+| Flutter Form App | Official sample, `form_app/lib` | 6 | [8a4cf1d](https://github.com/flutter/samples/tree/8a4cf1db16d52741f0e59e1bfe818723430c35bc/form_app) |
+| LocalSend | Application and two Dart packages | 250 | [c5bbe36](https://github.com/localsend/localsend/tree/c5bbe3630bb50e0de8253502b41523c4a58825bb) |
+| AppFlowy | `appflowy_flutter/lib` and packages | 1,691 | [5cf3a36](https://github.com/AppFlowy-IO/AppFlowy/tree/5cf3a365dec0d59f64bad1ee4bb1050471a39b93/frontend/appflowy_flutter) |
 
-Code généré, tests et fichiers exclus par la politique écartés. AppFlowy contient trois autres fichiers Dart dans l'inventaire initial, exclus par cette politique. Les backends Rust et les plateformes natives ne sont pas couverts. Aucun build, aucune modification des applications.
+Generated code, tests and policy-excluded files were omitted. AppFlowy's initial inventory contains three additional Dart files excluded by policy. Rust backends and native platforms are outside the scope. No application builds or modifications were performed.
 
-## Recherche : mêmes fichiers examinés, moins d'allers-retours
+## Search: the same files, fewer requests
 
-Comparaison du même moteur avec **un fichier par requête** et **huit fichiers au plus par requête**. Chaque fichier conserve un jugement distinct ; le code des meilleurs candidats est ensuite vérifié. Aucun fichier n'est présélectionné par mots-clés.
+The same engine was compared with **one file per request** and **up to eight files per request**. Each file retains a separate judgment; the best candidates are then checked against their source code. No keyword-based preselection excludes files from screening.
 
-| Projet | Temps moyen individuel → groupé | Écart | Coût Jev moyen par recherche | Écart |
+| Project | Mean time: individual → batched | Change | Mean Jev cost per search | Change |
 |---|---:|---:|---:|---:|
-| Form App | 1,69 → 1,40 s | **−17 %** | 0,000533 → 0,000475 $ | −11 % |
-| LocalSend | 14,76 → 3,89 s | **−74 %** | 0,007977 → 0,005587 $ | −30 % |
-| AppFlowy | 89,78 → 15,88 s | **−82 %** | 0,047691 → 0,030974 $ | −35 % |
+| Form App | 1.69 → 1.40 s | **−17%** | $0.000533 → $0.000475 | −11% |
+| LocalSend | 14.76 → 3.89 s | **−74%** | $0.007977 → $0.005587 | −30% |
+| AppFlowy | 89.78 → 15.88 s | **−82%** | $0.047691 → $0.030974 | −35% |
 
-**12 recherches sur 12 satisfont la grille dans chaque variante.** Par projet : deux recherches ciblées, dont une en français, une recherche de fonctionnalité absente et un parcours réparti sur deux fichiers. Les deux variantes retrouvent les deux fichiers nécessaires aux trois parcours. Aucune réponse de LLM n'est évaluée dans cette partie.
+**12 out of 12 searches satisfy the rubric in each variant.** Each project has two targeted searches, including one in French, one absent-feature search, and one flow spanning two files. Both variants retrieve both required files for all three flows. No LLM answers are assessed in this part.
 
-Un cas positif passe si tous les chemins attendus figurent parmi les cinq premiers résultats avec un score d'au moins 0,60. Les chemins supplémentaires ne sont pas pénalisés. Un cas négatif passe si aucun chemin ne dépasse ce seuil. Cela vérifie une sélection de cas ; cela ne prouve pas un rappel parfait sur un autre projet.
+A positive case passes when all expected paths appear in the top five with a score of at least 0.60. Additional paths are not penalized. A negative case passes when no path reaches that threshold. This checks selected cases; it does not establish perfect recall on other projects.
 
-Quatre questions différentes par projet, **une exécution par question et variante**. Ordre alterné, même modèle `jev-1.13.0`, huit requêtes simultanées au plus, plan syntaxique approximatif identique. Le plafond a été explicitement porté à 3 000 fichiers et le délai réseau à 180 secondes pour permettre la comparaison individuelle sur AppFlowy. Le réglage courant reste 150 fichiers et 20 secondes ; le dépassement exige un choix explicite du périmètre.
+Four different questions per project, **one execution per question and variant**. Alternating order, the same `jev-1.13.0` model, at most eight concurrent requests, and the same approximate outline parser. The file cap was explicitly raised to 3,000 and the network deadline to 180 seconds to allow the individual-request AppFlowy comparison. The default remains 150 files and 20 seconds; larger scopes require an explicit choice.
 
-[Données, questions, chemins attendus et sorties classées](public-search-results.json).
+[Data, questions, expected paths and ranked outputs](public-search-results.json).
 
-## Lecture par Claude : coût, tokens et qualité
+## Claude reads: cost, tokens and quality
 
-Trois questions fixées avant les appels, une par projet. Outil `Read` uniquement dans les deux variantes, même source copiée dans un projet isolé, mêmes prompts, Sonnet 5 et effort moyen. Le plugin est activé avec ses réglages par défaut. Les réponses doivent couvrir quatre critères chacune ; une omission suffit à refuser une réponse.
+Three questions fixed before the calls, one per project. Only `Read` is available in both variants, with the same source copied into an isolated project, identical prompts, Sonnet 5 and medium effort. The plugin uses its default settings. Each answer must cover four criteria; a single omission means rejection.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/public-read-results-dark.svg">
-  <img alt="Sur trois questions ciblées : tokens Claude −23 %, coût Claude et Jev −53 %, durée +7 %. Réponses acceptées : 3/3 avec, 2/3 sans." src="img/public-read-results-light.svg" width="960">
+  <img alt="Three targeted questions: 23% fewer Claude tokens, 53% lower Claude plus Jev cost, 7% longer runtime. Accepted answers: 3/3 with the plugin, 2/3 without." src="img/public-read-results-light.svg" width="960">
 </picture>
 
-| Question | Réponses acceptées sans / avec | Coût sans → avec, Jev inclus | Durée sans → avec |
+| Question | Accepted: without / with | Cost without → with, including Jev | Time without → with |
 |---|---|---:|---:|
-| Form App : requête de connexion et statuts HTTP | Oui / Oui | 0,03795 → 0,03856 $ | 4,44 → 4,99 s |
-| LocalSend : représentation des grandes et petites sessions | Non / Oui | 0,08249 → 0,04461 $ | 7,11 → 7,70 s |
-| AppFlowy : écran le plus proche, égalité, entrée vide | Oui / Oui | 0,14346 → 0,03978 $ | 5,64 → 5,64 s |
+| Form App: sign-in request and HTTP statuses | Yes / Yes | $0.03795 → $0.03856 | 4.44 → 4.99 s |
+| LocalSend: representation of large and small sessions | No / Yes | $0.08249 → $0.04461 | 7.11 → 7.70 s |
+| AppFlowy: closest screen, ties and empty input | Yes / Yes | $0.14346 → $0.03978 | 5.64 → 5.64 s |
 
-La réponse LocalSend sans plugin ne décrit pas explicitement les petites sessions dans le cas mixte. Elle reste dans tous les totaux. Revue par Astra, **ni indépendante ni à l'aveugle** ; réponses et critères publiés pour permettre une autre lecture.
+The LocalSend control answer does not explicitly describe small sessions in the mixed case. It remains included in every total. Review by Astra, **neither independent nor blind**; answers and criteria are published for reassessment.
 
-Le fichier Form App fait 111 lignes : aucune sélection de lecture ni économie attendue. Les deux autres fichiers font 851 et 1 667 lignes ; la méthode explicitement nommée et les dépendances locales repérées tiennent dans 64 lignes. Les passages attendus sont conservés. Sur LocalSend, Claude fait une lecture supplémentaire d'une ligne avant la lecture ciblée : elle est comptée.
+The Form App file has 111 lines: no read narrowing or saving is expected. The other files have 851 and 1,667 lines; each explicitly named method and its detected local dependencies fit within 64 lines. Expected passages are preserved. On LocalSend, Claude makes an extra one-line read before the focused read; it is included.
 
-Les tokens Claude incluent entrées, écritures et lectures de cache, et sorties : **107 419 → 82 505**. Jev traite séparément 45 262 tokens d'entrée et 2 923 de sortie pour cette partie. **Le total de tokens des deux modèles ne diminue pas** : une partie du travail est confiée au modèle moins cher. Le coût comprend aussi les trois appels du routeur ; il a considéré 18 descriptions de skills personnels, sans en suggérer. La mémoire et les règles des projets de test étaient vides.
+Claude tokens include input, cache writes, cache reads and output: **107,419 → 82,505**. Jev separately processes 45,262 input tokens and 2,923 output tokens for this part. **The combined token count across both models does not decrease**: some work moves to the cheaper model. Cost also includes three router calls, which considered 18 personal skill descriptions without suggesting any. Test projects had no memory entries or rules.
 
-Les coûts Claude sont ceux rapportés par les sessions, rapprochés des messages dédupliqués avec leurs catégories de cache. Ils sont exprimés au tarif API, pas comme une mesure du quota d'un abonnement. La durée vient de `duration_ms` rapportée par Claude. Une seule session par variante ne permet pas d'attribuer tout écart au plugin ni d'estimer sa variabilité.
+Claude costs are reported by the sessions and reconciled against deduplicated messages and cache categories. They are API-equivalent costs, not a measurement of subscription quota. Runtime uses Claude's reported `duration_ms`. One session per variant cannot attribute every difference to the plugin or estimate variance.
 
-[Données et réponses complètes](public-read-results.json). Les essais ont utilisé le moteur candidat figé avant le renommage interne et l'ajout des commandes locales `init` et `doctor`. La distribution renommée a repassé les contrôles hors ligne ; ces mesures ne constituent pas une deuxième campagne payante sur cet habillage final.
+[Data and full answers](public-read-results.json). The measured candidate engine was frozen before the internal package rename and addition of local `init` and `doctor` commands. The renamed distribution passed the offline checks; these measurements are not a second paid campaign on that final packaging.
 
-## Vérifications et reproductibilité
+## Checks and reproduction
 
-- Deux demandes de revue globale conservent le fichier entier ; deux relectures identiques retrouvent aussi le fichier complet, avec le vrai Jev.
-- 200 méthodes reconnues, tirées de LocalSend et AppFlowy avec une graine fixe, restent entières dans les plages proposées ou la lecture complète. Ce contrôle utilise le parseur approximatif ; il ne vérifie pas la résolution des types ni la pertinence du modèle.
-- Les contrôles locaux couvrent les dépendances proches et éloignées, grandes méthodes, plafonds, génération, indisponibilité, plages explicites, refus de projet, concurrence, invalidation et compatibilité.
-- L'installation marketplace et les manifestes sont vérifiés dans une configuration Claude isolée. Les parcours d'activation et de diagnostic ne font aucun appel réseau.
+- Two whole-file review requests preserve the entire file; two repeat reads also retrieve it in full, using real Jev.
+- 200 recognized methods, sampled from LocalSend and AppFlowy with a fixed seed, remain intact in the proposed ranges or full reads. This checks the approximate parser, not resolved types or model relevance.
+- Local checks cover nearby and distant dependencies, large methods, caps, generated code, outages, explicit ranges, excluded projects, concurrency, invalidation and compatibility.
+- Marketplace installation and manifests are checked in an isolated Claude configuration. Activation and diagnostics make no network calls.
 
-Exemple de reproduction de la comparaison de recherche, depuis un checkout figé autorisé :
+To reproduce the search comparison from an authorized pinned checkout, use:
 
 ```json
 {"jev":{"enabled":true,"cli_timeout_s":180},"find":{"batch_files":1}}
 ```
 
 ```bash
-jev-flutter find "QUESTION_DU_JEU" CHEMINS_DU_JEU --max-files 3000 --top 5 --min 0.6
+jev-flutter find "BENCHMARK_QUESTION" BENCHMARK_PATHS --max-files 3000 --top 5 --min 0.6
 ```
 
-Remplacer ensuite `batch_files` par `8`, sans changer la question ou les sources. Les questions, périmètres, révisions et critères sont dans les JSON liés. Cette reproduction appelle TypeSafe et consomme du crédit. Les traces API, transcripts et sources figées sont conservés dans l'archive privée de la campagne `flutter-public-2026-09-29` ; ils ne sont pas tous publiés dans le dépôt.
+Then change `batch_files` to `8`, keeping the question and sources unchanged. Questions, scopes, revisions and criteria are in the linked JSON files. Reproduction calls TypeSafe and consumes credit. Raw API receipts, transcripts and pinned sources are retained in the private `flutter-public-2026-09-29` campaign archive; not all are published here. Recorded prompts and answers retain their original language.
 
-Une dernière session sur le paquet renommé, dans un chemin contenant espaces et accents, passe les quatre critères AppFlowy. `init`, `doctor`, préparation et lecture de 64 lignes fonctionnent ; source inchangée. Elle est conservée séparément des trois paires comparées : 0,038383 $ Claude et 0,001149 $ Jev.
+A final session using the renamed package, in a path containing spaces and accented characters, passes all four AppFlowy criteria. `init`, `doctor`, preparation and the 64-line read work; the source stays unchanged. It is separate from the three measured pairs: $0.038383 Claude and $0.001149 Jev.
 
-**Dépense totale, intégration finale comprise : 0,379057 $ TypeSafe pour 8 999 requêtes ; 0,423417 $ Claude comptabilisés de façon conservatrice.** Le plafond TypeSafe de 10 $ n'est pas une somme à consommer. Le précédent budget Claude reste respecté. Tarif Jev : [0,042 $ par million de tokens d'entrée, sortie gratuite](https://docs.typesafe.ai/models).
+**Total spend, including final integration: $0.379057 TypeSafe for 8,999 requests; $0.423417 Claude, conservatively accounted.** The $10 TypeSafe budget is a ceiling, not a spending target. The earlier Claude budget remains respected. Jev pricing: [$0.042 per million input tokens, output free](https://docs.typesafe.ai/models).
 
-## Pourquoi ces garde-fous Flutter
+## Flutter-specific safeguards
 
-Une fonctionnalité Flutter peut traverser vue, logique d'état, repository et service. Trouver son écran ne suffit donc pas à comprendre son parcours : les essais répartis sur plusieurs fichiers visent précisément cette limite. C'est une application du [guide officiel d'architecture Flutter](https://docs.flutter.dev/app-architecture/guide), sans imposer MVVM aux projets utilisant BLoC ou Riverpod.
+A Flutter feature can span a view, state logic, repository and service. Finding its screen is not enough to explain the flow; the multi-file cases target this limitation. This applies the [official Flutter architecture guide](https://docs.flutter.dev/app-architecture/guide) without imposing MVVM on projects using BLoC or Riverpod.
 
-Le plan syntaxique ne remplace pas une analyse résolue des types. L'API officielle [`parseString`](https://pub.dev/documentation/analyzer/latest/dart_analysis_utilities/parseString.html) distingue elle-même l'analyse syntaxique ; lancer un serveur d'analyse complet à chaque lecture ajouterait un travail évitable. La [documentation Dart sur les performances de l'analyseur](https://dart.dev/tools/analyzer-performance) justifie de limiter le périmètre et les calculs répétés. Le plugin garde donc la résolution précise comme aide facultative, et laisse les lectures complètes accessibles.
+An outline is not resolved type analysis. The official [`parseString` API](https://pub.dev/documentation/analyzer/latest/dart_analysis_utilities/parseString.html) distinguishes syntax parsing; launching a full analysis server for each read would add avoidable work. [Dart analyzer performance guidance](https://dart.dev/tools/analyzer-performance) supports limiting scope and repeated computation. Precise syntax parsing remains optional, and full reads remain available.

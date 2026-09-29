@@ -1,129 +1,118 @@
-# Protocole de comparaison dartlens
+# Benchmark protocol
 
-Ce banc tranche une question : **avec Jev, Claude Code fait-il mieux, ou aussi bien pour moins cher, sur des tâches entières de projets Flutter perso ?** Il suit les points 4 à 6 du « Périmètre conseillé » de la contre-expertise d'Astra (`~/agent-context/global/research/2026-09-28-jev/CHALLENGE-gpt-6-astra.md`).
+This runner asks whether Claude Code with Jev completes real Flutter tasks more reliably, or equally well at lower cost. For the current public-project campaign, see [its dedicated protocol and results](../docs/PUBLIC-PROJECTS.md). This document covers the original complete-task runner and its historical variants.
 
-**Règle d'or : aucune conclusion à partir du faux serveur Jev.** Il valide le branchement (appels, pannes, journaux). Ses réponses sont lexicales et ne disent rien de la qualité des décisions de Jev. `score.py` supprime tout verdict dès qu'un essai l'a utilisé.
+**Never infer Jev relevance or savings from the fake server.** It validates transport, failure handling and logging. Its lexical responses are not the real model. `score.py` suppresses verdicts for trials that use it.
 
-## 1. Questions et hypothèses
+## Questions and hypotheses
 
-| Promesse | Question | Hypothèse à réfuter | Ce qui la réfuterait |
+| Component | Question | Hypothesis to challenge | Evidence against it |
 |---|---|---|---|
-| `lens` (et `find`, `which`) | L'agent trouve-t-il plus vite ce qu'il cherche, sans rater d'information ? | Autant de réussites, moins de coût ou de temps par tâche réussie | Réussites en baisse, ou contournements systématiques (`Read` intégral après `lens`) |
-| Garde des conventions | Un avis rapide après édition fait-il respecter les règles implicites ? | Plus de réussites sur les tâches de convention, sans alourdir les autres | Alertes ignorées, fausses alertes, coût ajouté sans gain |
-| Mémoire et skill | Le routeur rappelle-t-il les bonnes fiches au bon moment ? | Plus de réussites sur les tâches mémoire, sans évincer une fiche utile | Fiche utile omise, contexte injecté inutilement |
+| `lens`, `find`, `which` | Does the agent find information sooner without missing it? | Equal success, lower cost or time per successful task | Lower success or systematic full-read fallback |
+| Convention guard | Does quick post-edit feedback improve compliance? | More convention-task successes without burdening other work | Ignored or false warnings; cost without benefit |
+| Memory and skills | Does routing surface useful entries at the right time? | More memory-task successes without missing useful entries | Relevant entries omitted or unnecessary context injected |
 
-Pour la mémoire, le témoin a la mémoire native de Claude Code (index `MEMORY.md` et fiches lisibles) : on compare Jev à ce que l'agent fait déjà, pas à rien. Le bras `all_nojev` (repli local, Jev coupé) sépare l'effet de Jev de celui de l'échafaudage du plugin.
+The memory control receives native Claude memory: `MEMORY.md` plus readable entries. `all_nojev` separates local plugin behavior from Jev's contribution.
 
-## 2. Bras
+## Variants and isolation
 
-| Bras | Plugin | Variables posées par `run.py` |
+The runner retains legacy environment names, recognized by the current compatibility layer.
+
+| Variant | Plugin | Disabled components / setting |
 |---|---|---|
-| `control` (témoin) | non | aucune |
-| `lens` (A) | oui | `DARTLENS_GUARD_DISABLE=1`, `DARTLENS_ROUTER_DISABLE=1` |
-| `guard` (B) | oui | `DARTLENS_LENS_DISABLE=1`, `DARTLENS_ROUTER_DISABLE=1` |
-| `router` (C) | oui | `DARTLENS_LENS_DISABLE=1`, `DARTLENS_GUARD_DISABLE=1` |
-| `all` (ensemble) | oui | aucune |
-| `all_nojev` (optionnel) | oui | `DARTLENS_JEV_DISABLE=1` |
+| `control` | No | No plugin configuration |
+| `lens` | Yes | `DARTLENS_GUARD_DISABLE=1`, `DARTLENS_ROUTER_DISABLE=1` |
+| `guard` | Yes | `DARTLENS_LENS_DISABLE=1`, `DARTLENS_CONTEXT_DISABLE=1`, `DARTLENS_ROUTER_DISABLE=1` |
+| `router` | Yes | `DARTLENS_LENS_DISABLE=1`, `DARTLENS_CONTEXT_DISABLE=1`, `DARTLENS_GUARD_DISABLE=1` |
+| `all` | Yes | None |
+| `all_nojev` | Yes | `DARTLENS_JEV_DISABLE=1` |
+| `all_refuse` | Yes | `DARTLENS_LENS_NUDGE=refuse_once` |
 
-Tous les essais reçoivent :
+Every trial receives `DARTLENS_BENCH_RUN=<campaign>/<trial>/<session>` and a fresh `DARTLENS_STATE_DIR` for usage, guard and router logs, circuit breakers, queues and catalog cache. This prevents one trial's outage state or logs from contaminating another. Legacy `lens` logs outside that directory are attributed by bounded run tag, session ID or, as a last resort, time window (`window_attributed`).
 
-- `DARTLENS_BENCH_RUN=<campagne>/<essai>/<session>`, que le client Jev inscrit dans chaque enregistrement ;
-- `DARTLENS_STATE_DIR`, un dossier d'état neuf par essai : journaux (`usage.jsonl`, `guard.jsonl`, routeur), disjoncteurs, files de la garde et cache du catalogue y vivent, puis sont recopiés dans les résultats. Un disjoncteur ouvert par un essai ne coupe donc pas Jev dans le suivant, et aucun journal d'une autre campagne ne s'y mêle. Ce qui écrit encore dans `~/.cache/dartlens` (le journal propre de `bin/lens`) est rattaché par étiquette bornée dans le temps, par identifiant de session, ou à défaut par fenêtre (`window_attributed`).
+Disabled components must inject nothing and make no Jev calls. The runner checks component switches; `--allow-unisolated` explicitly bypasses that check. Descriptions of disabled tools may remain in context, so their fixed token cost is still observable.
 
-**Contrat attendu des composants :** chaque composant coupé par sa variable ne fait rien, n'injecte rien et n'appelle pas Jev. `run.py` refuse de lancer un bras dont une variable n'apparaît nulle part dans le plugin (`--allow-unisolated` pour passer outre, en le notant). Limite connue : un composant coupé par variable reste décrit (skill, commande) dans le contexte ; son coût fixe se lit dans les classes de tokens.
+For every remote-enabled variant, the exact trial environment must satisfy `policy.jev_allowed`: key, policy and project activation. Failure stops the campaign. The first such trial also sends a constant connectivity question without project data; `--no-jev-ping` skips this for transport checks. `score.py` suppresses verdicts when there are no successful Jev calls or errors exceed 10%, configurable through `--max-jev-errors`. Missing-key and open-circuit events are logged too.
 
-**Jev réellement joignable :** avant chaque essai d'un bras qui doit appeler Jev, `run.py` évalue `policy.jev_allowed` dans l'environnement exact de l'essai (clé, politique, `jev.enabled`) et arrête la campagne en cas de refus ; au premier essai de ce type, une question constante (aucune donnée du projet) vérifie que Jev répond (`--no-jev-ping` pour les essais de plomberie). Après coup, `score.py` déclare « Jev indisponible » un bras sans aucun appel réussi ou avec plus de 10 % d'erreurs (`--max-jev-errors`), et supprime son verdict. Les indisponibilités sans requête (clé absente, disjoncteur ouvert) sont journalisées par le socle.
+Controls must not load a separately installed copy of the plugin. The runner checks enabled-plugin settings. Project plugin configuration is written only in plugin variants and excluded locally from Git.
 
-Le témoin ne doit pas charger dartlens par une autre voie : `run.py` s'arrête si un `dartlens@…` est activé dans les réglages utilisateur ou ceux du projet. Les fichiers propres au plugin (`.claude/dartlens.json`, `.claude/dartlens/rules.json`) ne sont écrits que dans les bras avec plugin, et masqués de git.
+## Common conditions
 
-## 3. Conditions communes
+- Same model, permission mode and `--allowedTools` in every variant. `lens` and `dart-outline` may be allowed for both but exist only with the plugin. Additional MCP/LSP tools passed through `--extra-arg` must be identical.
+- Same effective command permissions: `lens "Q" -- COMMAND` executes outside Claude's ordinary command approval. The runner installs a `PreToolUse` gate through `--settings` to apply the same allowlist, including shell wrappers, pipelines and redirections. `--settings` is reserved for that gate. In `bypassPermissions` mode, all variants have no gate or allowlist.
+- Independent disposable repositories in random system-temporary paths. With `keep` history, only the pinned commit and ancestors are fetched. With `orphan`, `git archive` is committed alone. Branch name is `main`, without variant identifiers. Source remotes remain for policy enforcement. `task.json` is exported only after Claude exits; setup patches are not saved where the agent can read them. Dependency preparation precedes the trial and belongs to its base commit.
+- Source repositories pass policy checks before copying, including validation and `--dry-run`. Excluded projects stop the operation.
+- Variant order rotates by task/repetition block, and task order changes by fixed seed. Prompt-cache effects remain possible; `--pause 360` can exceed the five-minute cache TTL, otherwise rotation distributes order effects.
+- `--lang alternate` uses one language per block, identical across variants. `--lang both` doubles blocks. The original pilot design calls for at least three repetitions per task and variant.
+- User settings are excluded by default with `--setting-sources project,local`. `--user-settings` restores them for every variant. This avoids personal hooks such as command rewriting through `rtk`.
+- The real Claude executable is used rather than terminal wrappers such as cmux. `--claude PATH` overrides discovery. Earlier permission waits lasted roughly 115 seconds each; wrapper involvement was suspected, not established.
+- Every trial is one attempt. Task failures, deadlines and denied permissions count with their cost. Infrastructure failures—quota, overload, rate limits, authentication or no CLI response—are classified `infra_failed`, archived in `infra-N/`, and retried on resume. Their costs are reported separately rather than hidden. Quota/authentication failure stops the campaign.
+- `campaign.json` freezes model, permissions, tool list, CLI arguments, deadlines, Jev backend/URL, plugin fingerprint and Claude version. Changed conditions reject resume unless `--force` explicitly overrides it. Runtime changes stop a campaign; heterogeneous campaigns receive no verdict.
 
-- **Même modèle** pour tous les bras (`--model`), même mode de permission, **même liste `--allowedTools`** (`lens` et `dart-outline` y figurent, sans effet pour le témoin qui ne les a pas). Les outils de base restent grep, `Read`, et, si Pierrick les utilise d'ordinaire, le MCP Dart officiel ou un LSP : ils sont passés à tous les bras (`--extra-arg`), jamais reconstruits.
-- **Mêmes permissions effectives** : `lens "Q" -- COMMANDE` exécute la commande sans passer par les permissions de Claude Code. Tous les bras reçoivent donc, par `--settings`, un hook `PreToolUse` du banc (`run.py --gate`) qui refuse une commande placée après `lens … --` (y compris dans `sh -c '…'`, pipelines et redirections comprises) si elle ne passe pas la même liste. `--settings` est réservé à ce hook. En mode `bypassPermissions`, aucune liste ni hook : tout est permis partout.
-- **Mêmes conditions de départ, sans fuite** : chaque essai reçoit un dépôt autonome dans un dossier temporaire aléatoire (`$TMPDIR/dlb-…/<projet>`), hors du dossier du banc. Aucune référence partagée : en historique `keep`, seul le commit épinglé et ses ancêtres sont récupérés ; en `orphan`, l'arbre est extrait par `git archive` et commité seul. La branche s'appelle `main`, sans nom d'essai. Les remotes de la source sont recopiés pour que la politique du socle continue de s'appliquer. `task.json` n'est écrit dans les résultats qu'après la sortie de claude, et le correctif de mise en situation n'est jamais écrit sur disque. La préparation (`flutter pub get`) est faite avant l'essai et incluse dans le commit de base.
-- **Dépôt refusé** : avant toute copie, `run.py` passe la source de chaque projet par `policy.refusal` (chemins et remotes de `~/.config/dartlens/policy.json`) et s'arrête si elle est refusée, en campagne comme en validation ou en `--dry-run`.
-- **Ordre des bras alterné** : rotation par bloc (tâche, répétition) ; l'ordre des tâches change à chaque répétition (graine fixée). Le cache de prompt favorise l'essai qui suit un essai du même bras : `--pause 360` au-delà du TTL de 5 min si l'on veut l'écarter, sinon la rotation le répartit.
-- **Langue** : `--lang alternate` donne une langue par bloc, la même pour tous les bras du bloc ; `--lang both` double les blocs.
-- **Répétitions** : au moins 3 par tâche et par bras pour le pilote.
-- **Configuration utilisateur écartée par défaut** : chaque essai reçoit `--setting-sources project,local`. Les hooks de `~/.claude/settings.json` ne s'appliquent donc pas : rtk, par exemple, réécrivait des commandes autorisées en commandes hors liste. `--user-settings` les rétablit pour tous les bras.
-- **Vrai binaire `claude`** : par défaut, `run.py` saute les lanceurs de terminal placés en tête du PATH (cmux). Le 2026-09-29, un tel lanceur ajoutait ses propres hooks, et chaque demande de permission restait bloquée environ 115 s avant d'être refusée. `--claude CHEMIN` impose un binaire.
-- Chaque essai est **une seule tentative** : un échec, un délai dépassé ou un refus de permission compte, avec son coût. **Exception : les pannes d'infrastructure** (quota d'abonnement, surcharge 529, limite de débit, authentification, CLI sans aucune réponse) sont classées `infra_failed`, archivées dans `infra-N/` et relancées à la reprise ; elles ne comptent ni comme échec ni dans les totaux, et leur coût est affiché à part. Un quota atteint ou une authentification refusée arrête la campagne au lieu de consommer les essais suivants.
-- **Reprise à l'identique** : `campaign.json` fixe à la première exécution les conditions (modèle, mode de permission, liste d'outils, arguments passés à claude, délais, backend et URL Jev, empreinte du plugin, version de claude). Une reprise qui en change une est refusée (`--force` pour passer outre) ; chaque essai enregistre ses conditions réelles, et un plugin ou un claude modifié en cours de route arrête la campagne. `score.py` refuse tout verdict sur une campagne hétérogène.
+## Tasks
 
-## 4. Tâches
+Each `tasks/<id>.json` defines a project and pinned commit, task type, `prompt_fr`, `prompt_en`, setup patch, `keep`/`orphan` history, seeded memory, `expect_before`, reference diff/answer, executable criteria, review rubric and expected files. `_projects.json` maps source paths and preparation. Guard rules use schema v1: English yes/no questions where yes means a violation, plus `true`, `false`, `message`, `applies_to` and examples.
 
-Une tâche est un fichier `tasks/<id>.json` : projet, commit épinglé, type, `prompt_fr`, `prompt_en`, `setup` (patch, historique `keep` ou `orphan`, mémoire semée, `expect_before`, `reference` et `reference_answer`), critères exécutables, grille de revue, fichiers attendus. `tasks/_projects.json` donne les chemins, la préparation et les fichiers du plugin par projet ; son `rules.json` suit le schéma v1 de la garde (question en anglais dont le OUI signale la violation, `true`/`false`, `message`, `applies_to`, exemples).
+- `--check-tasks` validates task definitions and project rule schemas.
+- `--validate-setup` prepares tasks without Claude, checks `expect_before` and sends representative edits through each guard, requiring a logged verdict. Fake Jev is suitable only for transport validation.
+- `--validate-reference` applies setup and the reference diff, then requires executable and answer criteria to pass. Missing references remain explicitly unverified.
+- Hidden criterion files exist only while that criterion runs; analyze and format judge the agent's final tree.
 
-- `run.py --check-tasks` valide les tâches et, en mode strict, le `rules.json` de chaque projet : un fichier que la garde rejetterait rendrait le bras B muet.
-- `run.py --validate-setup` met chaque tâche en situation sans claude, vérifie `expect_before`, puis fait passer une édition type par le vrai hook de garde de chaque projet et exige un verdict dans `guard.jsonl` (Jev requis : `--jev-url` du faux serveur pour la plomberie).
-- `run.py --validate-reference` applique `setup` puis la solution de référence (`setup.reference`, diff git) et exige que tous les critères passent, exécutables comme notés par `score.py` (`setup.reference_answer` pour les critères sur la réponse). Une tâche sans référence est signalée comme non vérifiée.
-- Les fichiers cachés d'un critère (tests posés après l'essai) n'existent que le temps de ce critère : `analyze` et `format` ne jugent que l'arbre laissé par l'agent.
+The original set contains twelve definitions: five Pioudex localization/diagnosis/i18n/convention tasks, one Pioudex synthetic-memory task, five Gambade tasks covering heat, daylight-saving symptoms, bilingual labels, an eleven-file UTC fix and a UTC convention, and one Panorameuh real-memory task. The Panorameuh task remains excluded while `todo`. A valid definition is not a validated reference or evidence of task quality.
 
-| Tâche | Type | Promesse visée | Setup |
-|---|---|---|---|
-| `pioudex-loc-xp-niveau` | localisation (homonymes « palier ») | lens | prêt |
-| `pioudex-loc-silence` | localisation par description | lens | prêt |
-| `pioudex-diag-gain-xp` | diagnostic d'un test rouge | lens | prêt, à valider |
-| `pioudex-i18n-compteur-prises` | libellé paramétré | lens, garde | prêt |
-| `pioudex-convention-olive` | convention implicite (tokens) | garde | prêt |
-| `pioudex-memoire-vibrations` | plusieurs fiches mémoire | routeur | prêt (fiches synthétiques) |
-| `gambade-loc-chaleur` | localisation avec calcul | lens | prêt |
-| `gambade-diag-serie-dst` | diagnostic sur symptôme | lens | prêt, à valider |
-| `gambade-i18n-entete-debriefs` | libellé paramétré bilingue | lens, garde | prêt, à valider |
-| `gambade-multi-jour-utc` | correction répartie (11 fichiers) | lens | prêt |
-| `gambade-convention-jours-sans-balade` | convention implicite (UTC, tests) | garde | prêt, référence vérifiée |
-| `panorameuh-memoire-note-version` | fiches mémoire réelles | routeur | **à écrire par Pierrick** |
+The initial verified reference was `gambade-convention-jours-sans-balade`; other references must be checked before a larger pilot. Coverage includes useful generated localization code, ambiguous names, parameterized labels, implicit conventions, multiple memory entries, differing project conventions, and French/English prompts. Preserve recorded prompts and answers in their original language.
 
-« À valider » : le patch s'applique au commit épinglé (vérifié), mais l'échec qu'il doit provoquer n'a pas été exécuté ; `run.py --validate-setup` le confirme sans lancer claude. Seule `gambade-convention-jours-sans-balade` a une solution de référence ; les autres restent à doter avant le pilote. La tâche panorameuh demande un commit postérieur à une livraison, des fiches réelles et des règles de garde choisies par Pierrick, et ses critères ; elle est exclue tant que son statut est `todo`.
+## Measures
 
-Couverture des exigences d'Astra : code généré utile (fichiers l10n générés de Pioudex), homonymes, libellés paramétrés, conventions implicites, demandes à plusieurs fiches, deux projets aux conventions différentes (ARB contre classes Dart), prompts FR et EN.
+**Primary criterion: correct completion without regression.**
 
-## 5. Mesure
+1. Require all executable checks: tests, analysis, formatting, hidden tests, grep, diff constraints and localization answers.
+2. Export variant-masked review packets with `score.py --export-review DIR --key KEY`. Stable HMAC IDs hide trial names. Packets include the request, rubric, answer, Git commands, flags and diff. Tool-identifying sentences are removed in every packet, with a constant notice. The operator sees redaction rates by variant and an imbalance warning. Store the key outside the reviewer directory. Re-export adds new trials without overwriting existing reviews. Reviewers must fill both `accepted` and `regression`.
 
-**Critère principal : tâche correcte et absence de régression.**
-1. Critères exécutables, tous requis : commandes (`flutter test`, `analyze`, `format`, tests cachés posés après l'essai), `grep` sur le résultat, diff (fichiers touchés ou intacts, lignes ajoutées), réponse finale pour les localisations.
-2. Revue aveugle au bras : `score.py --export-review DOSSIER --key CLÉ` produit un paquet par essai sous un code stable (HMAC d'un sel gardé dans la clé) : demande, grille, réponse, commandes git, signalements, diff. Dans **tous** les paquets, les phrases et lignes qui mentionnent l'outillage (dartlens, lens, Jev, garde, routeur, identifiants de règles, probabilités) sont retirées et une mention constante le dit ; la part de paquets retouchés par bras est affichée à l'opérateur, avec une alerte si elle diffère trop. La clé doit être hors du dossier du relecteur. Un nouvel export dans le même dossier n'ajoute que les nouveaux essais et ne touche ni aux revues ni aux paquets existants. Le relecteur remplit `accepted` **et** `regression` dans `reviews.json`.
+A success passes executable criteria, is accepted, and has no regression. Missing review fields make the result provisional; no verdict is issued.
 
-Un essai réussi passe les critères exécutables, est accepté et sans régression. Une revue où manque l'un des deux champs est incomplète. Tant qu'une revue manque, `score.py` affiche les résultats exécutables comme provisoires et ne rend aucun verdict.
+Secondary measures:
 
-**Critères secondaires :**
-- temps jusqu'au résultat accepté (durée de l'essai réussi) ;
-- valorisation API par tâche réussie : usages dédoublonnés par message et résultats d'outils par identifiant (`scan` et `valuation` de `bin/cc-usage`), cinq classes de tokens, tarif standard par modèle et version de grille (`PRICING_VERSION`), pondération uniforme de l'étude en regard ; **coût total du bras sur la tâche, échecs compris, divisé par ses réussites**. C'est une valorisation, pas une facture ni un quota d'abonnement ;
-- appels API, résultats d'outils, appels `lens`, commandes git ;
-- **signalements** : commandes qui visent l'état d'origine (`--all`, `refs/`, reflog…), le dossier du banc, d'autres essais ou les transcripts de `~/.claude/projects` ; listés par `score.py` et joints aux paquets de revue ;
-- appels Jev, erreurs, indisponibilités et latence (p50, p95), contexte injecté par les hooks (nombre et caractères, hook du banc exclu) ;
-- refus de permission. En `claude -p`, aucune intervention humaine n'est possible : une tâche qui en exigerait une échoue.
+- Time to a successful result, including required verification.
+- API-equivalent cost per successful task: deduplicated message usage and tool results, five Claude token classes, dated model pricing and a separate uniformly weighted comparison. Divide all-attempt cost, including failures, by successes. This is not an invoice or subscription-quota estimate.
+- API calls, tool results, `lens` use and Git commands.
+- Flags for access to original history, refs, reflog, benchmark files, other trials or Claude transcripts; include them in review packets.
+- Jev requests, errors, unavailability, p50/p95 latency and hook-injected context, excluding the benchmark's own gate.
+- Permission denials. `claude -p` cannot receive human intervention; tasks requiring it fail.
 
-**Présentation :** totaux et distributions par tâche, jamais une moyenne de ratios. Le rapport des coûts est donné deux fois : rapport des totaux, et distribution des rapports par tâche (médiane, quartiles, extrêmes). Aucun verdict avec le faux serveur, une campagne hétérogène, une revue incomplète, ou pour un bras où Jev était indisponible.
+Report totals and distributions by task, never only an average of ratios. Show both the ratio of total costs and the distribution of task-level ratios. No verdict with fake Jev, heterogeneous conditions, incomplete review or unavailable Jev.
 
-## 6. Montée en charge
+## Scaling an experiment
 
-1. **Branchement** : 2 ou 3 tâches, 1 répétition, faux serveur (`--jev-url http://127.0.0.1:<port>`, `TYPESAFE_API_KEY=test`). On vérifie que chaque bras charge ce qu'il doit, que les journaux s'attribuent par `run`, que les critères tournent. Aucun chiffre n'est interprété.
-2. **Pilote** : 20 à 30 tâches (compléter ce jeu de départ, chacune avec sa référence), 3 répétitions, clé officielle, modèle Jev épinglé. Le pilote estime la variance par tâche et écarte les composants sans effet. Il ne prouve pas une qualité identique.
-3. **Décision** : fixer ensuite la marge de non-infériorité (`--margin`, en points de taux de réussite ; 10 par défaut, à revoir) et dimensionner la suite d'après la variance du pilote. L'incertitude se calcule en regroupant les répétitions par tâche (bootstrap sur les tâches) : des répétitions d'une même tâche ne sont pas des tâches indépendantes.
+1. **Integration:** two or three tasks, one repetition, fake server and a test key. Check variant loading, log attribution and criteria. Interpret no performance numbers.
+2. **Pilot:** expand to 20–30 tasks with verified references, three repetitions, real key and pinned Jev model. Estimate variance and identify unhelpful components. A pilot does not prove equivalent quality.
+3. **Decision:** predeclare a non-inferiority margin, review the default ten percentage points, and size the next campaign from observed variance. Bootstrap by task: repetitions of a task are not independent tasks.
 
-## 7. Déroulé
+Set a spending budget before real calls. Sample size alone is not proof.
+
+## Commands and artifacts
+
+From the repository root:
 
 ```bash
-cd ~/projects/dartlens/bench
-./run.py --check-tasks                                   # valide les JSON et le rules.json de chaque projet
-./run.py --validate-setup --jev-url http://127.0.0.1:<port>   # mise en situation, expect_before, garde de bout en bout, sans claude
-./run.py --validate-reference                            # solutions de référence : tous les critères doivent passer
-./run.py --dry-run --model <modèle> --reps 3             # plan et commandes, rien n'est lancé
-./run.py --model <modèle> --reps 3 --campaign pilote-1   # campagne ; relancer la même commande reprend là où elle s'est arrêtée
-./score.py ~/.cache/dartlens-bench/results/pilote-1 --export-review /tmp/revue-pilote-1 --key ~/.cache/dartlens-bench/keys/pilote-1.json
-./score.py ~/.cache/dartlens-bench/results/pilote-1 --reviews /tmp/revue-pilote-1/reviews.json --key ~/.cache/dartlens-bench/keys/pilote-1.json --json pilote-1.json
+python3 bench/run.py --check-tasks
+python3 bench/run.py --validate-setup --jev-url http://127.0.0.1:PORT
+python3 bench/run.py --validate-reference
+python3 bench/run.py --dry-run --model MODEL --reps 3
+python3 bench/run.py --model MODEL --reps 3 --campaign pilot-1
+python3 bench/score.py ~/.cache/dartlens-bench/results/pilot-1 --export-review /tmp/review-pilot-1 --key ~/.cache/dartlens-bench/keys/pilot-1.json
+python3 bench/score.py ~/.cache/dartlens-bench/results/pilot-1 --reviews /tmp/review-pilot-1/reviews.json --key ~/.cache/dartlens-bench/keys/pilot-1.json --json pilot-1.json
 ```
 
-Artefacts par essai (`~/.cache/dartlens-bench/results/<campagne>/<essai>/`) : `meta.json` (bras, variables, étiquette, conditions, commit de base, durée, code, vérification Jev), `transcript.jsonl` (stream-json), `session/` (transcript persistant et sous-agents), `stderr.log`, `diff.patch`, `changes.json`, `checks.json`, `dartlens_logs.jsonl`, `state/` (disjoncteurs de l'essai), `task.json`, et `infra-N/` pour chaque tentative en panne d'infrastructure. `campaign.json` garde les conditions fixées à la première exécution et chaque reprise ; `_preflight/` le journal de la vérification de Jev.
+The real campaign command makes paid calls; the validation commands may invoke project preparation or tests. They are not installation steps.
 
-## 8. Biais et limites connus
+Trial artifacts under `~/.cache/dartlens-bench/results/<campaign>/<trial>/` include `meta.json`, `transcript.jsonl`, persistent `session/` transcripts, `stderr.log`, `diff.patch`, `changes.json`, `checks.json`, `dartlens_logs.jsonl`, isolated `state/`, `task.json` and infrastructure-failure directories. Campaign conditions and resumes live in `campaign.json`; `_preflight/` holds connectivity logs. Keep these private when they contain project source, prompts or personal context.
 
-- Tarifs : grille de `bin/cc-usage` (version affichée), à revérifier avant la campagne ; `score.py --prices` la remplace. Le `total_cost_usd` déclaré par Claude Code est gardé dans le détail JSON, pas dans les totaux.
-- Écritures hors du banc : `run.py` crée miroirs et résultats sous `~/.cache/dartlens-bench`, les dépôts jetables dans le dossier temporaire du système (supprimés après l'essai sauf `--keep`), et Claude Code enregistre chaque session (avec la mémoire semée) dans `~/.claude/projects/<chemin du dépôt>`. Ces dossiers de session ne sont pas supprimés ; ils ne se mélangent pas aux projets réels, dont le chemin diffère.
-- Fuites encore possibles, détectées mais pas empêchées : l'agent peut lire `~/.cache/dartlens-bench` (résultats et diffs des essais précédents) ou les transcripts d'autres essais sous `~/.claude/projects` avec `cat`, `ls`, `find` ou `Read`, qui acceptent des chemins absolus. Ces accès figurent dans les signalements et dans les paquets de revue.
-- Le hook du banc imite la correspondance par préfixe de Claude Code et ses variables d'environnement tolérées ; il refuse les substitutions de commande et les redirections vers un fichier. Les commandes que Claude Code approuve seul comme lecture (`echo`, `sort`…) restent refusées après `lens --` : désavantage mineur pour les bras avec plugin.
-- Les injections de hooks sont repérées dans le transcript persistant selon son format actuel ; un changement de format de Claude Code peut les faire sortir du compte.
-- Masquage de la revue : il retire des phrases, pas des mots ; un relecteur attentif peut encore deviner un bras à la manière de travailler. La part de paquets retouchés par bras est affichée pour en juger.
-- Les fiches de la tâche Pioudex sont synthétiques ; la tâche Panorameuh est prévue pour des fiches réelles.
-- Les critères `grep` et `diff` approchent la convention ; la revue tranche les cas limites.
+## Known limitations
+
+- Recheck `cc-usage` pricing before a new campaign; `score.py --prices` overrides it. Native `total_cost_usd` remains in detailed data, separately from recalculated totals.
+- Mirrors/results live under the benchmark cache. Disposable repositories are deleted unless `--keep`; Claude's own session folders remain under its projects directory and are distinct from real-project paths.
+- An agent can still read other trial archives or transcripts through ordinary absolute-path tools. These accesses are flagged, not technically prevented.
+- The benchmark gate approximates Claude's command-prefix rules and rejects command substitution and file redirection. Some ordinarily approved read-only commands remain denied behind `lens --`, mildly disadvantaging plugin variants.
+- Hook accounting depends on Claude's transcript format. Redaction can hide sentences but cannot guarantee that a reviewer cannot infer a variant from behavior.
+- Pioudex memory entries are synthetic; Panorameuh was planned for real entries. Grep/diff criteria approximate conventions; review decides borderline cases.

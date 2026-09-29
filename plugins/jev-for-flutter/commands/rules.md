@@ -1,26 +1,26 @@
 ---
-description: Génère ou met à jour les règles de la garde des conventions (.claude/jev-for-flutter/rules.json) à partir des docs du projet
-argument-hint: "[thème ou fichier de doc à privilégier]"
+description: Generate or update convention-guard rules from project documentation (.claude/jev-for-flutter/rules.json)
+argument-hint: "[topic or documentation file to prioritize]"
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash(jev-flutter rules *), Bash(jev-flutter eval guard *)
 ---
 
-Génère ou mets à jour `.claude/jev-for-flutter/rules.json`, le fichier que lit la garde des conventions de jev-for-flutter. Après chaque édition, un juge rapide (Jev) répond en arrière-plan à chaque règle par une probabilité, et Claude ne reçoit une note que si une règle dépasse son seuil. $ARGUMENTS
+Generate or update `.claude/jev-for-flutter/rules.json`, used by the Jev for Flutter convention guard. After edits, Jev evaluates each rule in the background; Claude receives a note only when a rule exceeds its threshold. $ARGUMENTS
 
 ## 1. Sources
 
-Lis, s'ils existent : `CLAUDE.md`, `AGENTS.md`, `.claude/*.md`, les skills du projet (`.claude/skills/*/SKILL.md`, `.github/skills/*/SKILL.md`, `.agents/**/SKILL.md`) et les fiches mémoire de type feedback du projet. Si `.claude/jev-for-flutter/rules.json` existe déjà, pars de lui : garde les `id`, ne supprime pas une règle sans le dire.
+Read existing `CLAUDE.md`, `AGENTS.md`, `.claude/*.md`, project skills (`.claude/skills/*/SKILL.md`, `.github/skills/*/SKILL.md`, `.agents/**/SKILL.md`) and project feedback memory entries. If the rules file already exists, start from it: preserve IDs and report any removed rule.
 
-Lis aussi `analysis_options.yaml` : son `include:` (very_good_analysis, flutter_lints, lints…), sa section `linter: rules:`, et la configuration DCM s'il y en a une.
+Also read `analysis_options.yaml`, its `include` package, `linter: rules:` and any DCM configuration.
 
-## 2. Sélection
+## 2. Selection
 
-Ne retiens une convention que si elle remplit les trois conditions :
+Keep a convention only if all three conditions hold:
 
-1. **Vérifiable sur une seule édition** : le texte modifié et environ 25 lignes autour suffisent pour juger. Écarte ce qui demande un autre fichier, l'historique git, l'exécution ou la vue d'ensemble du projet.
-2. **Sémantique** : il faut comprendre l'intention du code. Si une recherche textuelle ou une regex suffit, ce n'est pas une règle pour Jev.
-3. **Non couverte par un lint** : vérifie qu'aucune règle de `analysis_options.yaml`, du paquet inclus ou de DCM ne la décide déjà. En cas de doute, cherche le nom de la règle de lint dans le fichier inclus. Une contrainte qu'un lint sait décider n'a pas besoin d'un juge probabiliste. `jev-flutter rules check` signale les recoupements avec les lints actifs, includes compris, mais pas avec DCM.
+1. **Checkable from one edit:** the changed text and about 25 surrounding lines suffice. Exclude rules requiring other files, Git history, execution or a project-wide view.
+2. **Semantic:** checking it requires understanding code intent. A text search or regex alone should not need Jev.
+3. **Not covered by a lint:** check active rules, included lint packages and DCM first. If uncertain, look up the relevant lint in the included file. A deterministic lint does not need a probabilistic judge. `jev-flutter rules check` detects overlap with active lints and includes, but not DCM.
 
-Vise 10 à 30 règles. Mieux vaut peu de règles nettes que beaucoup de règles floues.
+Aim for 10–30 clear rules rather than many vague ones.
 
 ## 3. Format
 
@@ -35,9 +35,9 @@ Vise 10 à 30 règles. Mieux vaut peu de règles nettes que beaucoup de règles 
       "true": "A string literal shown to the user is introduced in widget code",
       "false": "Visible text comes from the localization API, or the literal is not user-visible (keys, logs, tests)",
       "applies_to": ["lib/ui/**/*.dart"],
-      "message": "Texte visible en dur : passer par les traductions (app_fr.arb).",
+      "message": "Use the project's localization API for user-visible text.",
       "examples": [
-        {"after": "Text('Mes chiens')", "violation": true},
+        {"after": "Text('My dogs')", "violation": true},
         {"after": "Text(context.l10n.dogsTitle)", "violation": false},
         {"after": "debugPrint('dogs loaded');", "context": "Future<void> _load() async {", "violation": false}
       ]
@@ -46,21 +46,22 @@ Vise 10 à 30 règles. Mieux vaut peu de règles nettes que beaucoup de règles 
 }
 ```
 
-Pour chaque règle :
+For each rule:
 
-- `id` : kebab-case, stable, unique.
-- `question` : **en anglais**, oui/non, atomique (une seule propriété), où **OUI signifie violation**. Parle de ce que « the change » introduit : Jev reçoit la modification (`change`, avec ses numéros de lignes), le code autour (`after_context`) et, quand ils sont repérés, les déclarations qui la contiennent (`enclosing`).
-- `true` / `false` : ce que veut dire OUI puis NON, en anglais, courts et contrastés ; y mettre les exceptions (« not for… »).
-- `applies_to` : les globs les plus étroits possibles, relatifs à la racine (`lib/ui/**/*.dart`, `test/**/*_test.dart`). Sans cette clé, la règle prend `defaults.applies_to`.
-- `threshold` : seulement si la règle doit différer de `defaults.threshold`.
-- `message` : en français, une ligne, actionnable ; c'est ce que Claude lira.
-- `examples` : 2 à 4, au moins une violation et un cas conforme, courts et réalistes ; `context` si le cas en dépend. Pas de secret, pas de code confidentiel : questions et exemples partent chez Jev.
+- `id`: stable, unique kebab-case.
+- `question`: English, atomic yes/no, where **YES means a violation**. Ask what “the change” introduces. Jev receives numbered `change`, `after_context`, and detected enclosing declarations in `enclosing`.
+- `true` / `false`: short, contrasting English meanings, including exceptions.
+- `applies_to`: the narrowest practical globs relative to the root, such as `lib/ui/**/*.dart` or `test/**/*_test.dart`. Omission uses `defaults.applies_to`.
+- `threshold`: only when it differs from `defaults.threshold`.
+- `message`: one actionable line in the project's preferred language, English by default. This is what Claude will read.
+- `examples`: two to four short realistic cases, with at least one violation and one compliant example. Add `context` when needed. Use no secrets or confidential code: questions and examples are sent to Jev.
 
-## 4. Vérification
+## 4. Checks
 
-1. Lance `jev-flutter rules check` et corrige toutes les erreurs. Traite chaque avertissement ou justifie-le en une phrase.
-2. Si Jev est accessible, tu peux lancer `jev-flutter rules test <fichier.dart> --change '<ancien>' '<nouveau>'` sur un ou deux cas pour contrôler le branchement ; `--state` montre l'état exact que la garde enverrait. `jev-flutter eval guard --from-rules --sweep` donne une précision et un rappel sur les exemples ; ces chiffres sont optimistes, et sans valeur sur un faux serveur. Les deux commandes appellent Jev comme la garde (délai du hook, sans nouvelle tentative) : un cas en échec est un cas où la garde resterait silencieuse.
+Run `jev-flutter rules check` and fix every error. Address each warning or explain it briefly.
 
-## 5. Restitution
+If Jev is available, `jev-flutter rules test <file.dart> --change '<before>' '<after>'` can check one or two cases. `--state` shows the exact guard payload. `jev-flutter eval guard --from-rules --sweep` reports precision and recall on the examples; these optimistic figures have no relevance on a fake server. Both commands make Jev calls with the guard deadline and no retry. A failed case represents a silent guard.
 
-Montre la liste à l'utilisateur sous forme de tableau : id, message, `applies_to`, source (fichier de doc et section). Ajoute une ligne pour les conventions écartées et la raison (lint existant, contexte insuffisant, non sémantique). Rappelle que la garde ne s'active que si `jev.enabled` vaut `true` dans `.claude/jev-for-flutter.json` et que le projet n'est pas exclu par `~/.config/jev-for-flutter/policy.json`. Ne modifie ni l'un ni l'autre.
+## 5. Report
+
+Show a table of IDs, messages, `applies_to` and source documentation sections. Summarize excluded conventions and reasons: existing lint, insufficient context or nonsemantic rule. Remind the user that the guard requires project `jev.enabled: true` and no user-policy exclusion. Do not change activation or policy.

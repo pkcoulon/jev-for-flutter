@@ -226,11 +226,11 @@
     "pioudex-diag-gain-xp"
   ],
   "chart_labels": [
-    "Pioudex\nCorriger un calcul"
+    "Pioudex\nFix a calculation"
   ],
   "chart_name": "context-results",
-  "chart_title": "Même correctif. Plus vite, mais plus cher.",
-  "chart_scope": "1 tâche · 1 session par variante · contexte compact · 29 septembre 2026",
-  "chart_verdict": "Même correction et 1 067 tests passés dans les deux variantes.",
-  "chart_limit": "Le gain général et l’économie restent à démontrer. Essais précédents incomplets dans le rapport."
+  "chart_title": "Same fix. Faster, but more expensive.",
+  "chart_scope": "1 task · 1 run per variant · compact context · September 29, 2026",
+  "chart_verdict": "Same fix and 1,067 passing tests in both variants.",
+  "chart_limit": "Overall savings remain unproven. Earlier incomplete runs are included in the report."
 }

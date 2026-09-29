@@ -36,9 +36,9 @@ def price(model):
 
 def family(name, command):
     if name != "Bash":
-        known = {"Read": "Read (fichiers)", "Grep": "Grep / Glob", "Glob": "Grep / Glob", "Agent": "résultats de sous-agents",
-                 "Task": "résultats de sous-agents", "WebFetch": "pages web", "WebSearch": "pages web", "Skill": "skills chargés"}
-        return known.get(name) or ("MCP (Figma, Jira…)" if name.startswith("mcp__") else "Autres outils")
+        known = {"Read": "Read · files", "Grep": "Grep / Glob", "Glob": "Grep / Glob", "Agent": "Subagent results",
+                 "Task": "Subagent results", "WebFetch": "Web pages", "WebSearch": "Web pages", "Skill": "Loaded skills"}
+        return known.get(name) or ("MCP (Figma, Jira…)" if name.startswith("mcp__") else "Other tools")
     head = ""
     for segment in re.split(r"&&|\|\||;|\n|\|", command or ""):
         words = segment.replace("(", " ").replace(")", " ").split()
@@ -50,16 +50,16 @@ def family(name, command):
             head = words[0].rsplit("/", 1)[-1]
             break
     if head in ("cat", "sed", "head", "tail", "less", "nl", "awk"):
-        return "Bash · lire des fichiers"
+        return "Bash · file reads"
     if head in ("grep", "rg", "find", "ls", "tree", "fd", "wc"):
-        return "Bash · chercher / lister"
+        return "Bash · search / list"
     if head in ("flutter", "dart", "very_good", "dcm") or "test" in head:
-        return "Bash · tests / analyse"
+        return "Bash · tests / analysis"
     if head in ("git", "gh"):
         return "Bash · git / GitHub"
     if head in ("python3", "python", "node", "bash", "sh", "jq"):
         return "Bash · scripts"
-    return "Bash · autres"
+    return "Bash · other"
 
 
 def result_chars(content):
@@ -160,16 +160,16 @@ def main(out_path, *args):
     for item in results:
         if item[0] != "boundary":
             entered[item[1]].append((item[2], item[0]))
-    notes = [{"index": 0, "label": "%d k avant la 1re question : instructions, outils, mémoire" % round(series[0] / 1000), "dx": 12, "dy": 20}]
-    code_sources = {"Bash · lire des fichiers", "Read (fichiers)", "Bash · chercher / lister", "Bash · tests / analyse"}
+    notes = [{"index": 0, "label": "%dk before the first question: instructions, tools, memory" % round(series[0] / 1000), "dx": 12, "dy": 20}]
+    code_sources = {"Bash · file reads", "Read · files", "Bash · search / list", "Bash · tests / analysis"}
     jumps = sorted(((series[i] - series[i - 1], i) for i in range(2, len(series))
                     if any(src in code_sources for _, src in entered.get(i, []))), reverse=True)
     if jumps and jumps[0][0] > 5000:
         delta, i = jumps[0]
         source = max(item for item in entered[i] if item[1] in code_sources)[1]
-        phrase = {"Bash · lire des fichiers": "une lecture de fichier (cat, sed)", "Read (fichiers)": "une lecture de fichier (Read)",
-                  "Bash · chercher / lister": "une seule recherche (grep, find)", "Bash · tests / analyse": "une sortie de tests"}[source]
-        notes.append({"index": i, "label": "+%d k en %s\nrelus ensuite à chaque appel" % (round(delta / 1000), phrase),
+        phrase = {"Bash · file reads": "one file read (cat, sed)", "Read · files": "one file read (Read)",
+                  "Bash · search / list": "one search (grep, find)", "Bash · tests / analysis": "test output"}[source]
+        notes.append({"index": i, "label": "+%dk from %s\nreused in each later call" % (round(delta / 1000), phrase),
                       "dx": -12 if i > len(series) / 4 else 12, "dy": -26 if i > len(series) / 4 else 22,
                       "anchor": "end" if i > len(series) / 4 else "start"})
 
@@ -177,23 +177,23 @@ def main(out_path, *args):
     rereads = sorted(reread_weights)
     charts = {
         "context-growth": {
-            "kind": "line", "unit": "k", "values": series, "notes": notes, "x_label": "appel API n°",
-            "title": "Le contexte ne fait que grossir, et il est relu à chaque appel",
-            "subtitle": "Tokens de contexte envoyés à chaque appel, une session réelle de %d appels sur un projet Flutter" % len(series),
+            "kind": "line", "unit": "k", "values": series, "notes": notes, "x_label": "API call",
+            "title": "Context grows and is supplied on every call",
+            "subtitle": "Context tokens per call in one real Flutter session with %d calls" % len(series),
         },
         "tool-residency": {
             "kind": "hbar", "unit": "%", "rows": rows[:7],
-            "title": "Ce que les outils font entrer reste, et se relit",
-            "subtitle": "Part du contexte relu occupée par les résultats d'outils, par source (%d sessions, %d projets Flutter)" % (len(sessions), len(project_dirs)),
+            "title": "Tool results remain in later context",
+            "subtitle": "Tool-result share of repeated context by source · %d sessions, %d Flutter projects" % (len(sessions), len(project_dirs)),
         },
         "cost-by-context": {
             "kind": "grouped", "unit": "%", "groups": [b[2] for b in BUCKETS], "label_groups": [len(BUCKETS) - 1],
             "series": [
-                {"label": "part des appels", "values": [100 * n / max(1, len(priced)) for n in by_bucket_calls]},
-                {"label": "part du coût (tarifs API)", "values": [100 * v / max(1e-9, total_cost) for v in by_bucket_cost]},
+                {"label": "Share of calls", "values": [100 * n / max(1, len(priced)) for n in by_bucket_calls]},
+                {"label": "Share of API-equivalent cost", "values": [100 * v / max(1e-9, total_cost) for v in by_bucket_cost]},
             ],
-            "title": "Les longs contextes font l'essentiel du coût",
-            "subtitle": "Appels et coût valorisé aux tarifs API du %s, par taille de contexte" % PRICING_DATE,
+            "title": "Long contexts account for most cost",
+            "subtitle": "Calls and API-equivalent cost by context size · prices as of %s" % PRICING_DATE,
         },
     }
     summary = {

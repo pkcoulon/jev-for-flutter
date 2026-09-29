@@ -1,83 +1,83 @@
-# Deux tâches réelles, quatre sessions — 29 septembre 2026
+# Two real tasks, four sessions — September 29, 2026
 
-**Le lot est terminé pour 1,3053 $ sur les 5 $ autorisés. Il ne prouve pas l'efficacité générale de dartlens.** Avec le plugin, le diagnostic coûte moins cher ; la recherche d'information coûte davantage. Aucune session n'utilise `lens`, et aucun refus de grande lecture ne se déclenche. Les écarts ne démontrent donc pas un bénéfice de la sélection de code par Jev.
+**This campaign finished at $1.3053 of an authorized $5. It does not establish general plugin effectiveness.** The diagnostic task costs less with the plugin; the information search costs more. No session uses `lens` or triggers a large-read refusal, so the differences do not demonstrate benefits from Jev code selection.
 
-## Résultats
+## Results
 
-Une session par tâche et par variante, avec le même prompt. Tous les essais sont conservés, sans relance. Coût Claude **et Jev**, contrôles de connexion inclus :
+One session per task and variant, with identical prompts. All attempts are retained, without retries. Costs include **Claude and Jev**, including connectivity checks:
 
-| Tâche | Sans plugin | Avec dartlens | Écart |
+| Task | Without plugin | With plugin | Change |
 |---|---:|---:|---:|
-| Gambade — expliquer le seuil de chaleur | 0,1958 $ | 0,2331 $ | +19 % |
-| Pioudex — corriger le calcul d'XP | 0,5644 $ | 0,3120 $ | −45 % |
+| Gambade: explain a heat threshold | $0.1958 | $0.2331 | +19% |
+| Pioudex: fix XP calculation | $0.5644 | $0.3120 | −45% |
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/exploratory-results-dark.svg">
-  <img alt="Écarts avec dartlens par rapport au témoin sans plugin. Gambade : +27 % de tokens Claude, +19 % de coût, +29 % de temps vérifications comprises. Pioudex : −52 % de tokens, −45 % de coût, +3 % de temps. Une seule session par variante, aucun appel à lens." src="img/exploratory-results-light.svg">
+  <img alt="Gambade: 27% more Claude tokens, 19% higher cost, 29% more time including checks. Pioudex: 52% fewer tokens, 45% lower cost, 3% more time. One session per variant; no lens calls." src="img/exploratory-results-light.svg">
 </picture>
 
-Les pourcentages du graphique sont calculés avec `100 × (avec / sans − 1)`, puis arrondis à l'entier. Les deux tâches utilisent la même échelle et le même périmètre : tokens Claude cache compris, coût Claude + Jev, durée de session et contrôles externes. Le temps présenté est celui jusqu'aux vérifications terminées, pas le délai avant le premier mot de la réponse. Aucun pourcentage d'amélioration de qualité n'est établi.
+Percentages use `100 × (with / without − 1)`, rounded to integers. Both tasks use the same scale and scope: Claude tokens including cache, combined cost, session time and external checks. Time runs through completed verification, not time to first response token. No quality-improvement percentage is established.
 
-| Durée | Gambade sans / avec | Pioudex sans / avec |
+| Duration | Gambade without / with | Pioudex without / with |
 |---|---:|---:|
-| Session Claude, outils et tests qu'il lance inclus | 68,5 / 88,7 s | 198,1 / 197,5 s |
-| Contrôles automatiques externes après la session | 0 / 0 s | 19,2 / 26,6 s |
-| Total jusqu'à la fin de ces contrôles | **68,5 / 88,7 s** | **217,3 / 224,1 s** |
+| Claude session, including its tools and tests | 68.5 / 88.7 s | 198.1 / 197.5 s |
+| External automatic checks | 0 / 0 s | 19.2 / 26.6 s |
+| Total through completed checks | **68.5 / 88.7 s** | **217.3 / 224.1 s** |
 
-La préparation des copies, la résolution des dépendances et la relecture des réponses sont exclues de ces durées. Les contrôles Gambade portent sur la réponse et le diff, sans commande de test après la session. Le lot ne montre pas de gain de vitesse jusqu'au résultat vérifié.
+Copy preparation, dependency resolution and answer review are excluded. Gambade checks inspect the answer and diff, without a post-session test command. This campaign shows no speed gain through verified completion.
 
-## Qualité vérifiée
+## Quality checks
 
-Les quatre réponses sont acceptées par la relecture Astra selon les demandes et les critères figés. Cette relecture est réalisée dans la session principale : **elle n'est ni indépendante ni aveugle**, même si les paquets exportés masquent les variantes. Elle ne démontre pas une qualité équivalente en général.
+Astra accepted all four answers against the frozen requests and criteria. Review occurred in the main session: **neither independent nor blind**, despite masked variant names in exported packets. It does not establish general quality equivalence.
 
-- **Pioudex :** même correction d'une ligne dans les deux variantes, `Bareme.multiplicateur`, rang 4 rétabli à ×5 ; aucun test modifié. Les traces confirment les **1 067 tests passés** annoncés par chaque réponse. Les contrôles externes passent aussi : célébration, progression, non-régression, analyse et format.
-- **Gambade :** les deux réponses donnent le seuil exact de 30 °C ressentis pour le carlin, la décision dans `HeatAdvice.evaluate`, le profil de race et sa source PDSA. Aucun fichier modifié. Réserves : le témoin mélange dans une phrase les consommateurs du drapeau de sensibilité et du niveau calculé ; la réponse avec plugin n'explicite pas le raccordement à l'outil météo de l'assistant. La relecture a vérifié ce raccordement dans le code. L'acceptation des réponses ne fait pas disparaître ces limites de précision.
+- **Pioudex:** the same one-line fix in both variants, restoring rank 4 to ×5 in `Bareme.multiplicateur`; no tests modified. Traces confirm **1,067 passing tests** in each answer. External celebration, progression, regression, analysis and formatting checks also pass.
+- **Gambade:** both answers give the correct 30 °C apparent-temperature threshold for pugs, the decision in `HeatAdvice.evaluate`, the breed profile and PDSA source. No file changes. Reservations: the control conflates consumers of the sensitivity flag and computed level in one sentence; the plugin answer omits the assistant weather-tool connection. Review checked that connection in source. Acceptance does not erase these precision limits.
 
-## Ce qui s'est réellement passé
+## What actually happened
 
-**Zéro appel à `lens`, `lens find`, `lens which` ou `dart-outline`. Zéro grande lecture refusée.** Sur Gambade, le fichier Dart lu en entier est court. Sur Pioudex, Claude utilise directement des lectures partielles, dans les deux variantes. Le déclencheur de dartlens n'a donc pas de grande lecture à intercepter.
+**No calls to `lens`, `lens find`, `lens which` or `dart-outline`. No large-read refusals.** Gambade's fully read Dart file is short. On Pioudex, both variants use partial reads directly, leaving no large full read to intercept.
 
-Le plugin démarre dans les deux sessions concernées. Jev traite deux demandes de routage vers les skills et une vérification de conventions ; aucun lien ni avertissement n'est retenu. Les deux autres appels Jev vérifient la connexion avant les sessions. Aucun appel ne sélectionne du code pour Claude.
+The plugin starts in both relevant sessions. Jev handles two skill-routing requests and one convention check; no link or warning is selected. Two other calls check connectivity. None selects code for Claude.
 
-Sur Pioudex, la session avec plugin fait 15 appels Claude contre 27 pour le témoin, qui explore davantage l'écran avant de corriger le barème. Avec une seule répétition, on ne peut pas séparer l'effet des consignes du plugin de la variabilité du modèle. Sur Gambade, la session avec plugin fait 11 appels contre 9. Une commande Python est refusée par les permissions du banc ; sur Pioudex, le témoin fait une recherche avec une expression régulière invalide. Ces incidents restent dans les coûts et les temps des variantes concernées.
+Pioudex makes 15 Claude calls with the plugin versus 27 in the control, which explores more screen code before correcting the calculation. A single run cannot separate plugin-instruction effects from model variation. Gambade makes 11 calls with the plugin versus nine without. One Python command is denied by benchmark permissions; the Pioudex control also uses an invalid search regex. Both incidents remain in their variants' costs and timings.
 
-## Tokens et coût complet
+## Tokens and complete cost
 
-Tokens Claude dédoublonnés par message, sans conversion approximative depuis des caractères :
+Claude usage is deduplicated by message, without estimating tokens from characters:
 
-| Catégorie | Gambade sans | Gambade avec | Pioudex sans | Pioudex avec |
+| Category | Gambade without | Gambade with | Pioudex without | Pioudex with |
 |---|---:|---:|---:|---:|
-| Entrée hors cache | 18 | 22 | 54 | 30 |
-| Écriture cache 5 min | 0 | 0 | 0 | 0 |
-| Écriture cache 1 h | 26 143 | 28 502 | 55 137 | 37 840 |
-| Lecture cache | 362 887 | 467 081 | 1 315 135 | 621 559 |
-| Sortie | 1 862 | 2 548 | 8 067 | 3 611 |
-| **Total Claude** | **390 910** | **498 153** | **1 378 393** | **663 040** |
-| Jev, entrée | 0 | 3 376 | 0 | 4 751 |
-| Jev, sortie | 0 | 205 | 0 | 284 |
+| Fresh input | 18 | 22 | 54 | 30 |
+| Five-minute cache writes | 0 | 0 | 0 | 0 |
+| One-hour cache writes | 26,143 | 28,502 | 55,137 | 37,840 |
+| Cache reads | 362,887 | 467,081 | 1,315,135 | 621,559 |
+| Output | 1,862 | 2,548 | 8,067 | 3,611 |
+| **Claude total** | **390,910** | **498,153** | **1,378,393** | **663,040** |
+| Jev input | 0 | 3,376 | 0 | 4,751 |
+| Jev output | 0 | 205 | 0 | 284 |
 
-Le total Claude compte le contexte relu à chaque appel, y compris depuis le cache ; ce n'est pas une quantité de texte unique. Les tokens Jev restent séparés, car il s'agit d'un autre modèle et d'un autre tarif.
+Claude totals count context supplied on every call, including cached context, rather than unique text. Jev tokens remain separate because they belong to another model and price schedule.
 
-Valorisation : **1,3049484 $ Claude + 0,000341334 $ Jev = 1,305289734 $**, soit **1,31 $**. Le compteur prudent du budget retient 1,30534 $, car il conserve le maximum entre le coût natif et le score arrondi pour chaque session. Aucun dépassement, arrêt au plafond, appel Jev rejeté, relance ou relecteur payant supplémentaire. Les 3,69 $ restants n'ont pas été utilisés.
+API-equivalent valuation: **$1.3049484 Claude + $0.000341334 Jev = $1.305289734**, rounded to **$1.31**. Conservative budget accounting retains $1.30534, taking the larger of native and rounded recalculated cost per session. No overrun, budget stop, rejected Jev call, retry or additional paid reviewer. The remaining $3.69 was not used in this campaign.
 
-Tarifs vérifiés le 29 septembre 2026 : Sonnet 5, par million de tokens, 2 $ en entrée, 2,50 $ en écriture cache 5 min, 4 $ en écriture 1 h, 0,20 $ en lecture cache et 10 $ en sortie ; Jev 1.13, 0,042 $ en entrée et sortie gratuite. [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing) · [TypeSafe](https://docs.typesafe.ai/models). C'est une valorisation API, pas une mesure de la facture ni du quota d'un abonnement Claude.
+Prices checked on September 29, 2026, per million tokens: Sonnet 5 input $2, five-minute cache writes $2.50, one-hour writes $4, cache reads $0.20 and output $10; Jev 1.13 input $0.042 and free output. [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing) · [TypeSafe](https://docs.typesafe.ai/models). These are API-equivalent costs, not subscription bills or quota measurements.
 
-## Conditions et reproduction
+## Conditions and reproduction
 
-- Claude Code 2.1.284, `claude-sonnet-5`, effort `medium`, sessions neuves, français. Paramètres identiques au sein de chaque paire.
-- Version locale corrigée après `0de8979`, empreinte du plugin `1581a817ffe4b4a2`, figée avant le premier appel. Réglages par défaut : refus unique, conventions et routeur actifs, `find_code` désactivé. Pas de compilation du helper Dart.
-- Copies jetables : Gambade `fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c` ; Pioudex `91036cc5a13a474a3743c56919b598919cd84500`, avec le défaut du barème prévu par la tâche et l'historique masqué. Aucun projet client.
-- Ordre figé : Gambade sans puis avec, Pioudex avec puis sans. Plafonds Claude respectifs de 0,65 $ et 1,25 $ par session, plus 0,10 $ maximum Jev et une réserve. Aucun essai ajouté après lecture des résultats.
-- Réglages personnels et MCP externes désactivés ; mêmes permissions pour les deux variantes. Le vrai Jev répond via un relais local qui borne la dépense et conserve les usages, sans enregistrer la clé. Aucun faux serveur.
+- Claude Code 2.1.284, `claude-sonnet-5`, `medium` effort, fresh French-language sessions. Identical conditions within each pair.
+- Local fixes after `0de8979`, plugin fingerprint `1581a817ffe4b4a2`, frozen before calls. Defaults: one-time refusal, guard and router enabled, `find_code` disabled. No Dart-helper compilation.
+- Disposable copies: Gambade `fcac6e853a1a1ff70fa56c2eb5ec08b17ac7f10c`; Pioudex `91036cc5a13a474a3743c56919b598919cd84500`, with the predeclared calculation bug and hidden history. No customer project.
+- Frozen order: Gambade without then with; Pioudex with then without. Claude caps of $0.65 and $1.25 per session respectively, plus a $0.10 Jev cap and reserve. No extra runs after reading results.
+- Personal settings and external MCP servers disabled; identical permissions. Real Jev accessed through a local spending-capped proxy that records usage without the key. No fake server.
 
-Les [données du graphique](exploratory-results.json) contiennent les usages, les tarifs, les durées, les réserves de relecture et les empreintes des preuves. Régénération des SVG clair/sombre : `python3 docs/readme_charts.py` avec Matplotlib installé. Les archives privées sont conservées dans `~/.cache/dartlens-bench/exploratory-5usd-2026-09-29/` : plan, plugin figé, réponses, diffs, tests, usages et revues.
+[Chart data](exploratory-results.json) contains usage, prices, durations, review reservations and evidence hashes. Regenerate light/dark SVGs with `python3 docs/readme_charts.py` and Matplotlib. Plans, snapshots, answers, diffs, tests, usage and reviews remain in the private `~/.cache/dartlens-bench/exploratory-5usd-2026-09-29/` archive.
 
-Recalcul hors ligne de chaque projet, sans nouvel appel payant :
+Offline recalculation, without new paid calls:
 
 ```bash
-LOT="$HOME/.cache/dartlens-bench/exploratory-5usd-2026-09-29"
-python3 -B bench/score.py "$LOT/results/pioudex" --tasks "$LOT/definitions" \
-  --reviews "$LOT/reviews/reviews.json" --key "$LOT/review-key.json"
+CAMPAIGN_DIR="$HOME/.cache/dartlens-bench/exploratory-5usd-2026-09-29"
+python3 -B bench/score.py "$CAMPAIGN_DIR/results/pioudex" --tasks "$CAMPAIGN_DIR/definitions" \
+  --reviews "$CAMPAIGN_DIR/reviews/reviews.json" --key "$CAMPAIGN_DIR/review-key.json"
 ```
 
-Remplacer `pioudex` par `gambade` pour l'autre paire. Deux tâches déjà connues du banc et une répétition ne permettent ni d'estimer la variabilité, ni de conclure sur d'autres projets. Le prochain travail utile reste la couverture des parcours de code et le choix du bon moment pour utiliser la recherche, sans forcer `lens` lorsque les lectures partielles suffisent déjà.
+Replace `pioudex` with `gambade` for the other pair. Two familiar tasks and one repetition cannot estimate variance or establish benefits on other projects. Flow coverage and useful search timing remain the next problems; `lens` need not be forced when partial reads already suffice.

@@ -1,69 +1,69 @@
-# Architecture de Jev for Flutter 0.3.2
+# Jev for Flutter architecture
 
-Le chemin principal réduit une lecture déjà demandée par Claude. La recherche sémantique est disponible à la demande. Le moteur de contexte en arrière-plan, développé et mesuré précédemment, reste facultatif : son dernier essai ajoutait des tokens et du coût.
+The main path narrows a read Claude has already requested. Semantic search is available on demand. The earlier background context engine remains optional: its latest measured trial added tokens and cost.
 
 ```mermaid
 flowchart LR
-    A[Claude demande un Read] --> B{Lecture Dart entière\n400 lignes à 64 Ko ?}
-    B -->|non| R[Read habituel]
-    B -->|oui| P{Jev autorisé\npour ce projet ?}
-    P -->|non| R
-    P -->|oui| J[Jev examine le fichier\nhors conversation]
-    J --> G{Demande ciblée\net choix suffisamment net ?}
-    G -->|non ou erreur| R
-    G -->|oui| W[Read avec offset et limit\nnote des lignes omises]
-    W --> C[Claude raisonne sur le code]
+    A[Claude requests Read] --> B{Whole Dart file\n400 lines to 64 KB?}
+    B -->|no| R[Original Read]
+    B -->|yes| P{Jev enabled\nfor this project?}
+    P -->|no| R
+    P -->|yes| J[Jev examines the file\noutside the conversation]
+    J --> G{Focused request\nand clear selection?}
+    G -->|no or error| R
+    G -->|yes| W[Read with offset and limit\nomitted lines noted]
+    W --> C[Claude reasons about the code]
     R --> C
 ```
 
-## Lecture native
+## Native reads
 
-`hooks/lens_nudge.py` sélectionne le mode. `lib/jev_flutter/narrow.py` applique le mode `narrow`, désormais par défaut. Une plage explicite, un fichier généré, un projet exclu, une source hors projet ou l'absence d'activation empêche tout envoi.
+`hooks/lens_nudge.py` selects the mode. `lib/jev_flutter/narrow.py` implements the default, `narrow`. An explicit range, generated file, excluded project, source outside the project or missing activation prevents transmission.
 
-La dernière vraie demande utilisateur est extraite du transcript de l'agent concerné ; résultats d'outils et rappels sont exclus. Le fichier entier est masqué avant un découpage en groupes de lignes. Une seule requête Jev évalue en parallèle la localisation (`choice`) et le caractère ciblé de la demande (`noul`). Aucun préfiltre lexical ne décide quelle partie du fichier Jev voit.
+The latest actual user request is extracted from the relevant agent's transcript, excluding tool results and reminders. The whole file is masked before being split into line groups. One Jev request evaluates location (`choice`) and whether the request is focused (`noul`) in parallel. No lexical prefilter decides which part of the file Jev sees.
 
-Limites : 64 000 octets, estimation de 24 000 tokens pour état et questions, 200 groupes maximum, 3 secondes réseau, aucune relance, 24 requêtes par session au plus. Le hook entier dispose de 4 secondes. Le seuil du choix vaut 0,60 et celui du périmètre ciblé 0,85 ; ce sont des filtres, pas des garanties de rappel.
+Limits: 64,000 bytes, an estimated 24,000 tokens for state and questions, at most 200 groups, a three-second network deadline, no retries, and at most 24 requests per session. The complete hook has four seconds. Selection requires scores of 0.60 for location and 0.85 for focused scope; these are filters, not recall guarantees.
 
-La fenêtre initiale couvre au moins 150 lignes ou un cinquième du fichier. Les fonctions reconnues qui croisent le groupe choisi sont incluses en entier. La version 0.3.2 corrige une mauvaise clé de résultat du parseur qui empêchait cette protection de fonctionner.
+The initial window covers at least 150 lines or one fifth of the file. Recognized functions overlapping the selected group are included in full. Version 0.3.2 fixes an incorrect parser-result key that previously prevented this protection from working.
 
-Si la demande nomme explicitement une seule méthode reconnue, entre accents graves ou suivie de `(`, la fenêtre peut descendre à 64 lignes. Le moteur conserve sa déclaration entière et les déclarations du même fichier dont il repère les noms dans son corps, récursivement. Noms ambigus, plus de 32 dépendances ou dépendance hors de la fenêtre initiale : pas de réduction supplémentaire. Ce parcours reste approximatif, sans résolution des types ni des appels externes. Une fenêtre couvrant plus de 60 % du fichier laisse la lecture intacte.
+If the request explicitly names exactly one recognized method, in backticks or followed by `(`, the window can shrink to 64 lines. The engine retains its complete declaration and recursively detected same-file declarations referenced in its body. Ambiguous names, more than 32 dependencies or a dependency outside the initial window prevent the additional reduction. This remains approximate, without resolved types or external calls. A window covering more than 60% of the file leaves the read unchanged.
 
-Avant livraison : empreinte du fichier et politique revérifiées. `hookSpecificOutput.updatedInput` conserve les autres arguments du Read et ajoute `offset`/`limit` ; il ne modifie pas les permissions. `additionalContext` signale la sélection et comment lire le reste. Un marqueur atomique par session/fichier/contenu/question permet de refaire la lecture entière et évite deux requêtes identiques concurrentes. Les marqueurs ne contiennent pas de source.
+Before delivery, the file fingerprint and policy are checked again. `hookSpecificOutput.updatedInput` preserves other Read arguments and adds `offset`/`limit`; it does not change permissions. `additionalContext` describes the selection and how to retrieve the rest. An atomic marker per session/file/content/question allows a subsequent full read and prevents identical concurrent requests. Markers contain no source code.
 
-Une requête trop large, un score invalide, une erreur ou un dépassement de délai conserve le Read initial. Même avec un score élevé, une sélection peut manquer du code : Claude doit suivre les autres branches utiles. [Contrat officiel des hooks](https://code.claude.com/docs/en/hooks#pretooluse-decision-control).
+Broad requests, invalid scores, errors and deadlines preserve the original Read. Even high scores can omit relevant code: Claude must follow other relevant branches. [Official hook contract](https://code.claude.com/docs/en/hooks#pretooluse-decision-control).
 
-## Préparation des lectures en parallèle
+## Parallel read preparation
 
-Le hook `UserPromptSubmit` lance `lens_nudge.py prepare` en asynchrone. Si le texte nomme exactement un chemin Dart, le même moteur prépare ses scores avant le Read, sans ajouter de texte à la conversation. Les seuils, questions Jev et fenêtres restent identiques. Sans chemin explicite, avec plusieurs chemins ou hors des limites de lecture, aucune requête anticipée ne part. `read.prefetch: false` désactive ce chemin.
+`UserPromptSubmit` runs `lens_nudge.py prepare` asynchronously. If the prompt names exactly one Dart path, the same engine prepares scores before Read, without adding conversation text. Thresholds, Jev questions and windows are identical. No request is sent without an explicit path, with multiple paths, or outside read limits. Set `read.prefetch: false` to disable this path.
 
-Le résultat est privé à la session, expire après 90 secondes et ne contient que les scores Jev. Sa clé dépend du fichier, de son empreinte, de la question, du modèle, de l'API et des instructions de sélection. Toute modification invalide donc sa réutilisation. Politique et empreinte restent vérifiées avant la livraison.
+The result is session-local, expires after 90 seconds and contains only Jev scores. Its key includes the file, fingerprint, question, model, API and selection instructions. Any change invalidates reuse. Policy and fingerprints are rechecked before delivery.
 
-Une réservation atomique commune aux préparations et aux lectures limite le tout à 24 requêtes par session. Si Read arrive pendant la préparation, il attend le résultat dans son délai habituel, sans second appel à Jev. Les erreurs sont mémorisées ; aucune reprise payante. Le marqueur de lecture reste séparé : la préparation ne consomme pas la première lecture ciblée, et relire le fichier donne toujours le contenu complet. Une préparation abandonnée peut coûter une requête sans servir ; aucun gain global supplémentaire n'est annoncé sans mesure.
+An atomic reservation shared by preparation and reads caps them at 24 requests per session. If Read arrives during preparation, it waits within its usual deadline without a second Jev call. Errors are cached, without paid retries. The read marker is separate: preparation does not consume the first focused read, and repeating a read still gives the full file. Unused preparation may cost a request without helping; no additional overall gain is claimed without measurements.
 
-Le hook asynchrone garde son propre délai maximal de quatre secondes et ne rend aucun contexte au modèle. [Exécution des hooks en arrière-plan](https://code.claude.com/docs/en/hooks#run-hooks-in-the-background) · [Vérification réelle et limites des mesures](PREFETCH-RESULTS.md).
+The asynchronous hook has its own four-second deadline and returns no context to the model. [Background hooks](https://code.claude.com/docs/en/hooks#run-hooks-in-the-background) · [Real checks and measurement limits](PREFETCH-RESULTS.md).
 
-## Recherche sémantique et audit
+## Semantic search and audits
 
-`jev-flutter` distribue les commandes vers les modules existants ; `lens` et `dartlens` restent compatibles. `find` regroupe au plus huit plans de fichiers par requête. Chaque fichier garde sa question et son score propres ; la question référence explicitement sa clé dans le groupe. Les groupes sont divisés si le budget de contexte est dépassé. Huit requêtes peuvent travailler simultanément. Le contenu intégral des huit meilleurs candidats est ensuite vérifié quand le budget le permet, puis les blocs des trois premiers résultats sont localisés.
+`jev-flutter` dispatches commands to the existing modules; `lens` and `dartlens` remain compatible. `find` batches at most eight file outlines per request. Each file keeps its own question and score, with the question explicitly referencing its group key. Groups are split when they exceed the context budget. Up to eight requests run concurrently. Full source for the top eight candidates is verified when it fits the budget, then relevant blocks are located in the top three.
 
-Un premier groupe teste la disponibilité du service avant de lancer le reste. Si aucun jugement exploitable ne revient, la recherche passe au classement local. `find.batch_files: 1` rétablit le criblage individuel. [Comparaison réelle sur trois projets publics](PUBLIC-PROJECTS.md).
+The first group probes service availability before launching the rest. If no usable judgment returns, search falls back to local ranking. `find.batch_files: 1` restores individual screening. [Real comparison on three public projects](PUBLIC-PROJECTS.md).
 
-**Plus de sélection des 150 premiers fichiers par mots-clés.** Si le périmètre dépasse 150 fichiers, rien n'est envoyé. L'appelant choisit un dossier plus précis ou `--max-files`, plafonné à 3 000. Les scores issus du seul plan sont marqués ; erreurs et exclusions restent visibles. `ask` vérifie une propriété fichier par fichier. Aucun de ces résultats ne garantit un parcours complet ou l'absence d'une fonctionnalité.
+**The engine no longer selects the first 150 files by keywords.** If the scope exceeds 150 files, nothing is sent. Choose a narrower directory or raise `--max-files`, capped at 3,000. Outline-only scores are labeled; errors and exclusions stay visible. `ask` checks a property file by file. None of these results guarantees a complete flow or proves that a feature is absent.
 
-## Contexte parallèle facultatif
+## Optional parallel context
 
-`context.enabled: true` active `hooks/code_context.py` : préparation détachée au prompt, remise unique au parent ou au sous-agent lors d'un hook ultérieur. Le LLM continue pendant la préparation. Index local par empreinte, BM25 déterministe, jusqu'à huit jugements Jev (quatre simultanés par demande), liens syntaxiques vers d'autres déclarations et plafond de 8 000 octets en automatique.
+`context.enabled: true` activates `hooks/code_context.py`: detached preparation at prompt time, with one delivery to the parent or subagent through a later hook. The LLM continues during preparation. It uses a fingerprinted local index, deterministic BM25, up to eight Jev judgments with four concurrent requests per prompt, syntax links to other declarations, and an automatic 8,000-byte cap.
 
-Les limites et listes de passages non lus sont rendues explicites. Sources modifiées ou résultat trop ancien : pas de livraison. La sélection de départ reste lexicale et peut manquer un fichier sans vocabulaire commun. Deux demandes se chevauchant peuvent laisser huit requêtes déjà envoyées en vol. [Mesures de cette architecture](CONTEXT-RESULTS.md).
+Limits and unread passages are explicit. Changed sources or expired results prevent delivery. Initial selection remains lexical and can miss files without shared vocabulary. Two overlapping prompts can leave eight already-sent requests in flight. [Measurements](CONTEXT-RESULTS.md).
 
-Le MCP optionnel `find_code` utilise ce moteur de contexte, et reste désactivé par défaut. Il conserve les contrôles de périmètre et l'annulation des processus. Ne pas le confondre avec le criblage complet de `jev-flutter find`.
+Optional MCP tool `find_code` uses this context engine and stays off by default. Scope controls and process cancellation are preserved. It is distinct from the complete screening in `jev-flutter find`.
 
-## Conventions, mémoire et données
+## Conventions, memory and data
 
-La garde après modification et le routeur de mémoire travaillent en asynchrone. Ils restent actifs, sans prétention d'économie mesurée. Règles absentes ou inapplicables : pas d'alerte de convention.
+The post-edit guard and memory router run asynchronously. They remain enabled, without a claim of measured savings. Missing or inapplicable rules produce no convention warning.
 
-Jev est désactivé tant que le projet ne l'a pas autorisé. La politique utilisateur se trouve dans `~/.config/jev-for-flutter/policy.json` ; elle protège aussi les dépôts imbriqués. Les exclusions de l’ancien emplacement sont aussi appliquées. Les clés TypeSafe peuvent venir de l'environnement ou d'un fichier privé. Cache et journaux utilisent `~/.cache/jev-for-flutter`, ou le cache historique déjà présent pour les installations existantes. Le renommage ne déplace ni n'efface leurs données.
+Jev stays disabled until enabled for the project. The user policy at `~/.config/jev-for-flutter/policy.json` also protects nested repositories. Legacy exclusions still apply. TypeSafe keys come from the environment or a personal file. Caches and logs use `~/.cache/jev-for-flutter`, or an existing legacy cache. Renaming moves or deletes no user data.
 
-Les fichiers `.env`, clés privées et autres fichiers sensibles sont exclus des envois ; les motifs de secrets connus sont masqués avant découpage. Ce filtrage n'est pas une détection exhaustive. Les métriques de lecture journalisent tailles, durées et identifiants hachés, sans texte source ni question. L'analyse locale peut être forcée avec `--local` sur les commandes compatibles.
+`.env`, private keys and other sensitive files are excluded from transmission; recognized secret patterns are masked before chunking. This is not exhaustive secret detection. Read metrics record sizes, durations and hashed identifiers, without source or question text. Compatible commands support `--local` to force local analysis.
 
-Les fichiers générés `*.mapper.dart` sont exclus avec les autres formats générés. Pour une lecture isolée, les marqueurs de génération sont cherchés dans les seuls dossiers parents concernés ; le plugin ne reparcourt plus le dépôt entier.
+Generated `*.mapper.dart` files are excluded alongside other known generated formats. A single-file read checks generation markers only in the relevant ancestor directories, without scanning the whole repository.
