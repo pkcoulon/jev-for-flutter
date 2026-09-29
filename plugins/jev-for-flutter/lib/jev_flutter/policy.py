@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 
-from . import compat, jev, paths
+from . import compat, jev, memory, paths
 
 USER_POLICY = Path.home() / ".config" / "jev-for-flutter" / "policy.json"
 SECRET_FILES = [
@@ -25,7 +25,7 @@ def policy_files():
 
 
 def user_policy():
-    rules = {"deny_remotes": [], "deny_paths": [], "error": None}
+    rules = {"deny_remotes": [], "deny_paths": [], "sources": {}, "error": None}
     for file in policy_files():
         try:
             data = json.loads(file.read_text())
@@ -41,6 +41,8 @@ def user_policy():
             value = data.get(key, [])
             if isinstance(value, list) and all(isinstance(v, str) for v in value):
                 rules[key].extend(value)
+                for entry in value:
+                    rules["sources"].setdefault((key, entry), file)
             else:
                 rules["error"] = "%s : %s : liste de chaînes attendue" % (file, key)
                 return rules
@@ -70,31 +72,36 @@ def git_remotes(root):
     return re.findall(r"^\s*url\s*=\s*(\S+)", text, re.MULTILINE)
 
 
-def path_refused(path):
+def _path_source(path, rules):
     resolved = Path(os.path.realpath(os.path.expanduser(str(path))).casefold())
-    rules = user_policy()
-    if rules["error"]:
-        return True
-    for denied in rules["deny_paths"]:
-        denied = Path(os.path.realpath(os.path.expanduser(denied)).casefold())
+    for entry in rules["deny_paths"]:
+        denied = Path(os.path.realpath(os.path.expanduser(entry)).casefold())
         if resolved == denied or denied in resolved.parents:
-            return True
-    return False
+            return rules["sources"][("deny_paths", entry)]
+    return None
+
+
+def path_refused(path):
+    rules = user_policy()
+    return bool(rules["error"] or _path_source(path, rules))
 
 
 def refusal(root):
-    error = user_policy()["error"]
-    if error:
-        return "politique ~/.config/jev-for-flutter/policy.json illisible (%s), rien n'est envoyé" % error
-    if path_refused(root):
-        return "projet exclu par ~/.config/jev-for-flutter/policy.json"
-    denied = user_policy()["deny_remotes"]
+    rules = user_policy()
+    if rules["error"]:
+        return "politique illisible (%s), rien n'est envoyé" % rules["error"]
+    source = _path_source(root, rules)
+    if source:
+        return "projet exclu par %s (deny_paths)" % memory.display(source)
     resolved = Path(root).resolve()
     # A package with its own .fvmrc inside an excluded repo is its own root: every enclosing repo counts.
     for directory in (resolved, *resolved.parents):
-        if (directory / ".git").exists() and any(
-                pattern and pattern in url for url in git_remotes(directory) for pattern in denied):
-            return "dépôt exclu par ~/.config/jev-for-flutter/policy.json"
+        if (directory / ".git").exists():
+            for url in git_remotes(directory):
+                for pattern in rules["deny_remotes"]:
+                    if pattern and pattern in url:
+                        source = rules["sources"][("deny_remotes", pattern)]
+                        return "dépôt exclu par %s (deny_remotes)" % memory.display(source)
     return None
 
 

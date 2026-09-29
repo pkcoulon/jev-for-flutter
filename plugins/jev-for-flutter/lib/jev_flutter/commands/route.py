@@ -37,8 +37,9 @@ def main(argv):
     else:
         # Same roots as the hook: the current directory's project, and the session's one when Claude runs this.
         cwd = os.getcwd()
-        root = None if policy.path_refused(cwd) else catalog.root_of(cwd)
-        denied = (policy.refusal(root) if root else "dossier courant exclu par ~/.config/jev-for-flutter/policy.json") or policy.refusal(project.project_root())
+        denied = policy.refusal(cwd)
+        root = None if denied else catalog.root_of(cwd)
+        denied = denied or policy.refusal(root) or policy.refusal(project.project_root())
     if denied:
         print("jev-flutter route : refusé, %s ; le hook ne fait rien dans ce projet." % denied, file=sys.stderr)
         return 2
@@ -55,7 +56,7 @@ def main(argv):
     print("projet  : %s · branche : %s" % (_home(root), branch or "-"))
     refused = ", %d refusée(s) par la politique (non lues, non envoyées)" % cat["notes_refused"] if cat["notes_refused"] else ""
     if cat["memory_refused"]:
-        print("mémoire : %s refusée par ~/.config/jev-for-flutter/policy.json, catalogue vide" % _home(memory_dir))
+        print("mémoire : %s refusée (%s), catalogue vide" % (_home(memory_dir), policy.refusal(memory_dir)))
     else:
         print("mémoire : %s · %d fiche(s)%s" % (_home(cat["memory_dir"]), len(cat["notes"]), refused))
     print("skills  : %d invocable(s) par le modèle%s" % (

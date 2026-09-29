@@ -190,7 +190,7 @@ def main(argv):
         print("jev-flutter eval router : aucun transcript pour ce projet (utilise --transcripts).", file=sys.stderr)
         return 2
     if policy.path_refused(directory):
-        print("jev-flutter eval router : refusé, transcripts exclus par ~/.config/jev-for-flutter/policy.json.", file=sys.stderr)
+        print("jev-flutter eval router : refusé, transcripts exclus (%s)." % policy.refusal(directory), file=sys.stderr)
         return 2
     cat = catalog.build(root, Path(args.memory).expanduser() if args.memory else directory / "memory")
     if not cat["notes"] and not cat["skills"]:

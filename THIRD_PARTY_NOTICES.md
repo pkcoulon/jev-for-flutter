@@ -23,3 +23,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Brand assets
+
+The README displays unmodified TypeSafe and Flutter assets to identify the services and SDK this plugin works with. These trademarks and brand assets are not covered by this repository's MIT license.
+
+- TypeSafe logos: [light](https://mintcdn.com/ts-docs/yUH7wuFx44xePApg/logo/light.png) and [dark](https://mintcdn.com/ts-docs/yUH7wuFx44xePApg/logo/dark.png), as published in the [TypeSafe documentation](https://docs.typesafe.ai/introduction). Jev is a TypeSafe model; the displayed logo identifies TypeSafe.
+- Flutter logos: [light](https://flutter.dev/assets/flutter-logo.6ed04a8cd70b7aa540c6ec302a4e936c.svg) and [dark](https://flutter.dev/assets/flutter-logo-white.e4751c97b1621ac5d705e2fd662fc492.svg), from the [official Flutter brand assets](https://flutter.dev/brand), used under the [Flutter brand guidelines](https://docs.flutter.dev/brand).
+
+Flutter and the related logo are trademarks of Google LLC. We are not endorsed by or affiliated with Google LLC. This community plugin is not an official TypeSafe product.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4 — 2026-09-30
+
+- Show the actual exclusion policy file and matching field when activation is refused, including legacy configurations.
+- Keep exclusions from both policy locations effective and report unreadable policies without naming a different file.
+- Add official TypeSafe and Flutter brand assets to the README, with light and dark variants.
+
 ## 0.3.3 — 2026-09-29
 
 - Publish the repository under MIT with English documentation, benchmark reports and chart labels.

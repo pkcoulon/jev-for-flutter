@@ -1,6 +1,6 @@
 # Installing and using Jev for Flutter
 
-This guide describes version 0.3.3. The repository, plugin and marketplace are named `jev-for-flutter`.
+This guide describes version 0.3.4. The repository, plugin and marketplace are named `jev-for-flutter`.
 
 ## Installation
 
@@ -114,6 +114,8 @@ In `~/.config/jev-for-flutter/policy.json`, exclude paths or Git remotes even wh
 
 These lists are personal; no specific customer repository is hardcoded. An unreadable policy blocks transmission. Paths are resolved before checking, including symlinks. Remotes use substring matching.
 
+If activation is refused, the message names the policy file that actually contains the matching exclusion and its field (`deny_paths` or `deny_remotes`). A legacy policy still applies even when the new policy file does not exist.
+
 Without activation, or with `JEV_FLUTTER_JEV_DISABLE=1` in Claude's environment, `lens` search stays local and says so. No code context is automatically prepared. `JEV_FLUTTER_CONTEXT_DISABLE=1` disables only Jev calls and automation for `context`.
 
 ## Troubleshooting
@@ -136,6 +138,8 @@ claude plugin install jev-for-flutter@jev-for-flutter
 ```
 
 For a project-local installation, add `--scope local` to plugin commands. Legacy configurations, keys, rules and exclusions remain supported; the plugin moves or deletes nothing. Existing legacy cache paths remain in use. Old and new exclusion policies both apply, so migration drops no exclusion. Legacy environment variables remain recognized.
+
+To stop using the old local directory names, close Claude sessions and rename `~/.config/dartlens` to `~/.config/jev-for-flutter`, and `~/.cache/dartlens` to `~/.cache/jev-for-flutter`, **only if each destination does not exist**. Keep every exclusion and the key file permissions. If both configuration directories exist, merge their exclusions before removing an old policy. Restart Claude after migration.
 
 ## Updating from Jev for Flutter 0.3.0
 

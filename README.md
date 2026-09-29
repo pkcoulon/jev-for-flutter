@@ -2,6 +2,22 @@
 
 # Jev for Flutter
 
+<p>
+  <a href="https://typesafe.ai">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/img/brands/typesafe-dark.png">
+      <img src="docs/img/brands/typesafe-light.png" alt="TypeSafe, creators of Jev" height="26">
+    </picture>
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://flutter.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/img/brands/flutter-dark.svg">
+      <img src="docs/img/brands/flutter-light.svg" alt="Flutter" height="26">
+    </picture>
+  </a>
+</p>
+
 **Find the right Dart code. Keep Claude's context focused.**
 
 A Claude Code plugin powered by [Jev](https://typesafe.ai).
@@ -45,3 +61,5 @@ Start a new Claude Code session in your Flutter project, then enable Jev:
 Enable it separately in each project. This allows the plugin to send relevant code and questions to TypeSafe. `doctor` checks your local setup without paid calls. Then work with Claude as usual.
 
 **MIT licensed.** Claude and TypeSafe usage are billed separately. [Setup, troubleshooting and uninstalling](docs/FIRST-RUN.md).
+
+<sub>Flutter and the related logo are trademarks of Google LLC. We are not endorsed by or affiliated with Google LLC.</sub>

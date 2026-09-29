@@ -28,7 +28,7 @@ Jev for Flutter is a **Claude Code plugin**, not a `pubspec.yaml` dependency or 
 | No Dart SDK or approximate outline | The plugin works with an approximate parser. This is not resolved type analysis. `init` and `doctor` install no SDK. |
 | Command not found in your terminal | The startup hook adds commands to Claude's session shell. Start a new session after installation and check that hooks are enabled. |
 | Invalid JSON configuration | `init` refuses to overwrite it and `doctor` reports it. Fix the JSON before retrying. |
-| Confidential project or team policy | Activation is per project. User exclusions take priority, including after migration, and prevent transmission. |
+| Confidential project or team policy | Activation is per project. User exclusions take priority and prevent transmission. A refusal identifies the policy file and field, including an older configuration. |
 | Multiple plugin copies | Load either the marketplace copy or `--plugin-dir`. Remove the old installation before using the new one to avoid duplicate hooks. |
 | Unused preparation | Naming a file can trigger a speculative request even if Claude never reads it. Disable `read.prefetch` if needed. |
 | Upgrading from the old name | Legacy configurations, keys, rules, exclusions, environment variables and existing caches remain recognized. See [migration](USAGE.md#migrating-from-dartlens-02). |
