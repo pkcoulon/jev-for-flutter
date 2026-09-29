@@ -10,7 +10,7 @@ dartlens apporte aussi deux autres aides :
 - après une modification, il signale une convention du projet probablement enfreinte ;
 - à chaque demande, il rappelle une décision ou une consigne du projet qui la concerne.
 
-> **État actuel : prototype.** Le choix des passages donne de bons résultats sur nos premiers essais. Il reste à vérifier deux choses : que Claude s'en sert de lui-même, et que cela fait vraiment économiser sur des tâches complètes. Le rappel de mémoire est encore expérimental.
+> **État actuel : prototype.** Le choix des passages donne de bons résultats sur nos premiers essais. Claude s'en sert de lui-même quand dartlens refuse une fois la lecture complète d'un gros fichier ; un simple rappel ne suffit pas. Les économies sur des tâches complètes restent à confirmer sur plus d'essais. Le rappel de mémoire est encore expérimental.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/why-dark.svg">
@@ -82,14 +82,26 @@ Un outil qu'il faut rappeler à Claude ne sert à rien. dartlens le lui rappelle
 
 Une option expérimentale va plus loin : elle refuse une fois la lecture complète d'un gros fichier et propose `lens` à la place ; relancer la même lecture la laisse passer (`"lens": {"nudge": "refuse_once"}` dans `.claude/dartlens.json`).
 
+Dans nos essais, la note seule n'a rien changé : Claude l'a lue et a continué à lire les fichiers en entier. Le refus unique, lui, a marché à chaque fois (voir plus bas).
+
 ## Sur des tâches complètes
 
-**Premier pilote.** 3 vraies tâches, faites par Claude (Sonnet 5) avec et sans dartlens :
-- même réussite dans les deux cas (2 sur 3) ;
-- coût un peu plus bas avec dartlens, mais sur un seul essai par tâche, ce n'est pas une preuve ;
-- surtout, Claude n'a jamais utilisé `lens`. C'est ce qui a mené aux rappels ci-dessus.
+4 vraies tâches sur un projet Flutter perso, faites par Claude (Sonnet 5) de trois façons : sans dartlens, avec la note (réglage par défaut), avec le refus expérimental. Une tâche est réussie si ses tests passent et si un relecteur, qui ne savait pas quelle version l'avait faite, l'accepte.
 
-**En cours** : une campagne qui compare, sur 4 tâches, Claude sans dartlens, avec le rappel, et avec le refus expérimental. Résultats ici dès qu'elle est finie.
+| | Sans dartlens | Note (défaut) | Refus unique |
+|---|---|---|---|
+| Tâches réussies | 1 sur 4 | 2 sur 4 | 2 sur 4 |
+| Travail abîmé ailleurs | aucun | aucun | aucun |
+| Gros fichiers Dart lus en entier | 14 | 10 | 0 |
+| Appels à `lens` | 0 | 0 | 10 |
+| Coût, au tarif de l'API | 6,23 $ | 6,16 $ | 5,12 $ |
+
+Ce qu'on en retient :
+- **La note seule ne change pas les habitudes de Claude.** 9 notes affichées, aucun appel à `lens`.
+- **Le refus, si.** Les 8 fois, Claude a posé sa question à `lens`, puis lu la zone utile. Il n'a jamais redemandé le fichier entier, et ses modifications n'en ont pas souffert.
+- **Le coût total baisse de 18 % avec le refus**, mais une tâche sur quatre a coûté plus cher qu'avant. Avec un seul essai par tâche, c'est un signal encourageant, pas une preuve.
+
+Avant cela, un premier pilote sur 3 tâches, sans aucun rappel, avait donné la même réussite avec et sans dartlens, et Claude n'y avait jamais utilisé `lens`.
 
 ## Installer
 

@@ -8,7 +8,7 @@ Trois niveaux, qui ne disent pas la même chose :
 |---|---|---|
 | Branchement | Le plugin démarre-t-il ? Respecte-t-il les exclusions ? Gère-t-il les pannes ? | Le mécanisme marche. Rien sur la qualité de Jev ni sur une économie. |
 | Composants | Jev retrouve-t-il les bons passages, les écarts, les bonnes fiches ? | Les outils peuvent être utiles quand Claude s'en sert. |
-| Tâches complètes | Claude s'en sert-il ? Termine-t-il aussi bien ? À quel coût ? | Seul ce niveau peut valider la promesse. Encore en cours. |
+| Tâches complètes | Claude s'en sert-il ? Termine-t-il aussi bien ? À quel coût ? | Seul ce niveau peut valider la promesse. Premiers résultats plus bas, sur peu d'essais. |
 
 ## Le besoin, sur nos sessions réelles
 
@@ -62,11 +62,48 @@ Ce sont des estimations du besoin, pas des économies. Elles supposent environ 2
 - Coût : 3,11 $ avec dartlens, contre 3,45 $ sans, au tarif API. Sur si peu d'essais, ce n'est pas une preuve.
 - Usage : aucun appel à `lens`, `dart-outline` ni au skill. La garde a tourné sans fausse alerte.
 
-**Campagne d'adoption, en cours.** 4 tâches, 3 variantes : sans dartlens, avec le rappel par défaut, avec le refus expérimental. On y mesure :
-- combien de grosses lectures se présentent, combien de rappels sont affichés, et combien d'appels à `lens` suivent ;
-- les relectures complètes après `lens` et les contournements ;
-- la réussite après relecture à l'aveugle des modifications ;
-- le coût total de chaque tâche.
+**Campagne d'adoption du 2026-09-29** (`adoption-2026-09-29`).
+- Tâches : 4, toutes sur Pioudex.
+- Variantes : 3, chacune avec la garde et la mémoire actives.
+  - Sans dartlens.
+  - `all` : consigne au démarrage, puis une note sur chaque lecture complète d'un fichier Dart de 300 lignes ou plus, au plus 3 par session.
+  - `all_refuse` : consigne au démarrage, puis un refus unique de cette lecture.
+- Déroulé : Sonnet 5, un essai par tâche et par variante, avec la vraie clé Jev.
+- Réussite : il faut que les critères automatiques passent **et** qu'un agent relecteur, à qui l'on n'a pas dit quelle variante avait produit le travail, l'accepte. Relecture : 12 paquets, aucun retouché par le masquage.
+
+| Tâche | Sans dartlens | Note | Refus |
+|---|---|---|---|
+| `loc-silence` (localiser) | échec, 0,96 $ | réussite, 0,80 $ | réussite, 0,67 $ |
+| `diag-gain-xp` (diagnostiquer) | réussite, 0,77 $ | réussite, 1,06 $ | réussite, 1,17 $ |
+| `convention-olive` (convention) | échec, 1,14 $ | échec, 0,33 $ | échec, 0,62 $ |
+| `memoire-vibrations` (mémoire) | échec, 3,35 $ | échec, 3,97 $ | échec, 2,67 $ (délai de 25 min dépassé) |
+| **Total** | **1 sur 4, 6,23 $** | **2 sur 4, 6,16 $** | **2 sur 4, 5,12 $** |
+
+Aucune régression relevée par le relecteur.
+
+Le parcours d'adoption (`bench/adoption.py`) :
+
+| | Sans dartlens | Note | Refus |
+|---|---|---|---|
+| Lectures complètes de fichiers Dart ≥ 300 lignes | 14 (≈ 163 k tokens) | 10 (≈ 115 k) | 0 |
+| Notes ou refus affichés | — | 9 notes | 8 refus |
+| Appels à `lens` | 0 | 0 | 10 |
+| Lecture complète relancée après un refus | — | — | 0 |
+| Lecture complète après un appel à `lens` | — | — | 0 |
+| Lectures ciblées (`offset`/`limit`) | 18 | 11 | 11 |
+| Modifications refusées faute de lecture | 0 | 0 | 0 |
+
+Ce qu'on peut en dire :
+- **La note ne suffit pas** : Claude la reçoit, puis lit le fichier en entier quand même.
+- **Le refus unique change le parcours** : `lens` en mode Jev, sans erreur, en 0,33 à 0,51 s ; puis une lecture ciblée ; puis la modification. Une lecture partielle suffit à Claude Code avant une modification.
+- **Le coût total baisse de 18 % avec le refus.** Tâche par tâche, le rapport au témoin va de 0,54 à 1,52 (médiane 0,74). La tâche de diagnostic a coûté plus cher.
+- **Réussite** : 1 sur 4 sans dartlens, 2 sur 4 dans les deux autres variantes. La différence tient à une seule tâche (`loc-silence`), sur un seul essai. `score.py` affiche une « non-infériorité établie », mais sur 4 tâches cela ne veut pas dire grand-chose.
+- Le dépassement de délai sur « vibrations » avec refus vient de longs tours de réflexion du modèle, pas de `lens` : 3 appels, tous sous la demi-seconde.
+
+À faire pour conclure :
+- plusieurs essais par tâche ;
+- des tâches sur d'autres projets ;
+- mesurer les fausses alertes de la garde en usage réel.
 
 ## Rejouer
 
