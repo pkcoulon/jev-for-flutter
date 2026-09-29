@@ -110,14 +110,32 @@ Parcours observés après les arrêts :
 - Le diagnostic, seule tâche réussie partout, coûte 0,77 $ sans plugin et 1,17 $ avec l'arrêt.
 - **Conclusion** : l'arrêt divise par trois le code reçu, mais une économie sur un même travail terminé n'est pas démontrée.
 
-### Le plafond d'économie
+### Ce que pèsent les lectures et la recherche
 
-Et si les gros fichiers lus en entier n'avaient rien coûté du tout ? Calcul sur les 7 essais sans dartlens, campagne et pilote réunis (`bench/ceiling.py`) :
-- Le coût aurait baissé de **9 à 14 %** : on ne paierait ni leur mise en cache, ni leur relecture à chaque échange suivant. Calcul au tarif Sonnet 5, avec 3,5 puis 2,3 caractères par token.
-- En pratique, `lens` renvoie environ un tiers de ce contenu, et le détour ajoute des échanges. Le gain réaliste est donc de **quelques pour cent**.
-- Le coût d'une même tâche varie d'environ 50 % d'un essai à l'autre. Un gain de cet ordre ne se prouve pas avec quelques dizaines d'essais.
+Estimations sur les 7 essais sans dartlens (campagne et pilote, 9,68 $ au total). Données existantes seulement.
 
-Pourquoi si peu, alors que Claude reçoit trois fois moins de code ? Parce que Claude Code met la conversation en cache : relire un fichier déjà envoyé coûte environ dix fois moins cher que de l'envoyer la première fois.
+**Lectures complètes** (`bench/ceiling.py`) :
+- Les lectures complètes de fichiers Dart de 300 lignes ou plus portent **16,6 %** du coût (fourchette de 16,2 à 16,6 %).
+- Toutes tailles confondues, les lectures complètes de fichiers Dart en portent **19,9 %**.
+- Méthode :
+  - la taille de chaque lecture est mesurée par l'écart d'usage entre deux échanges ;
+  - le tarif est celui de la vraie classe de cache (surtout 1 h, à 4 $ le million) ;
+  - chaque conversation, principale ou de sous-agent, est comptée à part.
+- **Ce n'est pas une économie.** On suppose les mêmes échanges sans ces lectures. Or `lens` renvoie un extrait, dont le coût n'est pas déduit, et le détour ajoute des échanges. Ce n'est pas non plus un plafond : un parcours plus court pourrait économiser davantage.
+
+**Recherche** (`bench/search_cost.py`) :
+- Ce qui se passe avant la première modification (ou avant la réponse) pèse **58 %** du coût, et **48 %** sans le tout premier échange, payé de toute façon.
+- C'est la **cible** qu'une meilleure recherche (`lens find`, `lens which`) pourrait viser, pas une économie. Cette phase contient aussi la compréhension du code, des tests, et, dans 3 essais, le chargement d'un gros skill du projet, qui pèse 14 % du total.
+- Les résultats de recherche eux-mêmes pèsent peu : 0,28 $. Ce qui coûte, ce sont les échanges, qui renvoient chacun toute la conversation.
+- 31 lectures sur 78 n'ont servi à rien de visible : ni modifiées, ni citées dans la réponse, dans le diff ou dans un rapport de sous-agent. Cela représente environ 11 % du coût, en estimation.
+- `lens find` et `lens which` n'ont été appelés dans aucun essai avec plugin. On ne sait donc pas quelle part de cette cible ils supprimeraient.
+
+**Ce qu'on ne sait pas** :
+- l'économie réelle sur un même travail terminé ;
+- la variation du coût d'un essai à l'autre, et donc le nombre d'essais nécessaire pour trancher ;
+- l'effet du plugin de Boris, qui n'a pas été mesuré ici.
+
+*Une première version de ce calcul annonçait un plafond de 9 à 14 %, et « quelques pour cent » en pratique. Elle était fausse (tarif du cache de 5 minutes, conversations mélangées, périmètre limité aux lectures) et a été retirée.*
 
 ### Qualité : ce qu'on peut dire
 
